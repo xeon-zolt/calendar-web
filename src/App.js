@@ -16,7 +16,7 @@ class App extends Component {
         <EventCalendar />
         <footer>
           <hr/>
-          <h5>Developed By <a href="https://openintents.org">OpenIntents</a>, based on work by <a href="https://github.com/yasnaraj/react-calendar-events-example">Yasna R.</a> | {(new Date().getFullYear()).toString()} <br/>
+          <h5>Developed By <a href="https://openintents.org">OpenIntents</a>, free and <a href="https://github.com/friedger/oi-calendar">open source</a>, based on work by <a href="https://github.com/yasnaraj/react-calendar-events-example">Yasna R.</a> | {(new Date().getFullYear()).toString()} <br/>
           Using <a href="https://glyphicons.com">glyphicons.com</a></h5>
           </footer>
       </div>
