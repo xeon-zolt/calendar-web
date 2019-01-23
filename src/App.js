@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import EventCalendar from './containers/eventCalendar';
+import UserProfile from './containers/authUserProfile';
 
 class App extends Component {
   render() {
@@ -10,12 +10,14 @@ class App extends Component {
         <header className="App-header">
         <h1>
         <span className="glyphicon glyphicon-calendar" style={{marginRight: '10px'}}></span>
-         Event Calendar </h1>
+         OI Calendar </h1>
+         <UserProfile/>
         </header>
         <EventCalendar />
         <footer>
           <hr/>
-          <h5>Developed By: Yasna R. | {(new Date().getFullYear()).toString()} </h5>
+          <h5>Developed By <a href="https://openintents.org">OpenIntents</a>, based on work by <a href="https://github.com/yasnaraj/react-calendar-events-example">Yasna R.</a> | {(new Date().getFullYear()).toString()} <br/>
+          Using <a href="https://glyphicons.com">glyphicons.com</a></h5>
           </footer>
       </div>
     );

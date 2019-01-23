@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import { Modal } from 'react-bootstrap';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -9,7 +10,7 @@ import EventDetails from './eventDetails';
 import * as eventAction from '../store/eventAction';
 import * as types from '../store/eventActionTypes';
 
-BigCalendar.momentLocalizer(moment);
+let localizer = BigCalendar.momentLocalizer(moment);
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
 
 class EventCalendar extends Component {
@@ -18,7 +19,7 @@ class EventCalendar extends Component {
         this.state = {
             showModal: false,
             eventType: 'add',
-            newIndex: 0, 
+            newIndex: 0,
             eventInfo: {}
         }
         this.handleHide = this.handleHide.bind(this);
@@ -29,7 +30,7 @@ class EventCalendar extends Component {
     }
 
     componentWillMount() {
-        this.props.dispatch(eventAction.GetInitialEvents());
+        this.props.dispatch(eventAction.GetInitialEvents(window.location.search));
     }
 
     handleHide() {
@@ -37,30 +38,27 @@ class EventCalendar extends Component {
     }
 
     handleShow(slotInfo, eventType) {
-
         var currentIndex = this.props.events.allEvents.length;
         this.setState(
             { showModal: true, eventType: eventType, eventInfo: slotInfo, newIndex: currentIndex }
         );
     }
 
-    deleteEvent(id){
+    deleteEvent(id) {
         this.props.dispatch({
             type: types.REMOVE_EVENT,
             payload: id
         });
-        this.setState({showModal: false});
+        this.setState({ showModal: false });
     }
 
-    addEvent(obj){
-        this.props.dispatch({
-            type: types.ADD_EVENT,
-            payload: obj
-        });
-        this.setState({showModal: false});
+    addEvent(obj) {
+        this.props.dispatch({ type: types.ADD_EVENT, payload: obj })
+        this.props.dispatch(eventAction.SendInvites(obj));
+        this.setState({ showModal: false });
     }
 
-    updateEvent(obj){
+    updateEvent(obj) {
         this.props.dispatch({
             type: types.UPDATE_EVENT,
             payload: {
@@ -68,12 +66,12 @@ class EventCalendar extends Component {
                 obj: obj
             }
         });
-        this.setState({showModal: false});
+        this.setState({ showModal: false });
     }
 
-    eventStyle(event, start, end, isSelected){
+    eventStyle(event, start, end, isSelected) {
         var bgColor = event.hexColor ? event.hexColor : '#265985';
-        var style={
+        var style = {
             'backgroundColor': bgColor,
             'borderRadius': '5px',
             'opacity': 1,
@@ -85,21 +83,47 @@ class EventCalendar extends Component {
             'style': style
         };
     }
-    
+
+    getEventStart(eventInfo) {
+        return new Date(eventInfo.start)
+    }
+
+    getEventEnd(eventInfo) {
+        return new Date(eventInfo.end)
+    }
 
     render() {
+        const signedIn = this.props.signedIn
+        console.log("allevents", this.props.events.allEvents)
         return (
             <div className="bodyContainer">
+
                 <div className="well well-sm">
-                <h3 className="instruction">Instructions</h3>
-                <strong>To add an event: </strong> Click on the day you want to add an event or drag up to the day you want to add the event for multiple day event! <br/>
-                <strong>To update and delete an event:</strong> Click on the event you wish to update or delete!
+                    {signedIn && (
+                        <Modal.Header closeButton>
+                            <Modal.Title id="contained-modal-title">
+                                Instructions
+                        </Modal.Title>
+                            <strong>To add an event: </strong> Click on the day you want to add an event or drag up to the day you want to add the event for multiple day event! <br />
+                            <strong>To update and delete an event:</strong> Click on the event you wish to update or delete!
+                    </Modal.Header>
+                    )}
+                    {!signedIn && (
+                        <Modal.Header closeButton>
+                            <Modal.Title id="contained-modal-title">
+                                Private, Encrypted Calendar in the Cloud
+                        </Modal.Title>
+                            <strong>To learn about Blockstack: </strong> A good starting point is <a href="https://docs.blockstack.org">Blockstack's documentation</a>.<br />
+                            <strong>I have already a Blockstack ID:</strong> Just sign in using the blockstack button above!
+                    </Modal.Header>
+                    )}
                 </div>
                 <EventDetails showModal={this.state.showModal} handleHide={this.handleHide} eventType={this.state.eventType} eventInfo={this.state.eventInfo}
-                newIndex = {this.state.newIndex} 
-                deleteEvent ={this.deleteEvent} addEvent={this.addEvent} updateEvent={this.updateEvent}/>
+                    newIndex={this.state.newIndex}
+                    deleteEvent={this.deleteEvent} addEvent={this.addEvent} updateEvent={this.updateEvent} />
                 <BigCalendar
-                    selectable
+                    localizer={localizer}
+                    selectable={this.props.signedIn}
                     events={this.props.events.allEvents}
                     views={allViews}
                     step={60}
@@ -109,7 +133,8 @@ class EventCalendar extends Component {
                     onSelectSlot={slotInfo => this.handleShow(slotInfo, 'add')}
                     style={{ minHeight: '500px' }}
                     eventPropGetter={this.eventStyle}
-
+                    startAccessor={this.getEventStart}
+                    endAccessor={this.getEventEnd}
                 />
 
             </div>
@@ -118,9 +143,11 @@ class EventCalendar extends Component {
 }
 
 function mapStateToProps(state) {
-    var { events } = state
+    var { events, auth } = state
+    const signedIn = !!auth.user
     return {
-        events
+        events,
+        signedIn
     };
 }
 
