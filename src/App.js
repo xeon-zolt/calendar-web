@@ -9,7 +9,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
         <h1>
-        <span className="glyphicon glyphicon-calendar" style={{marginRight: '10px'}}></span>
+        <img src="/android-chrome-192x192.png" alt="logo" style={{marginRight: '10px', height:'40px'}}/>
          OI Calendar </h1>
          <UserProfile/>
         </header>
