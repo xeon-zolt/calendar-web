@@ -33,12 +33,18 @@ class EventCalendar extends Component {
         this.props.dispatch(eventAction.GetInitialEvents(window.location.search));
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.inviteSuccess) {
+            this.setState({showModal:false})
+        }
+    }
     handleHide() {
         this.setState({ showModal: false });
     }
 
     handleShow(slotInfo, eventType) {
         var currentIndex = this.props.events.allEvents.length;
+        console.log("handleShow", eventType)
         this.setState(
             { showModal: true, eventType: eventType, eventInfo: slotInfo, newIndex: currentIndex }
         );
@@ -54,7 +60,6 @@ class EventCalendar extends Component {
 
     addEvent(obj) {
         this.props.dispatch({ type: types.ADD_EVENT, payload: obj })
-        this.props.dispatch(eventAction.SendInvites(obj));
         this.setState({ showModal: false });
     }
 
@@ -145,9 +150,11 @@ class EventCalendar extends Component {
 function mapStateToProps(state) {
     var { events, auth } = state
     const signedIn = !!auth.user
+    const inviteSuccess = events.inviteSuccess
     return {
         events,
-        signedIn
+        signedIn,
+        inviteSuccess
     };
 }
 

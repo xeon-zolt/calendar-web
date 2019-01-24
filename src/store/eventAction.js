@@ -9,6 +9,7 @@ export function SendInvites(eventInfo) {
             dispatch({
                 type: types.INVITES_SENT
             })
+            dispatch({ type: types.ADD_EVENT, payload: eventInfo })
         }, error => {
             dispatch({
                 type: types.SEND_INVITES_FAILED,
@@ -130,7 +131,7 @@ function addGuest(guest, eventInfo, contacts, state) {
             Object.assign(contacts[guest], { roomId })
             console.log("check after assign", eventInfo, contacts)
 
-            return sendInviteMessage(guest, state.userSessionChat, roomId, eventInfo.eventName, eventInfo.readUrl)
+            return sendInviteMessage(guest, state.events.userSessionChat, roomId, eventInfo.eventName, eventInfo.readUrl)
                 .then(() => {
                     console.log("check after invitation", eventInfo, contacts)
                     return { contacts, eventInfo }

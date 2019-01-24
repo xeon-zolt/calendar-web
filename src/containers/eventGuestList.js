@@ -33,7 +33,7 @@ class GuestList extends Component {
         if (this.props.guests) {
             guests = renderGuestList(this.props.guests);
         } else {
-            guests = (<div>loading guests' details..<br/><ProgressBar now={50}/></div>)
+            guests = (<div>loading guests' details..<br/><ProgressBar active now={50}/></div>)
         }
 
         return (

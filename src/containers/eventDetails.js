@@ -24,15 +24,18 @@ class EventDetails extends Component {
                 notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : '',
                 guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : ''
             },
-            sending:false
+            sending: false
         }
         this.changeHandler = this.changeHandler.bind(this)
         this.handleInvitesHide = this.handleInvitesHide.bind(this)
         this.showInvitesModal = this.showInvitesModal.bind(this)
         this.sendInvites = this.sendInvites.bind(this)
+        this.addEvent = this.addEvent.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
+        const showInvitesModal = this.state.showInvitesModal
+        console.log("showInvitesModal", showInvitesModal, nextProps.inviteSuccess)
         this.setState({
             showModal: nextProps.showModal,
             eventDetail: {
@@ -46,8 +49,10 @@ class EventDetails extends Component {
                 guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : '',
                 owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : ''
             },
-            showInvitesModal: nextProps.inviteSuccess
+            showInvitesModal: showInvitesModal && nextProps.inviteSuccess,
+            sending: !!nextProps.inviteSuccess || !!nextProps.inviteError
         });
+
     }
 
     changeHandler(e, ref) {
@@ -68,6 +73,21 @@ class EventDetails extends Component {
         this.setState({ eventDetail });
     }
 
+    addEvent() {
+        const eventDetail = this.state.eventDetail
+        console.log("add event", eventDetail.noInvites, this.hasGuests(eventDetail.guests))
+        if (eventDetail.noInvites || !this.hasGuests(eventDetail.guests)) {
+            this.props.addEvent(eventDetail)
+        } else {
+            this.showInvitesModal()
+        }
+    }
+
+    hasGuests(guestsString) {
+        const guests = guestsString.split(/[,\s]+/g)
+        return guests.filter((g) => g.length > 0).length > 0
+    }
+
     showInvitesModal() {
         const guestsString = this.state.eventDetail.guests
         const guests = guestsString.split(/[,\s]+/g)
@@ -79,26 +99,27 @@ class EventDetails extends Component {
 
     handleInvitesHide() {
         this.setState({ showInvitesModal: false })
+        const eventDetail = this.state.eventDetail
+        eventDetail.noInvites = true
     }
 
     sendInvites() {
-        this.setState({sending:true})
+        this.setState({ sending: true })
         this.props.dispatch(SendInvites(this.state.eventDetail))
     }
 
     render() {
         const hasGuests = this.state.eventDetail.guests.length > 0
-        var inviteErrorMsg  = []
+        var inviteErrorMsg = []
         if (this.props.inviteError) {
             const error = this.props.inviteError
             if (error.errcode === "M_CONSENT_NOT_GIVEN") {
-                var linkUrl = error.message.substring(error.message.indexOf("https://openintents.modular.im"), error.message.length - 1)          
-                var msg = " Sending not possible. Please review the T&C of your chat provider openintents.modular.im (OI Chat)"
-                inviteErrorMsg = (<div><a href={linkUrl}>{msg}</a></div>)
-              } 
-        } 
+                var linkUrl = error.message.substring(error.message.indexOf("https://openintents.modular.im"), error.message.length - 1)
+                inviteErrorMsg = (<div>Sending not possible. Please review <a target="_blank" rel="noopener noreferrer" href={linkUrl}>the T&amp;C of your chat provider</a> openintents.modular.im (OI Chat)</div>)
+            }
+        }
         return (
-            <Modal className="modal-container" show={this.state.showModal}
+            <Modal show={this.state.showModal}
                 onHide={this.props.handleHide}>
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title">
@@ -142,8 +163,8 @@ class EventDetails extends Component {
 
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button bsStyle="warning" enabled={{ hasGuests }} onClick={() => this.showInvitesModal()}>Send Invites</Button>
-                    {this.props.eventType === 'add' ? <Button bsStyle="success" onClick={() => this.props.addEvent(this.state.eventDetail)}>Add</Button> :
+                    {this.props.eventType === 'add' ? null : <Button bsStyle="warning" enabled={{ hasGuests }} onClick={() => this.showInvitesModal()}>Send Invites</Button>}
+                    {this.props.eventType === 'add' ? <Button bsStyle="success" onClick={() => this.addEvent()}>Add</Button> :
                         <Button bsStyle="warning" onClick={() => this.props.updateEvent(this.state.eventDetail)}>Update</Button>}
                     {this.props.eventType === 'add' ? null : <Button bsStyle="danger" onClick={() => this.props.deleteEvent(this.state.eventDetail.id)}>Delete</Button>}
                     <Button onClick={this.props.handleHide}>Close</Button>
@@ -153,20 +174,18 @@ class EventDetails extends Component {
                     onHide={this.handleInvitesHide}>
                     <Modal.Header closeButton>
                         <Modal.Title id="contained-modal-title">
-                            Send Invites
-                </Modal.Title>
+                            {this.state.eventDetail.title}
+                        </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        Send invites for <strong>{this.state.eventDetail.title}</strong>
-                        according to their Blockstack settings:
+                        Send invites according to their Blockstack settings:
                         <GuestList guests={this.state.eventDetail.guests} />
-                        {this.state.sending && !this.props.inviteError && (<ProgressBar now={50}/>)}
+                        {this.state.sending && !this.props.inviteError && (<ProgressBar active now={50} />)}
                         {this.props.inviteError && inviteErrorMsg}
                         <Modal.Footer>
                             <Button bsStyle="success" onClick={() => this.sendInvites()}>Send</Button>
-                            <Button onClick={this.props.handleHide}>Close</Button>
+                            <Button onClick={this.handleInvitesHide}>Close</Button>
                         </Modal.Footer>
-
                     </Modal.Body>
                 </Modal>
             </Modal>
@@ -177,6 +196,7 @@ class EventDetails extends Component {
 function mapStateToProps(state) {
     const inviteError = state.events.inviteError
     const inviteSuccess = state.events.inviteSuccess
+    console.log("events mapStateToProps", state.events)
     return {
         inviteError,
         inviteSuccess
