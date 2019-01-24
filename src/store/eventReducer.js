@@ -40,12 +40,13 @@ export default function reduce(state = initialState, action = {}) {
             if (action.payload.type === "add") {
                 console.log("add")
                 allEvents.push(action.payload.eventInfo);
+                blockstack.putFile("AllEvents", JSON.stringify(allEvents));
             }
             return {...state, allEvents, inviteSuccess:true, inviteError:undefined};
         case types.SEND_INVITES_FAILED:
             return { ...state, inviteSuccess:false, inviteError: action.payload.error }
         case types.CURRENT_GUESTS:
-            return { ...state, currentGuests: action.payload.profiles };
+            return { ...state, currentGuests: action.payload.profiles, inviteSuccess:undefined, inviteError: undefined  };
         default:
             return state;
     }

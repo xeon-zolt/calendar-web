@@ -36,7 +36,8 @@ class EventDetails extends Component {
     componentWillReceiveProps(nextProps) {
         const showInvitesModal = this.state.showInvitesModal
         const sending = this.state.sending
-        console.log("showInvitesModal", showInvitesModal, nextProps.inviteSuccess)
+        console.log("showInvitesModal", showInvitesModal, nextProps.inviteSuccess, !!nextProps.inviteError)
+        console.log("willReceiveProps", nextProps.eventInfo, nextProps.eventType)
         this.setState({
             showModal: nextProps.showModal,
             eventDetail: {
@@ -50,7 +51,7 @@ class EventDetails extends Component {
                 guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : '',
                 owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : ''
             },
-            showInvitesModal: false,
+            showInvitesModal: showInvitesModal && !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
             sending: sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
         });
 
