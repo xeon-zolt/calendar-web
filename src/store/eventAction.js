@@ -3,14 +3,14 @@ import * as authTypes from './authActionTypes'
 import moment from 'moment';
 import * as blockstack from "blockstack";
 
-export function SendInvites(eventInfo) {
+export function SendInvites(eventInfo, type) {
     return async (dispatch, getState) => {
         handleGuests(getState(), eventInfo).then(({ eventInfo, contacts }) => {
             dispatch({
-                type: types.INVITES_SENT
+                type: types.INVITES_SENT,
+                payload: {eventInfo, type}
             })
-            dispatch({ type: types.ADD_EVENT, payload: eventInfo })
-        }, error => {
+         }, error => {
             dispatch({
                 type: types.SEND_INVITES_FAILED,
                 payload: {error}
@@ -156,7 +156,7 @@ function sendInviteMessage(guest, userSessionChat, roomId, eventName, readUrl) {
     })
 }
 
-export function GetInitialEvents(query) {
+export function GetInitialEvents() {
     return async (dispatch, getState) => {
         console.log("get events")
         if (blockstack.isUserSignedIn()) {

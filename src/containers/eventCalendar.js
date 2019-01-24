@@ -151,6 +151,7 @@ function mapStateToProps(state) {
     var { events, auth } = state
     const signedIn = !!auth.user
     const inviteSuccess = events.inviteSuccess
+    console.log("alllEvents", events.allEvents)
     return {
         events,
         signedIn,
