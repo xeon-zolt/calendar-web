@@ -9,10 +9,51 @@ export function SendInvites(eventInfo) {
             dispatch({
                 type: types.INVITES_SENT
             })
+        }, error => {
+            dispatch({
+                type: types.SEND_INVITES_FAILED,
+                payload: {error}
+            })
         })
     }
 }
 
+export function LoadGuestList(guests) {
+    return async (dispatch, getState) => {
+        const contacts = getState().events.contacts
+        loadGuestProfiles(guests, contacts).then(({ profiles, contacts }) => {
+            console.log("profiles", profiles)
+            dispatch({
+                type: types.CURRENT_GUESTS,
+                payload: {profiles}
+            })
+        }, error => {
+            console.log("load guest list failed", error)
+        })
+    }
+}
+
+function loadGuestProfiles(guests, contacts) {
+    const profiles = {}
+    var profilePromises = Promise.resolve({ profiles, contacts })
+
+    for (var i in guests) {
+        const guest = guests[i]
+        if (guest && guest.length > 0) {
+            profilePromises = profilePromises.then(({ profiles, contacts }) => {
+                return blockstack.lookupProfile(guest).then((guestProfile) => {
+                    profiles[guest] = guestProfile
+                    return { profiles, contacts }
+                }, (error) => {
+                    console.log("invalid guest " + guest, error)
+                    return Promise.resolve({ profiles, contacts })
+                })
+            })
+
+        }
+    }
+    return profilePromises
+}
 
 
 function uuid() {
@@ -35,12 +76,12 @@ function handleGuests(state, eventInfo) {
     return blockstack.putFile("shared/" + eventInfo.uuid + "/event.json", JSON.stringify(eventInfo), { encrypt: eventInfo.pubKey })
         .then((readUrl) => {
             eventInfo.readUrl = readUrl
-            var promise = Promise.resolve({ contacts, eventInfo })
+            var addGuestPromises = Promise.resolve({ contacts, eventInfo })
 
             for (var i in guests) {
                 const guest = guests[i]
                 if (guest && guest.length > 0) {
-                    promise = promise.then(({ contacts, eventInfo }) => {
+                    addGuestPromises = addGuestPromises.then(({ contacts, eventInfo }) => {
                         console.log("check", eventInfo, contacts)
                         return blockstack.lookupProfile(guest).then((guestProfile) => {
                             console.log("found guest ", guestProfile.name)
@@ -53,12 +94,14 @@ function handleGuests(state, eventInfo) {
 
                 }
             }
-            return promise.then(({contacts, eventInfo}) => {
+            return addGuestPromises.then(({ contacts, eventInfo }) => {
                 console.log("contacts", contacts)
                 return blockstack.putFile("Contacts", JSON.stringify(contacts))
                     .then(() => {
                         return { contacts, eventInfo }
                     })
+            }, (error) => {
+                return Promise.reject(error)
             })
         })
 }
@@ -72,7 +115,9 @@ function addGuest(guest, eventInfo, contacts, state) {
         roomPromise = Promise.resolve({ room_id: contacts[guest].roomId })
     } else {
         console.log("creating new room")
-        contacts[guest] = {}
+        if (!contacts[guest]) {
+            contacts[guest] = {}
+        }
         roomPromise = state.events.userSessionChat.createNewRoom("Events with " + state.events.user.username, "Invitations, Updates,..")
     }
 
@@ -96,8 +141,7 @@ function addGuest(guest, eventInfo, contacts, state) {
                 })
         }, error => {
             console.log("room failure", error)
-            console.log("check on room failure", eventInfo, contacts)
-            return { contacts, eventInfo }
+            return Promise.reject(error)
         }
     )
 }
@@ -129,7 +173,7 @@ export function GetInitialEvents(query) {
                 dispatch({ type: authTypes.AUTH_CONNECTED, user: userData })
             });
         } else {
-            dispatch({ type: authTypes.AUTH_DISCONNECTED})
+            dispatch({ type: authTypes.AUTH_DISCONNECTED })
         }
     }
 

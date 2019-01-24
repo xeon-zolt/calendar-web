@@ -36,7 +36,11 @@ export default function reduce(state = initialState, action = {}) {
             blockstack.putFile("AllEvents", JSON.stringify(newState3.allEvents));
             return newState3;
         case types.INVITES_SENT:
-            return state;
+            return {...state, inviteSuccess:true};
+        case types.SEND_INVITES_FAILED:
+            return { ...state, inviteError: action.payload.error }
+        case types.CURRENT_GUESTS:
+            return { ...state, currentGuests: action.payload.profiles };
         default:
             return state;
     }

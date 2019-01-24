@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import { Modal, Button, ProgressBar } from 'react-bootstrap';
 import moment from 'moment';
 import '../css/datetime.css';
+import GuestList from './eventGuestList';
+import { LoadGuestList, SendInvites } from '../store/eventAction';
 
 var Datetime = require('react-datetime');
 
-export default class EventDetails extends Component {
+class EventDetails extends Component {
     constructor(props) {
         super(props);
         this.state = {
             showModal: this.props.showModal,
+            showInvitesModal: false,
             eventDetail: {
                 id: this.props.eventType === 'add' ? this.props.newIndex : this.props.eventInfo.id,
                 title: this.props.eventInfo && this.props.eventInfo.title ? this.props.eventInfo.title : null,
@@ -19,9 +23,13 @@ export default class EventDetails extends Component {
                 hexColor: '#265985',
                 notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : '',
                 guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : ''
-            }
+            },
+            sending:false
         }
-        this.changeHandler = this.changeHandler.bind(this);
+        this.changeHandler = this.changeHandler.bind(this)
+        this.handleInvitesHide = this.handleInvitesHide.bind(this)
+        this.showInvitesModal = this.showInvitesModal.bind(this)
+        this.sendInvites = this.sendInvites.bind(this)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -36,8 +44,9 @@ export default class EventDetails extends Component {
                 hexColor: nextProps.eventInfo.hexColor ? nextProps.eventInfo.hexColor : '#265985',
                 notes: nextProps.eventInfo.notes ? nextProps.eventInfo.notes : '',
                 guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : '',
-                owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner: ''
-            }
+                owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : ''
+            },
+            showInvitesModal: nextProps.inviteSuccess
         });
     }
 
@@ -59,15 +68,43 @@ export default class EventDetails extends Component {
         this.setState({ eventDetail });
     }
 
+    showInvitesModal() {
+        const guestsString = this.state.eventDetail.guests
+        const guests = guestsString.split(/[,\s]+/g)
+        console.log("dipatch load guest list", guests)
+        this.props.dispatch(LoadGuestList(guests))
+        this.setState({ showInvitesModal: true })
+
+    }
+
+    handleInvitesHide() {
+        this.setState({ showInvitesModal: false })
+    }
+
+    sendInvites() {
+        this.setState({sending:true})
+        this.props.dispatch(SendInvites(this.state.eventDetail))
+    }
+
     render() {
+        const hasGuests = this.state.eventDetail.guests.length > 0
+        var inviteErrorMsg  = []
+        if (this.props.inviteError) {
+            const error = this.props.inviteError
+            if (error.errcode === "M_CONSENT_NOT_GIVEN") {
+                var linkUrl = error.message.substring(error.message.indexOf("https://openintents.modular.im"), error.message.length - 1)          
+                var msg = " Sending not possible. Please review the T&C of your chat provider openintents.modular.im (OI Chat)"
+                inviteErrorMsg = (<div><a href={linkUrl}>{msg}</a></div>)
+              } 
+        } 
         return (
-            <Modal show={this.state.showModal}
+            <Modal className="modal-container" show={this.state.showModal}
                 onHide={this.props.handleHide}>
                 <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title">
-                    Event Details
+                    <Modal.Title id="contained-modal-title">
+                        Event Details
                 </Modal.Title>
-                </Modal.Header>                
+                </Modal.Header>
                 <Modal.Body>
                     <label> Event Name </label>
                     <input type="text" className="form-control" placeholder="Enter the Event Name" ref="title"
@@ -88,10 +125,10 @@ export default class EventDetails extends Component {
                     <label> Event Notes </label>
                     <textarea className="form-control" placeholder="Event Notes" ref="notes" value={this.state.eventDetail.notes}
                         onChange={(e) => this.changeHandler(e, "notes")} />
-                    
+
                     <label> Guests </label>
                     <textarea className="form-control" placeholder="Event guests" ref="guests" value={this.state.eventDetail.guests}
-                        onChange={(e) => this.changeHandler(e,"guests")}/>
+                        onChange={(e) => this.changeHandler(e, "guests")} />
 
                     <label> Event Color </label>
                     <input type="color" value={this.state.eventDetail.hexColor} onChange={(e) => this.changeHandler(e, "hexColor")}
@@ -105,13 +142,46 @@ export default class EventDetails extends Component {
 
                 </Modal.Body>
                 <Modal.Footer>
+                    <Button bsStyle="warning" enabled={{ hasGuests }} onClick={() => this.showInvitesModal()}>Send Invites</Button>
                     {this.props.eventType === 'add' ? <Button bsStyle="success" onClick={() => this.props.addEvent(this.state.eventDetail)}>Add</Button> :
                         <Button bsStyle="warning" onClick={() => this.props.updateEvent(this.state.eventDetail)}>Update</Button>}
                     {this.props.eventType === 'add' ? null : <Button bsStyle="danger" onClick={() => this.props.deleteEvent(this.state.eventDetail.id)}>Delete</Button>}
                     <Button onClick={this.props.handleHide}>Close</Button>
                 </Modal.Footer>
 
+                <Modal show={this.state.showInvitesModal}
+                    onHide={this.handleInvitesHide}>
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title">
+                            Send Invites
+                </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        Send invites for <strong>{this.state.eventDetail.title}</strong>
+                        according to their Blockstack settings:
+                        <GuestList guests={this.state.eventDetail.guests} />
+                        {this.state.sending && !this.props.inviteError && (<ProgressBar now={50}/>)}
+                        {this.props.inviteError && inviteErrorMsg}
+                        <Modal.Footer>
+                            <Button bsStyle="success" onClick={() => this.sendInvites()}>Send</Button>
+                            <Button onClick={this.props.handleHide}>Close</Button>
+                        </Modal.Footer>
+
+                    </Modal.Body>
+                </Modal>
             </Modal>
         );
     }
 }
+
+function mapStateToProps(state) {
+    const inviteError = state.events.inviteError
+    const inviteSuccess = state.events.inviteSuccess
+    return {
+        inviteError,
+        inviteSuccess
+    };
+}
+
+export default connect(mapStateToProps)(EventDetails);
+
