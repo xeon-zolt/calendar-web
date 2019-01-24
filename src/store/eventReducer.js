@@ -39,7 +39,7 @@ export default function reduce(state = initialState, action = {}) {
             var allEvents = state.allEvents
             if (action.payload.type === "add") {
                 console.log("add")
-                allEvents.push(action.payload);
+                allEvents.push(action.payload.eventInfo);
             }
             return {...state, allEvents, inviteSuccess:true, inviteError:undefined};
         case types.SEND_INVITES_FAILED:
