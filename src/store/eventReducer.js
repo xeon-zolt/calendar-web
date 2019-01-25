@@ -1,5 +1,5 @@
 import * as types from './eventActionTypes';
-import { publishEvent } from './eventAction';
+import { publishEvents } from './eventAction';
 import * as blockstack from "blockstack";
 import { UserSessionChat } from './UserSessionChat';
 
@@ -23,13 +23,14 @@ export default function reduce(state = initialState, action = {}) {
             newState.allEvents = newState.allEvents.filter(function (obj) {
                 return obj && obj.id !== action.payload;
             });
+            publishEvents(action.payload, true)
             blockstack.putFile("AllEvents", JSON.stringify(newState.allEvents));
             return newState;
         case types.ADD_EVENT:
             var newState2 = state;
             newState2.allEvents.push(action.payload);
             if (action.payload.public) {
-                publishEvent(action.payload, state.auth.user.username)
+                publishEvents(action.payload, false)
             }
             console.log("new state after add event", newState2)
             blockstack.putFile("AllEvents", JSON.stringify(newState2.allEvents))
@@ -38,7 +39,7 @@ export default function reduce(state = initialState, action = {}) {
             var newState3 = state;
             newState3.allEvents[action.payload.id] = action.payload.obj;
             if (action.payload.obj.public) {
-                publishEvent(action.payload.obj, state.user.username)
+                publishEvents(action.payload.obj, false)
             }
             blockstack.putFile("AllEvents", JSON.stringify(newState3.allEvents));
             return newState3;

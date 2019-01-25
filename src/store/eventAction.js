@@ -181,24 +181,31 @@ export function GetInitialEvents() {
 
 }
 
+const defaultEvents = [{
+    id: 0,
+    title: 'Today!',
+    allDay: true,
+    start: new Date(moment()),
+    end: new Date(moment()),
+    hexColor: '#265985',
+    notes: 'Have a great day!'
+}];
+
 function loadCalendarData(dispatch) {
-    var allEvents = [{
-        id: 0,
-        title: 'Today!',
-        allDay: true,
-        start: new Date(moment()),
-        end: new Date(moment()),
-        hexColor: '#265985',
-        notes: 'Have a great day!'
-    }];
-    blockstack.getFile("AllEvents").then((allEve) => {
-        if (allEve) {
-            allEvents = JSON.parse(allEve);
-        } else {
-            blockstack.putFile("AllEvents", JSON.stringify(allEvents));
-        }
-        dispatch({ type: types.ALL_EVENTS, allEvents });
-    });
+
+    var calendars = [{ name: "default" }, { user: "friedger.id", name: "public" }]
+    var calendarEvents = {}
+    var calendarPromises = Promise.resolve(calendarEvents)
+    for (var i in calendars) {
+        var calendar = calendars[i]
+        calendarPromises = calendarPromises.then(addCalendarEvents(calendar));
+    }
+    calendarPromises.then(calendarEvents => {
+        console.log("cals", calendarEvents)
+        dispatch({ type: types.ALL_CALENDARS, calendarEvents });
+    })
+
+
     blockstack.getFile("Contacts").then((contacts) => {
         if (contacts == null) {
             contacts = {}
@@ -208,8 +215,48 @@ function loadCalendarData(dispatch) {
     });
 }
 
-export function publishEvent(event) {
-    event.uuid =  uuid()
+function addCalendarEvents(calendar) {
+    var path = calendar.name + "/AllEvents"
+    var options = {}
+    if (calendar.user) {
+        options.decrypt = false
+        options.username = calendar.user
+    }
+    return (calendarEvents) => {
+        return blockstack.getFile(path, options).then((allEve) => {
+            var id = calendar.name
+            if (calendar.user) {
+                id = id + "@" + calendar.user
+            }
+            var allEvents
+            if (allEve) {
+                allEvents = JSON.parse(allEve);
+            } else {
+                if (!calendar.user && calendar.name === "default") {
+                    blockstack.putFile("default/AllEvents", JSON.stringify(defaultEvents));
+                } else {
+                    if (calendar.user) {
+                        allEvents = {}
+                    } else {
+                        allEvents = []
+                    }
+                }
+            }
+
+            if (calendar.user) {
+                allEvents = Object.values(allEvents)  // convert from public calendar  
+            }
+            console.log("ALlEvents", allEvents)
+            calendar.allEvents = allEvents
+            calendar.hexColor = calendar.hexColor | '#' + Math.floor(Math.random() * 16777215).toString(16);
+            calendarEvents[id] = calendar
+            return Promise.resolve(calendarEvents)
+        })
+    }
+}
+
+export function publishEvents(event, remove) {
+    event.uuid = uuid() //TODO move this into event creation
     console.log("publishEvent ", event, event.uuid)
     const publicEventPath = "public/AllEvents"
     blockstack.getFile(publicEventPath, { decrypt: false }).then(
@@ -218,8 +265,16 @@ export function publishEvent(event) {
             if (fileContent !== null) {
                 publicEvents = JSON.parse(fileContent)
             }
-            publicEvents = {}
-            publicEvents[event.uuid] = event
+            if (remove) {
+                if (!publicEvents[event.uuid]) {
+                    //nothing to do
+                    return
+                } else {
+                    delete publicEvents[event.uuid]
+                }
+            } else {
+                publicEvents[event.uuid] = event
+            }
             var eventsString = JSON.stringify(publicEvents)
             blockstack.putFile(publicEventPath, eventsString, { encrypt: false, contentType: "text/json" }).then(f => {
                 console.log("public calendar at ", f)
