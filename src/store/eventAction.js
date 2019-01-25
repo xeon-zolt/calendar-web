@@ -2,18 +2,19 @@ import * as types from './eventActionTypes'
 import * as authTypes from './authActionTypes'
 import moment from 'moment';
 import * as blockstack from "blockstack";
+import * as ics from 'ics'
 
 export function SendInvites(eventInfo, type) {
     return async (dispatch, getState) => {
         handleGuests(getState(), eventInfo).then(({ eventInfo, contacts }) => {
             dispatch({
                 type: types.INVITES_SENT,
-                payload: {eventInfo, type}
+                payload: { eventInfo, type }
             })
-         }, error => {
+        }, error => {
             dispatch({
                 type: types.SEND_INVITES_FAILED,
-                payload: {error}
+                payload: { error }
             })
         })
     }
@@ -26,7 +27,7 @@ export function LoadGuestList(guests, eventInfo) {
             console.log("profiles", profiles)
             dispatch({
                 type: types.CURRENT_GUESTS,
-                payload: {profiles, eventInfo}
+                payload: { profiles, eventInfo }
             })
         }, error => {
             console.log("load guest list failed", error)
@@ -152,7 +153,7 @@ function sendInviteMessage(guest, userSessionChat, roomId, eventInfo, username) 
         msgtype: "m.text",
         body: "You are invited to " + eventInfo.title,
         format: "org.matrix.custom.html",
-        formatted_body: "You are invited to <a href='" + window.location.origin + "?u=" + username +"&e=" + eventInfo.uuid + "&p="+eventInfo.privKey + "'>" + eventInfo.title + "</a>"
+        formatted_body: "You are invited to <a href='" + window.location.origin + "?u=" + username + "&e=" + eventInfo.uuid + "&p=" + eventInfo.privKey + "'>" + eventInfo.title + "</a>"
     })
 }
 
@@ -205,4 +206,64 @@ function loadCalendarData(dispatch) {
         contacts = {}
         dispatch({ type: types.ALL_CONTACTS, contacts: JSON.parse(contacts) })
     });
+}
+
+export function publishEvent(event) {
+    event.uuid =  uuid()
+    console.log("publishEvent ", event, event.uuid)
+    const publicEventPath = "public/AllEvents"
+    blockstack.getFile(publicEventPath, { decrypt: false }).then(
+        fileContent => {
+            var publicEvents = {}
+            if (fileContent !== null) {
+                publicEvents = JSON.parse(fileContent)
+            }
+            publicEvents = {}
+            publicEvents[event.uuid] = event
+            var eventsString = JSON.stringify(publicEvents)
+            blockstack.putFile(publicEventPath, eventsString, { encrypt: false, contentType: "text/json" }).then(f => {
+                console.log("public calendar at ", f)
+            }, error => {
+                console.log("error publish event", error)
+            })
+            try {
+                var { error, value } = ics.createEvents(formatEvents(publicEvents))
+                if (!error) {
+                    blockstack.putFile(publicEventPath + ".ics", value, { encrypt: false, contentType: "text/calendar" }).then(f => {
+                        console.log("public calendar at ", f)
+                    }, error => {
+                        console.log("error publish event", error)
+                    })
+                } else {
+                    console.log("error creating ics", error)
+                }
+            } catch (e) {
+                console.log("e", e)
+            }
+        })
+}
+
+function formatEvents(events) {
+    var icsEvents = []
+    for (var i in events) {
+        const event = events[i]
+        const ical = {}
+        ical.title = event.title
+        ical.description = event.description
+        ical.start = dateToArray(event, new Date(event.start));
+        ical.end = dateToArray(event, new Date(event.end));
+        ical.uid = event.uuid
+        icsEvents.push(ical)
+    }
+    console.log(icsEvents)
+    return icsEvents
+}
+
+function dateToArray(event, date) {
+    if (event.allDay) {
+        return [date.getFullYear(), date.getMonth() + 1, date.getDay()];
+    }
+    else {
+        return [date.getFullYear(), date.getMonth() + 1, date.getDay(), date.getHours(), date.getMinutes(), date.getSeconds()];
+    }
 }

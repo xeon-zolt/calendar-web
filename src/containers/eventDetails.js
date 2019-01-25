@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, ProgressBar, Switch } from 'react-bootstrap';
+import { Modal, Button, ProgressBar } from 'react-bootstrap';
 import moment from 'moment';
 import '../css/datetime.css';
 import GuestList from './eventGuestList';
@@ -22,7 +22,8 @@ class EventDetails extends Component {
                 allDay: this.props.eventInfo.allDay ? true : false,
                 hexColor: '#265985',
                 notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : '',
-                guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : ''
+                guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : '',
+                public: this.props.eventInfo.public ? this.props.eventInfo.public: false
             },
             sending: false
         }
@@ -50,7 +51,8 @@ class EventDetails extends Component {
                 hexColor: nextProps.eventInfo.hexColor ? nextProps.eventInfo.hexColor : '#265985',
                 notes: nextProps.eventInfo.notes ? nextProps.eventInfo.notes : '',
                 guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : '',
-                owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : ''
+                owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : '',
+                public: this.props.eventInfo.public ? this.props.eventInfo.public: false
             },
             showInvitesModal: showInvitesModal && !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
             sending: sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
