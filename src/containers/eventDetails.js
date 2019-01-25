@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Modal, Button, ProgressBar } from 'react-bootstrap';
+import { Modal, Button, ProgressBar, Switch } from 'react-bootstrap';
 import moment from 'moment';
 import '../css/datetime.css';
 import GuestList from './eventGuestList';
@@ -34,10 +34,11 @@ class EventDetails extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
+
         const showInvitesModal = this.state.showInvitesModal
         const sending = this.state.sending
         console.log("showInvitesModal", showInvitesModal, nextProps.inviteSuccess, !!nextProps.inviteError)
-        console.log("willReceiveProps", nextProps.eventInfo, nextProps.eventType)
+        console.log("willReceiveProps", nextProps, nextProps.eventInfo, nextProps.eventType)
         this.setState({
             showModal: nextProps.showModal,
             eventDetail: {
@@ -60,7 +61,7 @@ class EventDetails extends Component {
     changeHandler(e, ref) {
         var eventDetail = this.state.eventDetail;
         var val = '';
-        if (ref !== "allDay") {
+        if (ref !== "allDay" && ref !== "public") {
             if (ref === "start" || ref === "end") {
                 val = new Date(moment(e));
 
@@ -94,7 +95,7 @@ class EventDetails extends Component {
         const guestsString = this.state.eventDetail.guests
         const guests = guestsString.split(/[,\s]+/g)
         console.log("dipatch load guest list", guests)
-        this.props.dispatch(LoadGuestList(guests))
+        this.props.dispatch(LoadGuestList(guests, this.state.eventDetail))
         this.setState({ showInvitesModal: true })
 
     }
@@ -162,6 +163,11 @@ class EventDetails extends Component {
                         checked={this.state.eventDetail.allDay}
                         onChange={(e) => this.changeHandler(e, "allDay")} />
                     <label> All Day </label>
+                    <input type="checkBox" name="public"
+                        value={this.state.eventDetail.public}
+                        checked={this.state.eventDetail.public}
+                        onChange={(e) => this.changeHandler(e, "public")} />
+                    <label> Public </label>
 
                 </Modal.Body>
                 <Modal.Footer>
