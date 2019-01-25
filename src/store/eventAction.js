@@ -19,14 +19,14 @@ export function SendInvites(eventInfo, type) {
     }
 }
 
-export function LoadGuestList(guests) {
+export function LoadGuestList(guests, eventInfo) {
     return async (dispatch, getState) => {
         const contacts = getState().events.contacts
         loadGuestProfiles(guests, contacts).then(({ profiles, contacts }) => {
             console.log("profiles", profiles)
             dispatch({
                 type: types.CURRENT_GUESTS,
-                payload: {profiles}
+                payload: {profiles, eventInfo}
             })
         }, error => {
             console.log("load guest list failed", error)
@@ -131,7 +131,7 @@ function addGuest(guest, eventInfo, contacts, state) {
             Object.assign(contacts[guest], { roomId })
             console.log("check after assign", eventInfo, contacts)
 
-            return sendInviteMessage(guest, state.events.userSessionChat, roomId, eventInfo.eventName, eventInfo.readUrl)
+            return sendInviteMessage(guest, state.events.userSessionChat, roomId, eventInfo, state.auth.user.username)
                 .then(() => {
                     console.log("check after invitation", eventInfo, contacts)
                     return { contacts, eventInfo }
@@ -147,12 +147,12 @@ function addGuest(guest, eventInfo, contacts, state) {
     )
 }
 
-function sendInviteMessage(guest, userSessionChat, roomId, eventName, readUrl) {
+function sendInviteMessage(guest, userSessionChat, roomId, eventInfo, username) {
     return userSessionChat.sendMessage(guest, roomId, {
         msgtype: "m.text",
-        body: "You are invited to " + eventName,
+        body: "You are invited to " + eventInfo.title,
         format: "org.matrix.custom.html",
-        formatted_body: "You are invited to <a href=\"" + readUrl + "\">" + eventName + "</a>"
+        formatted_body: "You are invited to <a href='" + window.location.origin + "?u=" + username +"&e=" + eventInfo.uuid + "&p="+eventInfo.privKey + "'>" + eventInfo.title + "</a>"
     })
 }
 
