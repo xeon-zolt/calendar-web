@@ -5,8 +5,8 @@ Private, encrypted calendar in the cloud using Blockstack
 * create, read, update, delete events
 * publish events
 * send invitations
-* import events and calendars of other users
-* export in ical format
+* add events and calendars of other users or ics files
+* export/import in ical format
 
 ## Development
 This application utilizes <a href="https://github.com/intljusticemission/react-big-calendar"> react-big-calendar </a> and 
