@@ -3,6 +3,7 @@ import * as authTypes from './authActionTypes'
 import moment from 'moment';
 import * as blockstack from "blockstack";
 import * as ics from 'ics'
+import * as ICAL from 'ical.js'
 
 export function SendInvites(eventInfo, type) {
     return async (dispatch, getState) => {
@@ -193,7 +194,7 @@ const defaultEvents = [{
 
 function loadCalendarData(dispatch) {
 
-    var calendars = [{ name: "default" }, { user: "friedger.id", name: "public" }]
+    var calendars = [{ name: "default" }, { user: "friedger.id", name: "public" }, { ics: "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics" }]
     var calendarEvents = {}
     var calendarPromises = Promise.resolve(calendarEvents)
     for (var i in calendars) {
@@ -202,7 +203,9 @@ function loadCalendarData(dispatch) {
     }
     calendarPromises.then(calendarEvents => {
         console.log("cals", calendarEvents)
-        dispatch({ type: types.ALL_CALENDARS, calendarEvents });
+        var allCalendars = Object.values(calendarEvents)
+        var allEvents = [].concat.apply([], allCalendars.map(c => c.allEvents))
+        dispatch({ type: types.ALL_EVENTS, allEvents });
     })
 
 
@@ -223,6 +226,10 @@ function addCalendarEvents(calendar) {
         options.username = calendar.user
     }
     return (calendarEvents) => {
+        if (calendar.ics) {
+            return addCalendarEventsFromICS(calendarEvents, calendar)
+        }
+
         return blockstack.getFile(path, options).then((allEve) => {
             var id = calendar.name
             if (calendar.user) {
@@ -253,6 +260,36 @@ function addCalendarEvents(calendar) {
             return Promise.resolve(calendarEvents)
         })
     }
+}
+
+function addCalendarEventsFromICS(calendarEvents, calendar) {
+    return fetch(calendar.ics).then(result => result.text())
+        .then(icsContent => {
+            try {
+                var jCal = ICAL.parse(icsContent);
+                var comp = new ICAL.Component(jCal);
+                var vevents = comp.getAllSubcomponents("vevent");
+                var allEvents = []
+                var hexColor = '#' + Math.floor(Math.random() * 16777215).toString(16)
+                for (var i in vevents) {
+                    var event = new ICAL.Event(vevents[i]);
+                    var jEvent = {
+                        title: event.summary,
+                        start: event.startDate.toJSDate().toISOString(),
+                        end: event.endDate.toJSDate().toISOString(),
+                        uid: event.uid,
+                        hexColor                        
+                    }
+                    allEvents.push(jEvent)
+                }
+                calendarEvents[calendar.ics] = {allEvents, hexColor, name:calendar.ics}
+                return calendarEvents
+            } catch (e) {
+                console.log("ics error", e)
+                return calendarEvents
+            }
+        })
+
 }
 
 export function publishEvents(event, remove) {
