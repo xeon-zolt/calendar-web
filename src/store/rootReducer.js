@@ -1,7 +1,4 @@
-import events from './eventReducer';
-import auth from './authReducer';
+import events from "./eventReducer";
+import auth from "./authReducer";
 
-export {
-    events,
-    auth
-}
+export { events, auth };
