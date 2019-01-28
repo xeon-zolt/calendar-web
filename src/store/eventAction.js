@@ -5,9 +5,9 @@ import * as blockstack from 'blockstack';
 import * as ics from 'ics';
 import * as ICAL from 'ical.js';
 
-export function SendInvites(eventInfo, type) {
+export function SendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
-    handleGuests(getState(), eventInfo).then(
+    sendInvitesToGuests(getState(), eventInfo, guests).then(
       ({ eventInfo, contacts }) => {
         dispatch({
           type: types.INVITES_SENT,
@@ -74,10 +74,8 @@ function uuid() {
   });
 }
 
-function handleGuests(state, eventInfo) {
+function sendInvitesToGuests(state, eventInfo, guests) {
   console.log('state', state);
-  const guestsString = eventInfo.guests;
-  const guests = guestsString.split(/[,\s]+/g);
   const contacts = state.events.contacts;
   eventInfo.privKey = blockstack.makeECPrivateKey();
   eventInfo.pubKey = blockstack.getPublicKeyFromPrivate(eventInfo.privKey);
@@ -158,7 +156,8 @@ function addGuest(guest, eventInfo, contacts, state) {
         state.events.userSessionChat,
         roomId,
         eventInfo,
-        state.auth.user.username
+        state.auth.user.username,
+        getUserAppAccount(state.auth.user)
       )
         .then(() => {
           console.log('check after invitation', eventInfo, contacts);
@@ -180,12 +179,27 @@ function sharedUrl(eventUid) {
   return 'shared/' + eventUid + '/event.json';
 }
 
+function getUserAppAccount(user) {
+  const gaiaUrl = user.apps[window.location.origin];
+  if (gaiaUrl) {
+    const urlParts = gaiaUrl.split('/');
+    var appUserAddress = urlParts[urlParts.length - 2];
+    return addressToAccount(appUserAddress);
+  }
+}
+
+function addressToAccount(address) {
+  // TODO lookup home server for user
+  return '@' + address.toLowerCase() + ':openintents.modular.im';
+}
+
 function sendInviteMessage(
   guest,
   userSessionChat,
   roomId,
   eventInfo,
-  username
+  username,
+  userAppAccount
 ) {
   return userSessionChat.sendMessage(guest, roomId, {
     msgtype: 'm.text',
@@ -200,11 +214,35 @@ function sendInviteMessage(
       eventInfo.uuid +
       '&p=' +
       eventInfo.privKey +
+      '&r=' +
+      roomId +
+      '&s=' +
+      userAppAccount +
       "'>" +
       eventInfo.title +
       '</a>'
   });
 }
+
+function respondToInvite(
+  userSessionChat,
+  eventInfo,
+  rsvp,
+  senderAppAccount,
+  roomId
+) {
+  var text;
+  if (rsvp) {
+    text = 'I will come to ' + eventInfo.title;
+  } else {
+    text = "I won't come to " + eventInfo.title;
+  }
+  return userSessionChat.sendMessage(senderAppAccount, roomId, {
+    msgtype: 'm.text',
+    body: text
+  });
+}
+console.log(respondToInvite);
 
 export function GetInitialEvents() {
   return async (dispatch, getState) => {
@@ -263,12 +301,14 @@ function loadCalendarData(dispatch) {
     dispatch({ type: types.ALL_EVENTS, allEvents });
   });
 
-  blockstack.getFile('Contacts').then(contacts => {
-    if (contacts == null) {
+  blockstack.getFile('Contacts').then(contactsContent => {
+    var contacts;
+    if (contactsContent == null) {
       contacts = {};
+    } else {
+      contacts = JSON.parse(contactsContent);
     }
-    contacts = {};
-    dispatch({ type: types.ALL_CONTACTS, contacts: JSON.parse(contacts) });
+    dispatch({ type: types.ALL_CONTACTS, payload: { contacts } });
   });
 }
 
@@ -335,7 +375,7 @@ function addCalendarEventsFromJSON(calendarEvents, calendar) {
       allEvents = JSON.parse(allEve);
     } else {
       if (!calendar.user && calendar.name === 'default') {
-        blockstack.putFile('default/AllEvents', JSON.stringify(defaultEvents));
+        blockstack.putFile(path, JSON.stringify(defaultEvents));
       } else {
         if (calendar.user) {
           allEvents = {};

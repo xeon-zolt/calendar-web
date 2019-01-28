@@ -7,6 +7,11 @@ import GuestList from '../event-guest-list/redux-connect';
 
 var Datetime = require('react-datetime');
 
+const guestsStringToArray = function(guestsString) {
+  const guests = guestsString.split(/[,\s]+/g);
+  return guests.filter(g => g.length > 0).map(g => g.toLowerCase());
+};
+
 class EventDetails extends Component {
   constructor(props) {
     super(props);
@@ -133,13 +138,12 @@ class EventDetails extends Component {
   }
 
   hasGuests(guestsString) {
-    const guests = guestsString.split(/[,\s]+/g);
-    return guests.filter(g => g.length > 0).length > 0;
+    return guestsStringToArray(guestsString).length > 0;
   }
 
   showInvitesModal() {
     const guestsString = this.state.eventDetail.guests;
-    const guests = guestsString.split(/[,\s]+/g);
+    const guests = guestsStringToArray(guestsString);
     console.log('dipatch load guest list', guests);
     this.props.LoadGuestList(guests, this.state.eventDetail);
     this.setState({ showInvitesModal: true });
@@ -153,7 +157,13 @@ class EventDetails extends Component {
 
   sendInvites() {
     this.setState({ sending: true });
-    this.props.SendInvites(this.state.eventDetail, this.props.eventType);
+    const guestsString = this.state.eventDetail.guests;
+    const guests = guestsStringToArray(guestsString);
+    this.props.SendInvites(
+      this.state.eventDetail,
+      guests,
+      this.props.eventType
+    );
   }
 
   render() {

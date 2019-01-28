@@ -54,7 +54,7 @@ class GuestList extends Component {
           <br />
           <ProgressBar
             active
-            now={(numberOfGuestsLoaded * 100) / numberOfGuests}
+            now={((numberOfGuestsLoaded + 1) * 100) / (numberOfGuests + 1)}
           />
         </div>
       );

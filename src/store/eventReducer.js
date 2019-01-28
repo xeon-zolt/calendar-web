@@ -15,7 +15,8 @@ export default function reduce(state = initialState, action = {}) {
     case types.USER:
       return { ...state, user: action.user };
     case types.ALL_CONTACTS:
-      return { ...state, contacts: action.contacts };
+      console.log('all contacts', action.payload.contacts);
+      return { ...state, contacts: action.payload.contacts };
     case types.ALL_EVENTS:
       return { ...state, allEvents: action.allEvents };
     case types.REMOVE_EVENT:
