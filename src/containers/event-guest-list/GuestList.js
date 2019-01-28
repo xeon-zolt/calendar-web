@@ -4,21 +4,20 @@ import { ProgressBar } from "react-bootstrap";
 const GUEST_BASE = "https://debutapp.social/";
 
 function renderGuestList(guests) {
+  console.log(JSON.stringify(guests));
   var list = [];
   for (var property in guests) {
     if (guests.hasOwnProperty(property)) {
       var guest = guests[property];
-      guest.username = property;
-      console.log("g", guest);
-      list.push(<Guest key={property} guest={guest} />);
+      list.push(<Guest key={property} guest={guest} username={property} />);
     }
   }
   return list;
 }
 
-const Guest = ({ guest }) => {
+const Guest = ({ guest, username }) => {
   console.log("UI guest", guest);
-  const guestUrl = GUEST_BASE + guest.username;
+  const guestUrl = GUEST_BASE + username;
   return (
     <div>
       <a href={guestUrl}>{guest.name}</a>
