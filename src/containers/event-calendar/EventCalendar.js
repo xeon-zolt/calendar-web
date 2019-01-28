@@ -72,7 +72,7 @@ class EventCalendar extends Component {
   }
 
   updateEvent(obj) {
-    this.props.AddEvent(obj);
+    this.props.UpdateEvent(obj);
     this.setState({ showModal: false });
   }
 
@@ -113,22 +113,22 @@ class EventCalendar extends Component {
               Instructions
               <button
                 type="button"
-                class="close"
+                className="close"
                 onClick={handleHideInstructions}
               >
                 <span aria-hidden="true">×</span>
-                <span class="sr-only">Close</span>
+                <span className="sr-only">Close</span>
               </button>
             </Panel.Heading>
             <Panel.Body>
               <Grid>
                 <Row style={{ textAlign: "left" }}>
-                  <Col md="5">
+                  <Col md={5}>
                     <strong>To add an event: </strong> Click on the day you want
                     to add an event or drag up to the day you want to add the
                     event for multiple day event! <br />
                   </Col>
-                  <Col md="5">
+                  <Col md={5}>
                     <strong>To update and delete an event:</strong> Click on the
                     event you wish to update or delete!
                   </Col>
@@ -143,11 +143,11 @@ class EventCalendar extends Component {
               Private, Encrypted Calendar in the Cloud
               <button
                 type="button"
-                class="close"
+                className="close"
                 onClick={handleHideInstructions}
               >
                 <span aria-hidden="true">×</span>
-                <span class="sr-only">Close</span>
+                <span className="sr-only">Close</span>
               </button>
             </Panel.Heading>
             <Panel.Body>
