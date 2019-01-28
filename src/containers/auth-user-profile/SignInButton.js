@@ -1,21 +1,20 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-
+import React from "react";
+import PropTypes from "prop-types";
 
 const imageDefaultStyle = {
-  height: 20,
+  height: 20
 };
 const textDefaultStyle = {
   fontSize: 12,
   fontFamily: '"Source Code Pro", monospace',
   paddingLeft: 5,
-  verticalAlign: 'top',
+  verticalAlign: "top",
   top: 3,
-  position: 'relative',
-  color: '#fff',
+  position: "relative",
+  color: "#fff"
 };
 
-const BlockstackSignInButton = (props) => {
+const BlockstackSignInButton = props => {
   const {
     renderNothing,
     signOutBtnText,
@@ -27,78 +26,63 @@ const BlockstackSignInButton = (props) => {
     imageStyle,
     textStyle,
     style,
-    img,
+    img
   } = props;
 
-  let {
-    defaultStyle,
-  } = props;
+  let { defaultStyle } = props;
 
   if (renderNothing) {
-    return (null);
+    return null;
   }
 
   // If style isn't set then render default styling.
   if (!defaultStyle) {
     defaultStyle = {
-      display: 'inline-block',
-      backgroundColor: '#270F34',
-      border: '1px solid #270F34',
+      display: "inline-block",
+      backgroundColor: "#270F34",
+      border: "1px solid #270F34",
       paddingTop: 5,
       paddingBottom: 5,
       paddingLeft: 15,
       paddingRight: 15,
-      borderRadius: 2,
+      borderRadius: 2
     };
   }
 
-
   const imageInlineStyle = Object.assign({}, imageDefaultStyle, imageStyle);
-  let altImg = (null)
+  let altImg = null;
   if (img) {
-    altImg = (img)
-   }
+    altImg = img;
+  }
 
-  const image = (includeBlockstackLogo) ? (
-    <img
-      src="blockstack.png"
-      alt="Blockstack Logo"
-      style={imageInlineStyle}
-    />
-  ) : (altImg);
+  const image = includeBlockstackLogo ? (
+    <img src="blockstack.png" alt="Blockstack Logo" style={imageInlineStyle} />
+  ) : (
+    altImg
+  );
 
   const textInlineStyle = Object.assign({}, textDefaultStyle, textStyle);
 
-
-  const signOutInlineStyle = Object.assign({}, defaultStyle, style, signOutStyle);
+  const signOutInlineStyle = Object.assign(
+    {},
+    defaultStyle,
+    style,
+    signOutStyle
+  );
   if (isSignedIn) {
     return (
-      <button
-        onClick={props.signOut}
-        style={signOutInlineStyle}
-      >
-        {
-          image
-        }
-        <span style={textInlineStyle}>
-          {signOutBtnText}
-        </span>
+      <button onClick={props.signOut} style={signOutInlineStyle}>
+        {image}
+        <span style={textInlineStyle}>{signOutBtnText}</span>
       </button>
     );
   }
 
   const signInInlineStyle = Object.assign({}, defaultStyle, style, signInStyle);
   return (
-    <button
-      onClick={props.signIn}
-      style={signInInlineStyle}
-    >
-      {
-        image
-      }
-      <span style={textInlineStyle}>
-        {signInBtnText}
-      </span>
+    <button onClick={props.signIn} style={signInInlineStyle}>
+      {image}
+      <span style={textInlineStyle}>{signInBtnText}</span>
     </button>
   );
 };
@@ -128,8 +112,8 @@ BlockstackSignInButton.propTypes = {
 
 BlockstackSignInButton.defaultProps = {
   renderNothing: false,
-  signOutBtnText: 'Sign Out',
-  signInBtnText: 'Sign In with Blockstack',
+  signOutBtnText: "Sign Out",
+  signInBtnText: "Sign In with Blockstack",
   includeBlockstackLogo: true,
   defaultStyle: null,
   style: {},
@@ -137,7 +121,7 @@ BlockstackSignInButton.defaultProps = {
   signOutStyle: {},
   imageStyle: {},
   textStyle: {},
-  img : null,
+  img: null
 };
 
 export default BlockstackSignInButton;
