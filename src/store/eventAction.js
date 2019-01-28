@@ -76,6 +76,7 @@ function handleGuests(state, eventInfo) {
     eventInfo.privKey = blockstack.makeECPrivateKey()
     eventInfo.pubKey = blockstack.getPublicKeyFromPrivate(eventInfo.privKey)
     eventInfo.uuid = uuid()
+    eventInfo.owner = state.auth.user.username
     return blockstack.putFile("shared/" + eventInfo.uuid + "/event.json", JSON.stringify(eventInfo), { encrypt: eventInfo.pubKey })
         .then((readUrl) => {
             eventInfo.readUrl = readUrl
@@ -219,46 +220,14 @@ function loadCalendarData(dispatch) {
 }
 
 function addCalendarEvents(calendar) {
-    var path = calendar.name + "/AllEvents"
-    var options = {}
-    if (calendar.user) {
-        options.decrypt = false
-        options.username = calendar.user
-    }
     return (calendarEvents) => {
         if (calendar.ics) {
             return addCalendarEventsFromICS(calendarEvents, calendar)
+        } else {
+            return addCalendarEventsFromJSON(calendarEvents, calendar)
         }
 
-        return blockstack.getFile(path, options).then((allEve) => {
-            var id = calendar.name
-            if (calendar.user) {
-                id = id + "@" + calendar.user
-            }
-            var allEvents
-            if (allEve) {
-                allEvents = JSON.parse(allEve);
-            } else {
-                if (!calendar.user && calendar.name === "default") {
-                    blockstack.putFile("default/AllEvents", JSON.stringify(defaultEvents));
-                } else {
-                    if (calendar.user) {
-                        allEvents = {}
-                    } else {
-                        allEvents = []
-                    }
-                }
-            }
-
-            if (calendar.user) {
-                allEvents = Object.values(allEvents)  // convert from public calendar  
-            }
-            console.log("ALlEvents", allEvents)
-            calendar.allEvents = allEvents
-            calendar.hexColor = calendar.hexColor | '#' + Math.floor(Math.random() * 16777215).toString(16);
-            calendarEvents[id] = calendar
-            return Promise.resolve(calendarEvents)
-        })
+        
     }
 }
 
@@ -270,17 +239,17 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
                 var comp = new ICAL.Component(jCal);
                 var vevents = comp.getAllSubcomponents("vevent");
                 var allEvents = []
-                var hexColor = '#' + Math.floor(Math.random() * 16777215).toString(16)
+                var hexColor = calendar.hexColor | '#' + Math.floor(Math.random() * 16777215).toString(16)
                 for (var i in vevents) {
-                    var event = new ICAL.Event(vevents[i]);
-                    var jEvent = {
-                        title: event.summary,
-                        start: event.startDate.toJSDate().toISOString(),
-                        end: event.endDate.toJSDate().toISOString(),
-                        uid: event.uid,
+                    var vevent = new ICAL.Event(vevents[i]);
+                    var event = {
+                        title: vevent.summary,
+                        start: vevent.startDate.toJSDate().toISOString(),
+                        end: vevent.endDate.toJSDate().toISOString(),
+                        uid: vevent.uid,
                         hexColor                        
                     }
-                    allEvents.push(jEvent)
+                    allEvents.push(event)
                 }
                 calendarEvents[calendar.ics] = {allEvents, hexColor, name:calendar.ics}
                 return calendarEvents
@@ -291,6 +260,54 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
         })
 
 }
+
+function addCalendarEventsFromJSON(calendarEvents, calendar) {
+    var options = {}
+    if (calendar.user) {
+        options.decrypt = false
+        options.username = calendar.user
+    }
+    var path = calendar.name + "/AllEvents"
+    return blockstack.getFile(path, options).then((allEve) => {
+        var id = calendar.name
+        if (calendar.user) {
+            id = id + "@" + calendar.user
+        }
+        var allEvents
+        if (allEve) {
+            allEvents = JSON.parse(allEve);
+        } else {
+            if (!calendar.user && calendar.name === "default") {
+                blockstack.putFile("default/AllEvents", JSON.stringify(defaultEvents));
+            } else {
+                if (calendar.user) {
+                    allEvents = {}
+                } else {
+                    allEvents = []
+                }
+            }
+        }
+
+        if (calendar.user) {
+            allEvents = Object.values(allEvents)  // convert from public calendar  
+        }
+        console.log("ALlEvents", allEvents)
+        calendar.allEvents = allEvents
+        calendar.hexColor = calendar.hexColor | '#' + Math.floor(Math.random() * 16777215).toString(16);
+        calendarEvents[id] = calendar
+        return Promise.resolve(calendarEvents)
+    })
+}
+
+function loadCalendarEventFromUser(username, eventUid, privateKey) {
+    blockstack.getFile("shared/" + eventUid + "/event.json", {decrypt:false, username}).then(
+        encryptedContent => {
+            var event = blockstack.decryptContent(encryptedContent, {privateKey})
+            console.log("shared event", event)
+        }
+    )
+}
+loadCalendarEventFromUser("friedger.id", "307baf34-9ceb-492f-8dab-ab595f2a09df", "e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6")
 
 export function publishEvents(event, remove) {
     event.uuid = uuid() //TODO move this into event creation
