@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { Modal, Panel, Grid, Row, Col } from "react-bootstrap";
+import { Panel, Grid, Row, Col } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 

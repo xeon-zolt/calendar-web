@@ -29,7 +29,13 @@ class App extends Component {
             <a href="https://github.com/yasnaraj/react-calendar-events-example">
               Yasna R.
             </a>{" "}
-            | {new Date().getFullYear().toString()} <br />
+            | {new Date().getFullYear().toString()}
+          </h5>
+          <h5>
+            Love OI apps? You can now donate to our open collective:<br />
+            <a href="https://opencollective.com/openintents/donate">https://opencollective.com/openintents/donate</a>
+          </h5>
+          <h5>
             Using <a href="https://glyphicons.com">glyphicons.com</a>
           </h5>
         </footer>

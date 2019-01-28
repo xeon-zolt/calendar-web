@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { Modal, Button, ProgressBar, Switch } from "react-bootstrap";
+import { Modal, Button, ProgressBar } from "react-bootstrap";
 import moment from "moment";
 import "../../css/datetime.css";
 import GuestList from "../event-guest-list/redux-connect";
@@ -33,7 +33,9 @@ class EventDetails extends Component {
         allDay: this.props.eventInfo.allDay ? true : false,
         hexColor: "#265985",
         notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : "",
-        guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : ""
+        guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : "",
+        owner: this.props.eventInfo.owner ? this.props.eventInfo.owner : "",
+        public: this.props.eventInfo.public ? this.props.eventInfo.public: false
       },
       sending: false
     };
@@ -86,7 +88,9 @@ class EventDetails extends Component {
           : "#265985",
         notes: nextProps.eventInfo.notes ? nextProps.eventInfo.notes : "",
         guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : "",
-        owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : ""
+        owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : "",
+        public: nextProps.eventInfo.public ? nextProps.eventInfo.public: false
+
       },
       showInvitesModal:
         showInvitesModal &&
