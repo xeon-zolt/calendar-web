@@ -98,16 +98,13 @@ class EventDetails extends Component {
   addEvent() {
     const { eventDetail } = this.state;
     const { addEvent, handleHide } = this.props;
-    console.log(
-      "add event",
-      eventDetail.noInvites,
-      checkHasGuests(eventDetail.guests)
-    );
-    if (eventDetail.noInvites || !checkHasGuests(eventDetail.guests)) {
+    const { guests, noInvites } = eventDetail;
+    console.log("add event", eventDetail.noInvites, checkHasGuests(guests));
+    if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail);
       handleHide();
     } else {
-      this.popInvitesModal();
+      this.popInvitesModal(eventDetail);
     }
   }
 
@@ -124,13 +121,15 @@ class EventDetails extends Component {
     handleHide();
   }
 
-  popInvitesModal() {
-    const { eventDetail } = this.state;
+  popInvitesModal(eventDetail) {
+    const { guests } = eventDetail;
     const { loadGuestList } = this.props;
-    const guestsString = eventDetail.guests;
-    const guests = guestsString.split(/[,\s]+/g);
-    console.log("dipatch load guest list", guests);
-    loadGuestList(guests, eventDetail);
+    if (typeof guests !== "string") {
+      guests = "";
+    }
+    const guestList = guests.toLowerCase().split(/[,\s]+/g);
+    console.log("dipatch load guest list", guestList);
+    loadGuestList(guestList, eventDetail);
     this.setState({ showInvitesModal: true });
   }
 
@@ -274,7 +273,7 @@ class EventDetails extends Component {
             <Button
               bsStyle="warning"
               disabled={!hasGuests}
-              onClick={() => popInvitesModal()}
+              onClick={() => popInvitesModal(eventDetail)}
             >
               Send Invites
             </Button>
