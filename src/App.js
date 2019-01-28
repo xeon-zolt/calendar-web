@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
-import EventCalendar from "./containers/event-calendar/container";
-import UserProfile from "./containers/auth-user-profile/container";
+import EventCalendar from "./containers/event-calendar/redux-connect";
+import UserProfile from "./containers/auth-user-profile/redux-connect";
 
 class App extends Component {
   render() {

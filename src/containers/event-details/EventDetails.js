@@ -1,10 +1,9 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
+
 import { Modal, Button, ProgressBar, Switch } from "react-bootstrap";
 import moment from "moment";
 import "../../css/datetime.css";
-import GuestList from "../event-guest-list/container";
-import { LoadGuestList, SendInvites } from "../../store/eventAction";
+import GuestList from "../event-guest-list/redux-connect";
 
 var Datetime = require("react-datetime");
 
@@ -137,7 +136,7 @@ class EventDetails extends Component {
     const guestsString = this.state.eventDetail.guests;
     const guests = guestsString.split(/[,\s]+/g);
     console.log("dipatch load guest list", guests);
-    this.props.dispatch(LoadGuestList(guests, this.state.eventDetail));
+    this.props.LoadGuestList(guests, this.state.eventDetail);
     this.setState({ showInvitesModal: true });
   }
 
@@ -149,9 +148,7 @@ class EventDetails extends Component {
 
   sendInvites() {
     this.setState({ sending: true });
-    this.props.dispatch(
-      SendInvites(this.state.eventDetail, this.props.eventType)
-    );
+    this.props.SendInvites(this.state.eventDetail, this.props.eventType);
   }
 
   render() {
@@ -326,14 +323,4 @@ class EventDetails extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const inviteError = state.events.inviteError;
-  const inviteSuccess = state.events.inviteSuccess;
-  console.log("events mapStateToProps", state.events);
-  return {
-    inviteError,
-    inviteSuccess
-  };
-}
-
-export default connect(mapStateToProps)(EventDetails);
+export default EventDetails;
