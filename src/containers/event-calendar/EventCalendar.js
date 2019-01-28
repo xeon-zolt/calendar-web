@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { Modal, Panel } from "react-bootstrap";
+import { Modal, Panel, Grid, Row, Col } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
@@ -121,11 +121,19 @@ class EventCalendar extends Component {
               </button>
             </Panel.Heading>
             <Panel.Body>
-              <strong>To add an event: </strong> Click on the day you want to
-              add an event or drag up to the day you want to add the event for
-              multiple day event! <br />
-              <strong>To update and delete an event:</strong> Click on the event
-              you wish to update or delete!
+              <Grid>
+                <Row style={{ textAlign: "left" }}>
+                  <Col md="5">
+                    <strong>To add an event: </strong> Click on the day you want
+                    to add an event or drag up to the day you want to add the
+                    event for multiple day event! <br />
+                  </Col>
+                  <Col md="5">
+                    <strong>To update and delete an event:</strong> Click on the
+                    event you wish to update or delete!
+                  </Col>
+                </Row>
+              </Grid>
             </Panel.Body>
           </Panel>
         )}
