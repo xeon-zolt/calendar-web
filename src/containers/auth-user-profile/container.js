@@ -1,8 +1,8 @@
 import React from "react";
-import BlockstackSignInButton from "../auth-signin-button/container";
+import BlockstackSignInButton from "./authSignInButton";
 
 import { connect } from "react-redux";
-import { SignUserIn, SignUserOut } from "../../store/authAction";
+import { SignUserIn, SignUserOut } from "../store/authAction";
 
 import PropTypes from "prop-types";
 
