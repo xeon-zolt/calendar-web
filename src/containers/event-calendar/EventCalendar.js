@@ -44,24 +44,22 @@ class EventCalendar extends Component {
   }
 
   handleEditEvent(event) {
-    console.log("handleEditEvent");
+    console.log("handleEditEvent", event);
     this.setState({
       eventModal: {
         eventType: "edit",
-        eventInfo: event,
-        eventIndex: event.id
+        eventInfo: event
       }
     });
   }
 
   handleAddEvent(slotInfo) {
     console.log("handleAddEvent");
-    var currentIndex = this.props.events.allEvents.length;
+    slotInfo.id = this.props.events.allEvents.length; // currentIndex
     this.setState({
       eventModal: {
         eventType: "add",
-        eventInfo: slotInfo,
-        eventIndex: currentIndex
+        eventInfo: slotInfo
       }
     });
   }

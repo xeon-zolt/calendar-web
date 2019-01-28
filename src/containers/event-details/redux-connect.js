@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import EventDetails from "./EventDetails";
 import { LoadGuestList, SendInvites } from "../../store/eventAction";
 import * as types from "../../store/eventActionTypes";
+import GuestList from "../event-guest-list/redux-connect";
 
 function mapStateToProps(state) {
   const inviteError = state.events.inviteError;
@@ -10,7 +11,8 @@ function mapStateToProps(state) {
   console.log("events mapStateToProps", state.events);
   return {
     inviteError,
-    inviteSuccess
+    inviteSuccess,
+    GuestList
   };
 }
 
