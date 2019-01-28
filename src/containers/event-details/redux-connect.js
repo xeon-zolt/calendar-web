@@ -1,11 +1,11 @@
-import { connect } from "react-redux";
-import EventDetails from "./EventDetails";
-import { LoadGuestList, SendInvites } from "../../store/eventAction";
+import { connect } from 'react-redux';
+import EventDetails from './EventDetails';
+import { LoadGuestList, SendInvites } from '../../store/eventAction';
 
 function mapStateToProps(state) {
   const inviteError = state.events.inviteError;
   const inviteSuccess = state.events.inviteSuccess;
-  console.log("events mapStateToProps", state.events);
+  console.log('events mapStateToProps', state.events);
   return {
     inviteError,
     inviteSuccess

@@ -1,10 +1,10 @@
-import React, { Component } from "react";
-import moment from "moment";
-import { Panel, Grid, Row, Col } from "react-bootstrap";
-import BigCalendar from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
+import React, { Component } from 'react';
+import moment from 'moment';
+import { Panel, Grid, Row, Col } from 'react-bootstrap';
+import BigCalendar from 'react-big-calendar';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-import EventDetails from "../event-details/redux-connect";
+import EventDetails from '../event-details/redux-connect';
 
 let localizer = BigCalendar.momentLocalizer(moment);
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
@@ -15,18 +15,18 @@ class EventCalendar extends Component {
     this.state = {
       showInstructions: true,
       showModal: false,
-      eventType: "add",
+      eventType: 'add',
       newIndex: 0,
       eventInfo: {}
     };
 
     this.bound = [
-      "handleHide",
-      "handleHideInstructions",
-      "handleShow",
-      "deleteEvent",
-      "addEvent",
-      "updateEvent"
+      'handleHide',
+      'handleHideInstructions',
+      'handleShow',
+      'deleteEvent',
+      'addEvent',
+      'updateEvent'
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this);
       return acc;
@@ -52,7 +52,7 @@ class EventCalendar extends Component {
 
   handleShow(slotInfo, eventType) {
     var currentIndex = this.props.events.allEvents.length;
-    console.log("handleShow", eventType);
+    console.log('handleShow', eventType);
     this.setState({
       showModal: true,
       eventType: eventType,
@@ -77,14 +77,14 @@ class EventCalendar extends Component {
   }
 
   eventStyle(event, start, end, isSelected) {
-    var bgColor = event.hexColor ? event.hexColor : "#265985";
+    var bgColor = event.hexColor ? event.hexColor : '#265985';
     var style = {
       backgroundColor: bgColor,
-      borderRadius: "5px",
+      borderRadius: '5px',
       opacity: 1,
-      color: "white",
-      border: "0px",
-      display: "block"
+      color: 'white',
+      border: '0px',
+      display: 'block'
     };
     return {
       style: style
@@ -103,7 +103,7 @@ class EventCalendar extends Component {
     const { signedIn } = this.props;
     const { showInstructions } = this.state;
     const { handleHide, handleShow, handleHideInstructions } = this.bound;
-    console.log("allevents", this.props.events.allEvents);
+    console.log('allevents', this.props.events.allEvents);
     return (
       <div className="bodyContainer">
         {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions? */}
@@ -122,7 +122,7 @@ class EventCalendar extends Component {
             </Panel.Heading>
             <Panel.Body>
               <Grid>
-                <Row style={{ textAlign: "left" }}>
+                <Row style={{ textAlign: 'left' }}>
                   <Col md="5">
                     <strong>To add an event: </strong> Click on the day you want
                     to add an event or drag up to the day you want to add the
@@ -152,7 +152,7 @@ class EventCalendar extends Component {
             </Panel.Heading>
             <Panel.Body>
               <strong>To learn about Blockstack: </strong> A good starting point
-              is{" "}
+              is{' '}
               <a href="https://docs.blockstack.org">
                 Blockstack's documentation
               </a>
@@ -180,9 +180,9 @@ class EventCalendar extends Component {
           step={60}
           showMultiDayTimes
           defaultDate={new Date(moment())}
-          onSelectEvent={event => handleShow(event, "edit")}
-          onSelectSlot={slotInfo => handleShow(slotInfo, "add")}
-          style={{ minHeight: "500px" }}
+          onSelectEvent={event => handleShow(event, 'edit')}
+          onSelectSlot={slotInfo => handleShow(slotInfo, 'add')}
+          style={{ minHeight: '500px' }}
           eventPropGetter={this.eventStyle}
           startAccessor={this.getEventStart}
           endAccessor={this.getEventEnd}
