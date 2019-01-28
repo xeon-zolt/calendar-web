@@ -13,16 +13,24 @@ class EventCalendar extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      showInstructions: true,
       showModal: false,
       eventType: "add",
       newIndex: 0,
       eventInfo: {}
     };
-    this.handleHide = this.handleHide.bind(this);
-    this.handleShow = this.handleShow.bind(this);
-    this.deleteEvent = this.deleteEvent.bind(this);
-    this.addEvent = this.addEvent.bind(this);
-    this.updateEvent = this.updateEvent.bind(this);
+
+    this.bound = [
+      "handleHide",
+      "handleHideInstructions",
+      "handleShow",
+      "deleteEvent",
+      "addEvent",
+      "updateEvent"
+    ].reduce((acc, d) => {
+      acc[d] = this[d].bind(this);
+      return acc;
+    }, {});
   }
 
   componentWillMount() {
@@ -36,6 +44,10 @@ class EventCalendar extends Component {
   }
   handleHide() {
     this.setState({ showModal: false });
+  }
+
+  handleHideInstructions() {
+    this.setState({ showInstructions: false });
   }
 
   handleShow(slotInfo, eventType) {
@@ -88,40 +100,57 @@ class EventCalendar extends Component {
   }
 
   render() {
-    const signedIn = this.props.signedIn;
+    const { signedIn } = this.props;
+    const { showInstructions } = this.state;
+    const { handleHide, handleShow, handleHideInstructions } = this.bound;
     console.log("allevents", this.props.events.allEvents);
     return (
       <div className="bodyContainer">
-        <div className="well well-sm">
-          {signedIn && (
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title">Instructions</Modal.Title>
-              <strong>To add an event: </strong> Click on the day you want to
-              add an event or drag up to the day you want to add the event for
-              multiple day event! <br />
-              <strong>To update and delete an event:</strong> Click on the event
-              you wish to update or delete!
-            </Modal.Header>
-          )}
-          {!signedIn && (
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title">
-                Private, Encrypted Calendar in the Cloud
-              </Modal.Title>
-              <strong>To learn about Blockstack: </strong> A good starting point
-              is{" "}
-              <a href="https://docs.blockstack.org">
-                Blockstack's documentation
-              </a>
-              .<br />
-              <strong>I have already a Blockstack ID:</strong> Just sign in
-              using the blockstack button above!
-            </Modal.Header>
-          )}
-        </div>
+        {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions? */}
+        {showInstructions && (
+          <div className="well well-sm">
+            {signedIn && (
+              <div>
+                <div class="modal-header">
+                  <button
+                    type="button"
+                    class="close"
+                    onClick={handleHideInstructions}
+                  >
+                    <span aria-hidden="true">×</span>
+                    <span class="sr-only">Close</span>
+                  </button>
+                  <h4 id="contained-modal-title" class="modal-title">
+                    Instructions
+                  </h4>
+                </div>
+                <strong>To add an event: </strong> Click on the day you want to
+                add an event or drag up to the day you want to add the event for
+                multiple day event! <br />
+                <strong>To update and delete an event:</strong> Click on the
+                event you wish to update or delete!
+              </div>
+            )}
+            {!signedIn && (
+              <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title">
+                  Private, Encrypted Calendar in the Cloud
+                </Modal.Title>
+                <strong>To learn about Blockstack: </strong> A good starting
+                point is{" "}
+                <a href="https://docs.blockstack.org">
+                  Blockstack's documentation
+                </a>
+                .<br />
+                <strong>I have already a Blockstack ID:</strong> Just sign in
+                using the blockstack button above!
+              </Modal.Header>
+            )}
+          </div>
+        )}
         <EventDetails
           showModal={this.state.showModal}
-          handleHide={this.handleHide}
+          handleHide={handleHide}
           eventType={this.state.eventType}
           eventInfo={this.state.eventInfo}
           newIndex={this.state.newIndex}
@@ -137,8 +166,8 @@ class EventCalendar extends Component {
           step={60}
           showMultiDayTimes
           defaultDate={new Date(moment())}
-          onSelectEvent={event => this.handleShow(event, "edit")}
-          onSelectSlot={slotInfo => this.handleShow(slotInfo, "add")}
+          onSelectEvent={event => handleShow(event, "edit")}
+          onSelectSlot={slotInfo => handleShow(slotInfo, "add")}
           style={{ minHeight: "500px" }}
           eventPropGetter={this.eventStyle}
           startAccessor={this.getEventStart}
