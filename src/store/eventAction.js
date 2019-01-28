@@ -360,12 +360,13 @@ function addCalendarEventsFromJSON(calendarEvents, calendar) {
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
   blockstack
-    .getFile('shared/' + eventUid + '/event.json', { decrypt: false, username })
+    .getFile(sharedUrl(eventUid), { decrypt: false, username })
     .then(encryptedContent => {
       var event = blockstack.decryptContent(encryptedContent, { privateKey });
       console.log('shared event', event);
     });
 }
+
 loadCalendarEventFromUser(
   'friedger.id',
   '307baf34-9ceb-492f-8dab-ab595f2a09df',

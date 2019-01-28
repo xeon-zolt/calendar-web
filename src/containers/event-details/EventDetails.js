@@ -1,11 +1,11 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
-import { Modal, Button, ProgressBar } from "react-bootstrap";
-import moment from "moment";
-import "../../css/datetime.css";
-import GuestList from "../event-guest-list/redux-connect";
+import { Modal, Button, ProgressBar } from 'react-bootstrap';
+import moment from 'moment';
+import '../../css/datetime.css';
+import GuestList from '../event-guest-list/redux-connect';
 
-var Datetime = require("react-datetime");
+var Datetime = require('react-datetime');
 
 class EventDetails extends Component {
   constructor(props) {
@@ -15,7 +15,7 @@ class EventDetails extends Component {
       showInvitesModal: false,
       eventDetail: {
         id:
-          this.props.eventType === "add"
+          this.props.eventType === 'add'
             ? this.props.newIndex
             : this.props.eventInfo.id,
         title:
@@ -31,11 +31,13 @@ class EventDetails extends Component {
             ? this.props.eventInfo.end
             : moment,
         allDay: this.props.eventInfo.allDay ? true : false,
-        hexColor: "#265985",
-        notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : "",
-        guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : "",
-        owner: this.props.eventInfo.owner ? this.props.eventInfo.owner : "",
-        public: this.props.eventInfo.public ? this.props.eventInfo.public: false
+        hexColor: '#265985',
+        notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : '',
+        guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : '',
+        owner: this.props.eventInfo.owner ? this.props.eventInfo.owner : '',
+        public: this.props.eventInfo.public
+          ? this.props.eventInfo.public
+          : false
       },
       sending: false
     };
@@ -50,13 +52,13 @@ class EventDetails extends Component {
     const showInvitesModal = this.state.showInvitesModal;
     const sending = this.state.sending;
     console.log(
-      "showInvitesModal",
+      'showInvitesModal',
       showInvitesModal,
       nextProps.inviteSuccess,
       !!nextProps.inviteError
     );
     console.log(
-      "willReceiveProps",
+      'willReceiveProps',
       nextProps,
       nextProps.eventInfo,
       nextProps.eventType
@@ -65,13 +67,13 @@ class EventDetails extends Component {
       showModal: nextProps.showModal,
       eventDetail: {
         id:
-          nextProps.eventType === "add"
+          nextProps.eventType === 'add'
             ? nextProps.newIndex
             : nextProps.eventInfo.id,
         title:
           nextProps.eventInfo && nextProps.eventInfo.title
             ? nextProps.eventInfo.title
-            : "",
+            : '',
         start: new Date(
           nextProps.eventInfo && nextProps.eventInfo.start
             ? nextProps.eventInfo.start
@@ -85,12 +87,11 @@ class EventDetails extends Component {
         allDay: nextProps.eventInfo.allDay ? true : false,
         hexColor: nextProps.eventInfo.hexColor
           ? nextProps.eventInfo.hexColor
-          : "#265985",
-        notes: nextProps.eventInfo.notes ? nextProps.eventInfo.notes : "",
-        guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : "",
-        owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : "",
-        public: nextProps.eventInfo.public ? nextProps.eventInfo.public: false
-
+          : '#265985',
+        notes: nextProps.eventInfo.notes ? nextProps.eventInfo.notes : '',
+        guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : '',
+        owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : '',
+        public: nextProps.eventInfo.public ? nextProps.eventInfo.public : false
       },
       showInvitesModal:
         showInvitesModal &&
@@ -102,9 +103,9 @@ class EventDetails extends Component {
 
   changeHandler(e, ref) {
     var eventDetail = this.state.eventDetail;
-    var val = "";
-    if (ref !== "allDay" && ref !== "public") {
-      if (ref === "start" || ref === "end") {
+    var val = '';
+    if (ref !== 'allDay' && ref !== 'public') {
+      if (ref === 'start' || ref === 'end') {
         val = new Date(moment(e));
       } else {
         val = e.target.value;
@@ -120,7 +121,7 @@ class EventDetails extends Component {
   addEvent() {
     const eventDetail = this.state.eventDetail;
     console.log(
-      "add event",
+      'add event',
       eventDetail.noInvites,
       this.hasGuests(eventDetail.guests)
     );
@@ -139,7 +140,7 @@ class EventDetails extends Component {
   showInvitesModal() {
     const guestsString = this.state.eventDetail.guests;
     const guests = guestsString.split(/[,\s]+/g);
-    console.log("dipatch load guest list", guests);
+    console.log('dipatch load guest list', guests);
     this.props.LoadGuestList(guests, this.state.eventDetail);
     this.setState({ showInvitesModal: true });
   }
@@ -160,17 +161,17 @@ class EventDetails extends Component {
     var inviteErrorMsg = [];
     if (this.props.inviteError) {
       const error = this.props.inviteError;
-      if (error.errcode === "M_CONSENT_NOT_GIVEN") {
+      if (error.errcode === 'M_CONSENT_NOT_GIVEN') {
         var linkUrl = error.message.substring(
-          error.message.indexOf("https://openintents.modular.im"),
+          error.message.indexOf('https://openintents.modular.im'),
           error.message.length - 1
         );
         inviteErrorMsg = (
           <div>
-            Sending not possible. Please review{" "}
+            Sending not possible. Please review{' '}
             <a target="_blank" rel="noopener noreferrer" href={linkUrl}>
               the T&amp;C of your chat provider
-            </a>{" "}
+            </a>{' '}
             openintents.modular.im (OI Chat)
           </div>
         );
@@ -189,7 +190,7 @@ class EventDetails extends Component {
             placeholder="Enter the Event Name"
             ref="title"
             value={this.state.eventDetail.title}
-            onChange={e => this.changeHandler(e, "title")}
+            onChange={e => this.changeHandler(e, 'title')}
           />
 
           <label> Start Date </label>
@@ -198,12 +199,12 @@ class EventDetails extends Component {
               value={this.state.eventDetail.start}
               dateFormat="MM-DD-YYYY"
               timeFormat={false}
-              onChange={e => this.changeHandler(e, "start")}
+              onChange={e => this.changeHandler(e, 'start')}
             />
           ) : (
             <Datetime
               value={this.state.eventDetail.start}
-              onChange={e => this.changeHandler(e, "start")}
+              onChange={e => this.changeHandler(e, 'start')}
             />
           )}
 
@@ -213,12 +214,12 @@ class EventDetails extends Component {
               value={this.state.eventDetail.end}
               dateFormat="MM-DD-YYYY"
               timeFormat={false}
-              onChange={e => this.changeHandler(e, "end")}
+              onChange={e => this.changeHandler(e, 'end')}
             />
           ) : (
             <Datetime
               value={this.state.eventDetail.end}
-              onChange={e => this.changeHandler(e, "end")}
+              onChange={e => this.changeHandler(e, 'end')}
             />
           )}
 
@@ -228,7 +229,7 @@ class EventDetails extends Component {
             placeholder="Event Notes"
             ref="notes"
             value={this.state.eventDetail.notes}
-            onChange={e => this.changeHandler(e, "notes")}
+            onChange={e => this.changeHandler(e, 'notes')}
           />
 
           <label> Guests </label>
@@ -237,15 +238,15 @@ class EventDetails extends Component {
             placeholder="Event guests"
             ref="guests"
             value={this.state.eventDetail.guests}
-            onChange={e => this.changeHandler(e, "guests")}
+            onChange={e => this.changeHandler(e, 'guests')}
           />
 
           <label> Event Color </label>
           <input
             type="color"
             value={this.state.eventDetail.hexColor}
-            onChange={e => this.changeHandler(e, "hexColor")}
-            style={{ marginRight: "20px", marginLeft: "5px" }}
+            onChange={e => this.changeHandler(e, 'hexColor')}
+            style={{ marginRight: '20px', marginLeft: '5px' }}
           />
 
           <input
@@ -253,7 +254,7 @@ class EventDetails extends Component {
             name="all_Day"
             value={this.state.eventDetail.id}
             checked={this.state.eventDetail.allDay}
-            onChange={e => this.changeHandler(e, "allDay")}
+            onChange={e => this.changeHandler(e, 'allDay')}
           />
           <label> All Day </label>
           <input
@@ -261,12 +262,12 @@ class EventDetails extends Component {
             name="public"
             value={this.state.eventDetail.public}
             checked={this.state.eventDetail.public}
-            onChange={e => this.changeHandler(e, "public")}
+            onChange={e => this.changeHandler(e, 'public')}
           />
           <label> Public </label>
         </Modal.Body>
         <Modal.Footer>
-          {this.props.eventType === "add" ? null : (
+          {this.props.eventType === 'add' ? null : (
             <Button
               bsStyle="warning"
               enabled={{ hasGuests }}
@@ -275,7 +276,7 @@ class EventDetails extends Component {
               Send Invites
             </Button>
           )}
-          {this.props.eventType === "add" ? (
+          {this.props.eventType === 'add' ? (
             <Button bsStyle="success" onClick={() => this.addEvent()}>
               Add
             </Button>
@@ -287,7 +288,7 @@ class EventDetails extends Component {
               Update
             </Button>
           )}
-          {this.props.eventType === "add" ? null : (
+          {this.props.eventType === 'add' ? null : (
             <Button
               bsStyle="danger"
               onClick={() => this.props.deleteEvent(this.state.eventDetail.id)}
