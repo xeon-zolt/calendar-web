@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { Modal } from "react-bootstrap";
+import { Modal, Panel } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
@@ -107,46 +107,52 @@ class EventCalendar extends Component {
     return (
       <div className="bodyContainer">
         {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions? */}
-        {showInstructions && (
-          <div className="well well-sm">
-            {signedIn && (
-              <div>
-                <div class="modal-header">
-                  <button
-                    type="button"
-                    class="close"
-                    onClick={handleHideInstructions}
-                  >
-                    <span aria-hidden="true">×</span>
-                    <span class="sr-only">Close</span>
-                  </button>
-                  <h4 id="contained-modal-title" class="modal-title">
-                    Instructions
-                  </h4>
-                </div>
-                <strong>To add an event: </strong> Click on the day you want to
-                add an event or drag up to the day you want to add the event for
-                multiple day event! <br />
-                <strong>To update and delete an event:</strong> Click on the
-                event you wish to update or delete!
-              </div>
-            )}
-            {!signedIn && (
-              <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title">
-                  Private, Encrypted Calendar in the Cloud
-                </Modal.Title>
-                <strong>To learn about Blockstack: </strong> A good starting
-                point is{" "}
-                <a href="https://docs.blockstack.org">
-                  Blockstack's documentation
-                </a>
-                .<br />
-                <strong>I have already a Blockstack ID:</strong> Just sign in
-                using the blockstack button above!
-              </Modal.Header>
-            )}
-          </div>
+        {signedIn && showInstructions && (
+          <Panel>
+            <Panel.Heading>
+              Instructions
+              <button
+                type="button"
+                class="close"
+                onClick={handleHideInstructions}
+              >
+                <span aria-hidden="true">×</span>
+                <span class="sr-only">Close</span>
+              </button>
+            </Panel.Heading>
+            <Panel.Body>
+              <strong>To add an event: </strong> Click on the day you want to
+              add an event or drag up to the day you want to add the event for
+              multiple day event! <br />
+              <strong>To update and delete an event:</strong> Click on the event
+              you wish to update or delete!
+            </Panel.Body>
+          </Panel>
+        )}
+        {!signedIn && (
+          <Panel>
+            <Panel.Heading>
+              Private, Encrypted Calendar in the Cloud
+              <button
+                type="button"
+                class="close"
+                onClick={handleHideInstructions}
+              >
+                <span aria-hidden="true">×</span>
+                <span class="sr-only">Close</span>
+              </button>
+            </Panel.Heading>
+            <Panel.Body>
+              <strong>To learn about Blockstack: </strong> A good starting point
+              is{" "}
+              <a href="https://docs.blockstack.org">
+                Blockstack's documentation
+              </a>
+              .<br />
+              <strong>I have already a Blockstack ID:</strong> Just sign in
+              using the blockstack button above!
+            </Panel.Body>
+          </Panel>
         )}
         <EventDetails
           showModal={this.state.showModal}
