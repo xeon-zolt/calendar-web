@@ -361,6 +361,8 @@ function importCalendarEvents(calendar) {
 
 // ###########################################################################
 // List of all available import functions as promises
+// :NOTE: As there is no more reliance on any knowledge of how these evens are managed
+// by the app, all import functions could be moved to a separate file
 // ###########################################################################
 
 function initializeDefaultEvents({ src, events }) {
@@ -429,6 +431,8 @@ loadCalendarEventFromUser(
   "307baf34-9ceb-492f-8dab-ab595f2a09df",
   "e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6"
 );
+
+// END of import options
 
 export function publishEvents(event, remove) {
   event.uuid = uuid(); //TODO move this into event creation
