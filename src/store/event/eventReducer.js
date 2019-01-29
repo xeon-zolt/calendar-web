@@ -9,7 +9,8 @@ import {
   SEND_INVITES_FAILED,
   // ADD_CONTACT,
   // LOAD_GUEST_LIST,
-  CURRENT_GUESTS
+  CURRENT_GUESTS,
+  VIEW_EVENT
 } from "../ActionTypes";
 
 import {
@@ -38,6 +39,8 @@ export default function reduce(state = initialState, action = {}) {
       return { ...state, contacts: action.payload.contacts };
     case ALL_EVENTS:
       return { ...state, allEvents: action.allEvents };
+    case VIEW_EVENT:
+      return { ...state, currentEvent: action.payload.eventInfo };
     case REMOVE_EVENT:
       var newState = state;
       newState.allEvents = newState.allEvents.filter(function(obj) {

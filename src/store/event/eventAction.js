@@ -4,7 +4,8 @@ import {
   SEND_INVITES_FAILED,
   CURRENT_GUESTS,
   USER,
-  ALL_CONTACTS
+  ALL_CONTACTS,
+  VIEW_EVENT
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -243,13 +244,32 @@ function respondToInvite(
   });
 }
 
-export function GetInitialEvents() {
+export function GetInitialEvents(query) {
   return async (dispatch, getState) => {
     if (blockstack.isUserSignedIn()) {
       console.log("is signed in");
       const userData = blockstack.loadUserData();
       dispatch({ type: AUTH_CONNECTED, user: userData });
       dispatch({ type: USER, user: userData });
+
+      if (query) {
+        const { u, e, p } = (query.substring(1).split("&") || []).reduce(
+          (acc, d) => {
+            const [k, v] = d.split("=");
+            if (k) {
+              acc[k] = v;
+            }
+            return acc;
+          },
+          {}
+        );
+        if (u && e && p) {
+          loadCalendarEventFromUser(u, e, p).then(eventInfo => {
+            dispatch({ type: VIEW_EVENT, payload: { eventInfo } });
+          });
+        }
+      }
+
       getCalendars().then(calendars => {
         loadCalendarData(dispatch, calendars);
       });
@@ -465,7 +485,9 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
     .getFile(sharedUrl(eventUid), { decrypt: false, username })
     .then(
       encryptedContent => {
-        return blockstack.decryptContent(encryptedContent, { privateKey });
+        return JSON.parse(
+          blockstack.decryptContent(encryptedContent, { privateKey })
+        );
       },
       error => {
         return Promise.reject("Couldn't load event", {

@@ -10,19 +10,20 @@ export default connect(
     const { events, auth } = state;
     const { EventDetails } = redux.store.views;
     const signedIn = !!auth.user;
-    const { inviteSuccess } = events;
+    const { inviteSuccess, currentEvent } = events;
     return {
       events,
       signedIn,
       inviteSuccess,
       views: {
         EventDetails
-      }
+      },
+      currentEvent
     };
   },
   dispatch => {
     return {
-      GetInitialEvents: search => dispatch(GetInitialEvents(search))
+      getInitialEvents: search => dispatch(GetInitialEvents(search))
     };
   }
 )(EventCalendar);

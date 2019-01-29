@@ -8,6 +8,9 @@ import "../../css/datetime.css";
 var Datetime = require("react-datetime");
 
 const guestsStringToArray = function(guestsString) {
+  if (!guestsString || !guestsString.length) {
+    return [];
+  }
   const guests = guestsString.split(/[,\s]+/g);
   return guests.filter(g => g.length > 0).map(g => g.toLowerCase());
 };
@@ -150,7 +153,7 @@ class EventDetails extends Component {
     const { eventDetail } = this.state;
     const { eventType, sendInvites } = this.props;
     this.setState({ sending: true });
-    const guestsString = this.state.eventDetail.guests;
+    const guestsString = eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
     sendInvites(eventDetail, guests, eventType);
   }
