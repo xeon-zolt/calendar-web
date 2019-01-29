@@ -11,7 +11,7 @@ import ConnectedGuestList from "./redux-guest-list";
 
 import registerServiceWorker from "./registerServiceWorker";
 
-import * as reducers from "../../store/rootReducer";
+import * as reducers from "../store/rootReducer";
 const store = createStore(combineReducers(reducers), applyMiddleware(thunk));
 
 // #############################################################################################

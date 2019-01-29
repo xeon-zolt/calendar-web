@@ -1,8 +1,7 @@
-import React, { Component } from "react";
 import { connect } from "react-redux";
-import EventDetails from "../event-details/EventDetails";
-import { LoadGuestList, SendInvites } from "../../store/event/eventAction";
-import { REMOVE_EVENT, ADD_EVENT, UPDATE_EVENT } from "../../store/ActionTypes";
+import EventDetails from "../components/event-details/EventDetails";
+import { LoadGuestList, SendInvites } from "../store/event/eventAction";
+import { REMOVE_EVENT, ADD_EVENT, UPDATE_EVENT } from "../store/ActionTypes";
 
 export default connect(
   (state, redux) => {

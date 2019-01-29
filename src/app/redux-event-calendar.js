@@ -1,8 +1,7 @@
-import React, { Component } from "react";
 import { connect } from "react-redux";
-import EventCalendar from "../event-calendar/EventCalendar";
+import EventCalendar from "../components/event-calendar/EventCalendar";
 
-import { GetInitialEvents } from "../../store/event/eventAction";
+import { GetInitialEvents } from "../store/event/eventAction";
 
 export default connect(
   (state, redux) => {

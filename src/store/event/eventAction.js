@@ -1,5 +1,13 @@
-import * as types from "./eventActionTypes";
-import * as authTypes from "./authActionTypes";
+import {
+  ALL_EVENTS,
+  INVITES_SENT,
+  SEND_INVITES_FAILED,
+  CURRENT_GUESTS,
+  USER,
+  ALL_CONTACTS
+} from "../ActionTypes";
+
+import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 import moment from "moment";
 import * as blockstack from "blockstack";
 import * as ics from "ics";
@@ -10,13 +18,13 @@ export function SendInvites(eventInfo, guests, type) {
     sendInvitesToGuests(getState(), eventInfo, guests).then(
       ({ eventInfo, contacts }) => {
         dispatch({
-          type: types.INVITES_SENT,
+          type: INVITES_SENT,
           payload: { eventInfo, type }
         });
       },
       error => {
         dispatch({
-          type: types.SEND_INVITES_FAILED,
+          type: SEND_INVITES_FAILED,
           payload: { error }
         });
       }
@@ -31,7 +39,7 @@ export function LoadGuestList(guests, eventInfo) {
       ({ profiles, contacts }) => {
         console.log("profiles", profiles);
         dispatch({
-          type: types.CURRENT_GUESTS,
+          type: CURRENT_GUESTS,
           payload: { profiles, eventInfo }
         });
       },
@@ -250,8 +258,8 @@ export function GetInitialEvents() {
     if (blockstack.isUserSignedIn()) {
       console.log("is signed in");
       const userData = blockstack.loadUserData();
-      dispatch({ type: authTypes.AUTH_CONNECTED, user: userData });
-      dispatch({ type: types.USER, user: userData });
+      dispatch({ type: AUTH_CONNECTED, user: userData });
+      dispatch({ type: USER, user: userData });
 
       loadCalendarData(dispatch);
     } else if (blockstack.isSignInPending()) {
@@ -259,10 +267,10 @@ export function GetInitialEvents() {
       blockstack.handlePendingSignIn().then(userData => {
         console.log("redirecting to " + window.location.origin);
         window.location = window.location.origin;
-        dispatch({ type: authTypes.AUTH_CONNECTED, user: userData });
+        dispatch({ type: AUTH_CONNECTED, user: userData });
       });
     } else {
-      dispatch({ type: authTypes.AUTH_DISCONNECTED });
+      dispatch({ type: AUTH_DISCONNECTED });
     }
   };
 }
@@ -319,7 +327,7 @@ function loadCalendarData(dispatch) {
     // console.log("cals", calendarEvents);
     var allCalendars = Object.values(calendarEvents);
     var allEvents = [].concat.apply([], allCalendars.map(c => c.allEvents));
-    dispatch({ type: types.ALL_EVENTS, allEvents });
+    dispatch({ type: ALL_EVENTS, allEvents });
   });
 
   blockstack.getFile("Contacts").then(contactsContent => {
@@ -329,7 +337,7 @@ function loadCalendarData(dispatch) {
     } else {
       contacts = JSON.parse(contactsContent);
     }
-    dispatch({ type: types.ALL_CONTACTS, payload: { contacts } });
+    dispatch({ type: ALL_CONTACTS, payload: { contacts } });
   });
 }
 

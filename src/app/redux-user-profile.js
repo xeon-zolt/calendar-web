@@ -1,7 +1,7 @@
-import UserProfile from "../auth-user-profile/UserProfile";
+import UserProfile from "../components/auth-user-profile/UserProfile";
 
 import { connect } from "react-redux";
-import { SignUserIn, SignUserOut } from "../../store/authAction";
+import { SignUserIn, SignUserOut } from "../store/auth/authAction";
 
 const mapStateToProps = (state, redux) => {
   const user = state.auth.user;

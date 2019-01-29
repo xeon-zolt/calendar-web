@@ -1,4 +1,10 @@
-import * as types from "./authActionTypes";
+import {
+  AUTH_SIGN_IN,
+  AUTH_SIGN_OUT,
+  AUTH_CONNECTING,
+  AUTH_CONNECTED,
+  AUTH_DISCONNECTED
+} from "../ActionTypes";
 import * as blockstack from "blockstack";
 
 let initialState = {
@@ -8,13 +14,13 @@ let initialState = {
 
 export default function reduce(state = initialState, action = {}) {
   switch (action.type) {
-    case types.AUTH_CONNECTED:
+    case AUTH_CONNECTED:
       return { ...state, user: action.user };
-    case types.AUTH_CONNECTING:
+    case AUTH_CONNECTING:
       return { ...state, userMessage: "connecting" };
-    case types.AUTH_DISCONNECTED:
+    case AUTH_DISCONNECTED:
       return { ...state, user: undefined, userMessage: "disconnected" };
-    case types.AUTH_SIGN_IN:
+    case AUTH_SIGN_IN:
       try {
         blockstack.redirectToSignIn(
           `${window.location}`,
@@ -26,7 +32,7 @@ export default function reduce(state = initialState, action = {}) {
         console.log(e);
       }
       return { ...state, userMessage: "redirecting to sign-in" };
-    case types.AUTH_SIGN_OUT:
+    case AUTH_SIGN_OUT:
       try {
         blockstack.signUserOut();
       } catch (e) {
