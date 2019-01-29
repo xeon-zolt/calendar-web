@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { Modal, Button, ProgressBar, Switch } from "react-bootstrap";
+import { Modal, Button, ProgressBar } from "react-bootstrap";
 import moment from "moment";
 
 import "../../css/datetime.css";
@@ -129,7 +129,7 @@ class EventDetails extends Component {
   }
 
   popInvitesModal(eventDetail) {
-    const { guests } = eventDetail;
+    let { guests } = eventDetail;
     const { loadGuestList } = this.props;
     if (typeof guests !== "string") {
       guests = "";

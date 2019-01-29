@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { Modal, Panel, Grid, Row, Col } from "react-bootstrap";
+import { Panel, Grid, Row, Col } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
@@ -93,13 +93,11 @@ class EventCalendar extends Component {
     const { EventDetails } = this.props;
     const {
       handleHide,
-      handleShow,
       handleHideInstructions,
-      closeDetails,
       handleEditEvent,
       handleAddEvent
     } = this.bound;
-    console.log("allevents", this.props.events.allEvents);
+    // console.log("allevents", this.props.events.allEvents);
     return (
       <div className="bodyContainer">
         {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions? */}

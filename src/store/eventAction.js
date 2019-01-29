@@ -242,11 +242,11 @@ function respondToInvite(
     body: text
   });
 }
-console.log(respondToInvite);
+// console.log(respondToInvite);
 
 export function GetInitialEvents() {
   return async (dispatch, getState) => {
-    console.log("get events");
+    // console.log("get events");
     if (blockstack.isUserSignedIn()) {
       console.log("is signed in");
       const userData = blockstack.loadUserData();
@@ -316,7 +316,7 @@ function loadCalendarData(dispatch) {
     });
   }
   calendarPromises.then(calendarEvents => {
-    console.log("cals", calendarEvents);
+    // console.log("cals", calendarEvents);
     var allCalendars = Object.values(calendarEvents);
     var allEvents = [].concat.apply([], allCalendars.map(c => c.allEvents));
     dispatch({ type: types.ALL_EVENTS, allEvents });
@@ -398,7 +398,7 @@ function importCalendarEventsFromICS({ src }) {
 }
 
 function importPublicEventsFromUser({ src, user }) {
-  console.log("importPublicEventsFromUser", { src, user });
+  // console.log("importPublicEventsFromUser", { src, user });
   return blockstack
     .getFile(src, {
       decrypt: false,
@@ -419,8 +419,8 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
   blockstack
     .getFile(sharedUrl(eventUid), { decrypt: false, username })
     .then(encryptedContent => {
-      var event = blockstack.decryptContent(encryptedContent, { privateKey });
-      console.log("shared event", event);
+      // var event = blockstack.decryptContent(encryptedContent, { privateKey });
+      // console.log("shared event", event);
     });
 }
 

@@ -1,10 +1,9 @@
 import React, { Component } from "react";
 import "./App.css";
-import EventCalendar from "../event-calendar/redux-connect";
-import UserProfile from "../auth-user-profile/redux-connect";
 
 class App extends Component {
   render() {
+    const { store, EventCalendar, UserProfile } = this.props;
     return (
       <div className="App">
         <header className="App-header">
