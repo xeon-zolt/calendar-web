@@ -20,8 +20,8 @@ function mapDispatchToProps(dispatch) {
   return {
     loadGuestList: (guests, details) =>
       dispatch(LoadGuestList(guests, details)),
-    sendInvites: (details, eventType) =>
-      dispatch(SendInvites(details, eventType)),
+    sendInvites: (details, guests, eventType) =>
+      dispatch(SendInvites(details, guests, eventType)),
     deleteEvent: id => dispatch({ type: types.REMOVE_EVENT, payload: id }),
     addEvent: obj => dispatch({ type: types.ADD_EVENT, payload: obj }),
     updateEvent: obj =>

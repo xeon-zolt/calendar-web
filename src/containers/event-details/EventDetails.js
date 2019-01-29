@@ -7,6 +7,11 @@ import "../../css/datetime.css";
 
 var Datetime = require("react-datetime");
 
+const guestsStringToArray = function(guestsString) {
+  const guests = guestsString.split(/[,\s]+/g);
+  return guests.filter(g => g.length > 0).map(g => g.toLowerCase());
+};
+
 function checkHasGuests(str) {
   if (!str || !str.length) {
     return false;
@@ -31,6 +36,7 @@ class EventDetails extends Component {
     const { eventInfo } = props;
 
     this.state = {
+      showModal: this.props.showModal,
       showInvitesModal: false,
       eventDetail: Object.assign({}, eventDefaults, eventInfo),
       sending: false
@@ -108,6 +114,10 @@ class EventDetails extends Component {
     }
   }
 
+  hasGuests(guestsString) {
+    return guestsStringToArray(guestsString).length > 0;
+  }
+
   deleteEvent(id) {
     console.log("deleteEvent");
     const { deleteEvent, handleHide } = this.props;
@@ -143,7 +153,9 @@ class EventDetails extends Component {
     const { eventDetail } = this.state;
     const { eventType, sendInvites } = this.props;
     this.setState({ sending: true });
-    sendInvites(eventDetail, eventType);
+const guestsString = this.state.eventDetail.guests;
+    const guests = guestsStringToArray(guestsString);
+    sendInvites(eventDetail, guests, eventType);
   }
 
   render() {
