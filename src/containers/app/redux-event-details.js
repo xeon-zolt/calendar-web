@@ -1,21 +1,19 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import EventDetails from "../event-details/EventDetails";
-import ConnectedGuestList from "./redux-guest-list";
 import { LoadGuestList, SendInvites } from "../../store/eventAction";
 import * as types from "../../store/eventActionTypes";
 
 export default connect(
   (state, redux) => {
     console.log("[[ConnectedEventDetails]]", state, redux.store);
+    const { GuestList } = redux.store.views;
     const inviteError = state.events.inviteError;
     const inviteSuccess = state.events.inviteSuccess;
     return {
       inviteError,
       inviteSuccess,
-      GuestList: props => {
-        return <ConnectedGuestList store={redux.store} {...props} />;
-      }
+      views: { GuestList }
     };
   },
   dispatch => {

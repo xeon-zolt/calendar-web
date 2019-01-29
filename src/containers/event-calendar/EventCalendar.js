@@ -88,9 +88,9 @@ class EventCalendar extends Component {
   }
 
   render() {
-    const { signedIn } = this.props;
+    const { signedIn, views } = this.props;
     const { showInstructions } = this.state;
-    const { EventDetails } = this.props;
+    const { EventDetails } = views;
     const {
       handleHide,
       handleHideInstructions,

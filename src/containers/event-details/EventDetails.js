@@ -157,7 +157,8 @@ class EventDetails extends Component {
 
   render() {
     const { eventDetail, showInvitesModal, sending } = this.state;
-    const { handleHide, GuestList, inviteError, eventType } = this.props;
+    const { views, handleHide, inviteError, eventType } = this.props;
+    const { GuestList } = views;
     const {
       handleDataChange,
       handleInvitesHide,
