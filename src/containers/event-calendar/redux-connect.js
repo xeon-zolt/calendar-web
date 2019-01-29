@@ -2,7 +2,7 @@ import { connect } from "react-redux";
 import EventCalendar from "./EventCalendar";
 
 import * as eventAction from "../../store/eventAction";
-import * as types from "../../store/eventActionTypes";
+import EventDetails from "../event-details/redux-connect";
 
 function mapStateToProps(state) {
   var { events, auth } = state;
@@ -12,17 +12,14 @@ function mapStateToProps(state) {
   return {
     events,
     signedIn,
-    inviteSuccess
+    inviteSuccess,
+    EventDetails
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
-    GetInitialEvents: search => dispatch(eventAction.GetInitialEvents(search)),
-    DeleteEvent: id => dispatch({ type: types.REMOVE_EVENT, payload: id }),
-    AddEvent: obj => dispatch({ type: types.ADD_EVENT, payload: obj }),
-    UpdateEvent: obj =>
-      dispatch({ type: types.UPDATE_EVENT, payload: { id: obj.id, obj: obj } })
+    GetInitialEvents: search => dispatch(eventAction.GetInitialEvents(search))
   };
 }
 
