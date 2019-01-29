@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { Panel, Grid, Row, Col } from 'react-bootstrap';
+import { Modal, Panel, Grid, Row, Col } from 'react-bootstrap';
 import BigCalendar from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-
-import EventDetails from '../event-details/redux-connect';
 
 let localizer = BigCalendar.momentLocalizer(moment);
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
@@ -14,19 +12,14 @@ class EventCalendar extends Component {
     super(props);
     this.state = {
       showInstructions: true,
-      showModal: false,
-      eventType: 'add',
-      newIndex: 0,
-      eventInfo: {}
+      eventModal: undefined
     };
 
     this.bound = [
       'handleHide',
       'handleHideInstructions',
-      'handleShow',
-      'deleteEvent',
-      'addEvent',
-      'updateEvent'
+      'handleAddEvent',
+      'handleEditEvent'
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this);
       return acc;
@@ -39,45 +32,40 @@ class EventCalendar extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.inviteSuccess) {
-      this.setState({ showModal: false });
+      this.setState({ eventModal: undefined });
     }
   }
   handleHide() {
-    this.setState({ showModal: false });
+    this.setState({ eventModal: undefined });
   }
 
   handleHideInstructions() {
     this.setState({ showInstructions: false });
   }
 
-  handleShow(slotInfo, eventType) {
-    var currentIndex = this.props.events.allEvents.length;
-    console.log('handleShow', eventType);
+  handleEditEvent(event) {
+    console.log('handleEditEvent', event);
     this.setState({
-      showModal: true,
-      eventType: eventType,
-      eventInfo: slotInfo,
-      newIndex: currentIndex
+      eventModal: {
+        eventType: 'edit',
+        eventInfo: event
+      }
     });
   }
 
-  deleteEvent(id) {
-    this.props.DeleteEvent(id);
-    this.setState({ showModal: false });
-  }
-
-  addEvent(obj) {
-    this.props.AddEvent(obj);
-    this.setState({ showModal: false });
-  }
-
-  updateEvent(obj) {
-    this.props.AddEvent(obj);
-    this.setState({ showModal: false });
+  handleAddEvent(slotInfo) {
+    console.log('handleAddEvent');
+    slotInfo.id = this.props.events.allEvents.length; // currentIndex
+    this.setState({
+      eventModal: {
+        eventType: 'add',
+        eventInfo: slotInfo
+      }
+    });
   }
 
   eventStyle(event, start, end, isSelected) {
-    var bgColor = event.hexColor ? event.hexColor : '#265985';
+    var bgColor = event && event.hexColor ? event.hexColor : '#265985';
     var style = {
       backgroundColor: bgColor,
       borderRadius: '5px',
@@ -92,17 +80,25 @@ class EventCalendar extends Component {
   }
 
   getEventStart(eventInfo) {
-    return new Date(eventInfo.start);
+    return eventInfo ? new Date(eventInfo.start) : new Date();
   }
 
   getEventEnd(eventInfo) {
-    return new Date(eventInfo.end);
+    return eventInfo ? new Date(eventInfo.end) : new Date();
   }
 
   render() {
     const { signedIn } = this.props;
     const { showInstructions } = this.state;
-    const { handleHide, handleShow, handleHideInstructions } = this.bound;
+    const { EventDetails } = this.props;
+    const {
+      handleHide,
+      handleShow,
+      handleHideInstructions,
+      closeDetails,
+      handleEditEvent,
+      handleAddEvent
+    } = this.bound;
     console.log('allevents', this.props.events.allEvents);
     return (
       <div className="bodyContainer">
@@ -113,22 +109,22 @@ class EventCalendar extends Component {
               Instructions
               <button
                 type="button"
-                class="close"
+                className="close"
                 onClick={handleHideInstructions}
               >
                 <span aria-hidden="true">×</span>
-                <span class="sr-only">Close</span>
+                <span className="sr-only">Close</span>
               </button>
             </Panel.Heading>
             <Panel.Body>
               <Grid>
                 <Row style={{ textAlign: 'left' }}>
-                  <Col md="5">
+                  <Col md={5}>
                     <strong>To add an event: </strong> Click on the day you want
                     to add an event or drag up to the day you want to add the
                     event for multiple day event! <br />
                   </Col>
-                  <Col md="5">
+                  <Col md={5}>
                     <strong>To update and delete an event:</strong> Click on the
                     event you wish to update or delete!
                   </Col>
@@ -147,7 +143,7 @@ class EventCalendar extends Component {
                 onClick={handleHideInstructions}
               >
                 <span aria-hidden="true">×</span>
-                <span class="sr-only">Close</span>
+                <span className="sr-only">Close</span>
               </button>
             </Panel.Heading>
             <Panel.Body>
@@ -162,16 +158,9 @@ class EventCalendar extends Component {
             </Panel.Body>
           </Panel>
         )}
-        <EventDetails
-          showModal={this.state.showModal}
-          handleHide={handleHide}
-          eventType={this.state.eventType}
-          eventInfo={this.state.eventInfo}
-          newIndex={this.state.newIndex}
-          deleteEvent={this.deleteEvent}
-          addEvent={this.addEvent}
-          updateEvent={this.updateEvent}
-        />
+        {this.state.eventModal && (
+          <EventDetails handleHide={handleHide} {...this.state.eventModal} />
+        )}
         <BigCalendar
           localizer={localizer}
           selectable={this.props.signedIn}
@@ -180,8 +169,8 @@ class EventCalendar extends Component {
           step={60}
           showMultiDayTimes
           defaultDate={new Date(moment())}
-          onSelectEvent={event => handleShow(event, 'edit')}
-          onSelectSlot={slotInfo => handleShow(slotInfo, 'add')}
+          onSelectEvent={event => handleEditEvent(event)}
+          onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
           style={{ minHeight: '500px' }}
           eventPropGetter={this.eventStyle}
           startAccessor={this.getEventStart}

@@ -1,103 +1,81 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
-import { Modal, Button, ProgressBar } from 'react-bootstrap';
-import moment from 'moment';
-import '../../css/datetime.css';
-import GuestList from '../event-guest-list/redux-connect';
+import { Modal, Button, ProgressBar, Switch } from "react-bootstrap";
+import moment from "moment";
 
-var Datetime = require('react-datetime');
+import "../../css/datetime.css";
+
+var Datetime = require("react-datetime");
 
 const guestsStringToArray = function(guestsString) {
   const guests = guestsString.split(/[,\s]+/g);
   return guests.filter(g => g.length > 0).map(g => g.toLowerCase());
 };
 
+function checkHasGuests(str) {
+  if (!str || !str.length) {
+    return false;
+  }
+  const guests = str.split(/[,\s]+/g);
+  return guests.filter(g => g.length > 0).length > 0;
+}
+
+const eventDefaults = {
+  title: null,
+  start: moment(),
+  end: moment(),
+  allDay: false,
+  hexColor: "#265985",
+  notes: "",
+  guests: ""
+};
+
 class EventDetails extends Component {
   constructor(props) {
     super(props);
+    const { eventInfo } = props;
+
     this.state = {
       showModal: this.props.showModal,
       showInvitesModal: false,
-      eventDetail: {
-        id:
-          this.props.eventType === 'add'
-            ? this.props.newIndex
-            : this.props.eventInfo.id,
-        title:
-          this.props.eventInfo && this.props.eventInfo.title
-            ? this.props.eventInfo.title
-            : null,
-        start:
-          this.props.eventInfo && this.props.eventInfo.start
-            ? this.props.eventInfo.start
-            : moment(),
-        end:
-          this.props.eventInfo && this.props.eventInfo.end
-            ? this.props.eventInfo.end
-            : moment,
-        allDay: this.props.eventInfo.allDay ? true : false,
-        hexColor: '#265985',
-        notes: this.props.eventInfo.notes ? this.props.eventInfo.notes : '',
-        guests: this.props.eventInfo.guests ? this.props.eventInfo.guests : '',
-        owner: this.props.eventInfo.owner ? this.props.eventInfo.owner : '',
-        public: this.props.eventInfo.public
-          ? this.props.eventInfo.public
-          : false
-      },
+      eventDetail: Object.assign({}, eventDefaults, eventInfo),
       sending: false
     };
-    this.changeHandler = this.changeHandler.bind(this);
-    this.handleInvitesHide = this.handleInvitesHide.bind(this);
-    this.showInvitesModal = this.showInvitesModal.bind(this);
-    this.sendInvites = this.sendInvites.bind(this);
-    this.addEvent = this.addEvent.bind(this);
+
+    console.log(eventInfo);
+
+    this.bound = [
+      "handleDataChange",
+      "handleInvitesHide",
+      "popInvitesModal",
+      "sendInvites",
+      "addEvent",
+      "updateEvent",
+      "deleteEvent"
+    ].reduce((acc, d) => {
+      acc[d] = this[d].bind(this);
+      return acc;
+    }, {});
   }
 
   componentWillReceiveProps(nextProps) {
-    const showInvitesModal = this.state.showInvitesModal;
-    const sending = this.state.sending;
+    const { showInvitesModal, sending } = this.state;
+
     console.log(
-      'showInvitesModal',
+      "showInvitesModal",
       showInvitesModal,
       nextProps.inviteSuccess,
       !!nextProps.inviteError
     );
     console.log(
-      'willReceiveProps',
+      "willReceiveProps",
       nextProps,
-      nextProps.eventInfo,
+      JSON.stringify(nextProps.eventInfo),
       nextProps.eventType
     );
+
     this.setState({
-      showModal: nextProps.showModal,
-      eventDetail: {
-        id:
-          nextProps.eventType === 'add'
-            ? nextProps.newIndex
-            : nextProps.eventInfo.id,
-        title:
-          nextProps.eventInfo && nextProps.eventInfo.title
-            ? nextProps.eventInfo.title
-            : '',
-        start: new Date(
-          nextProps.eventInfo && nextProps.eventInfo.start
-            ? nextProps.eventInfo.start
-            : moment()
-        ),
-        end: new Date(
-          nextProps.eventInfo && nextProps.eventInfo.end
-            ? nextProps.eventInfo.end
-            : moment()
-        ),
-        allDay: nextProps.eventInfo.allDay ? true : false,
-        hexColor: nextProps.eventInfo.hexColor
-          ? nextProps.eventInfo.hexColor
-          : '#265985',
-        notes: nextProps.eventInfo.notes ? nextProps.eventInfo.notes : '',
-        guests: nextProps.eventInfo.guests ? nextProps.eventInfo.guests : '',
-        owner: nextProps.eventInfo.owner ? nextProps.eventInfo.owner : '',
-        public: nextProps.eventInfo.public ? nextProps.eventInfo.public : false
-      },
+      eventDetail: Object.assign({}, eventDefaults, nextProps.eventInfo),
       showInvitesModal:
         showInvitesModal &&
         !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
@@ -106,11 +84,11 @@ class EventDetails extends Component {
     });
   }
 
-  changeHandler(e, ref) {
-    var eventDetail = this.state.eventDetail;
-    var val = '';
-    if (ref !== 'allDay' && ref !== 'public') {
-      if (ref === 'start' || ref === 'end') {
+  handleDataChange(e, ref) {
+    var { eventDetail } = this.state;
+    var val = "";
+    if (ref !== "allDay" && ref !== "public") {
+      if (ref === "start" || ref === "end") {
         val = new Date(moment(e));
       } else {
         val = e.target.value;
@@ -124,16 +102,15 @@ class EventDetails extends Component {
   }
 
   addEvent() {
-    const eventDetail = this.state.eventDetail;
-    console.log(
-      'add event',
-      eventDetail.noInvites,
-      this.hasGuests(eventDetail.guests)
-    );
-    if (eventDetail.noInvites || !this.hasGuests(eventDetail.guests)) {
-      this.props.addEvent(eventDetail);
+    const { eventDetail } = this.state;
+    const { addEvent, handleHide } = this.props;
+    const { guests, noInvites } = eventDetail;
+    console.log("add event", eventDetail.noInvites, checkHasGuests(guests));
+    if (noInvites || !checkHasGuests(guests)) {
+      addEvent(eventDetail);
+      handleHide();
     } else {
-      this.showInvitesModal();
+      this.popInvitesModal(eventDetail);
     }
   }
 
@@ -141,54 +118,81 @@ class EventDetails extends Component {
     return guestsStringToArray(guestsString).length > 0;
   }
 
-  showInvitesModal() {
-    const guestsString = this.state.eventDetail.guests;
-    const guests = guestsStringToArray(guestsString);
-    console.log('dipatch load guest list', guests);
-    this.props.LoadGuestList(guests, this.state.eventDetail);
+  deleteEvent(id) {
+    console.log("deleteEvent");
+    const { deleteEvent, handleHide } = this.props;
+    deleteEvent(id);
+    handleHide();
+  }
+
+  updateEvent(obj) {
+    const { updateEvent, handleHide } = this.props;
+    updateEvent(obj);
+    handleHide();
+  }
+
+  popInvitesModal(eventDetail) {
+    const { guests } = eventDetail;
+    const { loadGuestList } = this.props;
+    if (typeof guests !== "string") {
+      guests = "";
+    }
+    const guestList = guests.toLowerCase().split(/[,\s]+/g);
+    console.log("dipatch load guest list", guestList);
+    loadGuestList(guestList, eventDetail);
     this.setState({ showInvitesModal: true });
   }
 
   handleInvitesHide() {
+    const { eventDetail } = this.state;
     this.setState({ showInvitesModal: false });
-    const eventDetail = this.state.eventDetail;
     eventDetail.noInvites = true;
   }
 
   sendInvites() {
+    const { eventDetail } = this.state;
+    const { eventType, sendInvites } = this.props;
     this.setState({ sending: true });
-    const guestsString = this.state.eventDetail.guests;
+const guestsString = this.state.eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
-    this.props.SendInvites(
-      this.state.eventDetail,
-      guests,
-      this.props.eventType
-    );
+    sendInvites(eventDetail, guests, eventType);
   }
 
   render() {
-    const hasGuests = this.state.eventDetail.guests.length > 0;
+    const { eventDetail, showInvitesModal, sending } = this.state;
+    const { handleHide, GuestList, inviteError, eventType } = this.props;
+    const {
+      handleDataChange,
+      handleInvitesHide,
+      popInvitesModal,
+      sendInvites,
+      addEvent,
+      updateEvent,
+      deleteEvent
+    } = this.bound;
+    const hasGuests = checkHasGuests(eventDetail.guests);
+    console.log("hasGuests", hasGuests);
     var inviteErrorMsg = [];
-    if (this.props.inviteError) {
-      const error = this.props.inviteError;
-      if (error.errcode === 'M_CONSENT_NOT_GIVEN') {
+    if (inviteError) {
+      const error = inviteError;
+      if (error.errcode === "M_CONSENT_NOT_GIVEN") {
         var linkUrl = error.message.substring(
-          error.message.indexOf('https://openintents.modular.im'),
+          error.message.indexOf("https://openintents.modular.im"),
           error.message.length - 1
         );
         inviteErrorMsg = (
           <div>
-            Sending not possible. Please review{' '}
+            Sending not possible. Please review{" "}
             <a target="_blank" rel="noopener noreferrer" href={linkUrl}>
               the T&amp;C of your chat provider
-            </a>{' '}
+            </a>{" "}
             openintents.modular.im (OI Chat)
           </div>
         );
       }
     }
     return (
-      <Modal show={this.state.showModal} onHide={this.props.handleHide}>
+      <Modal show={true} onHide={handleHide}>
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
@@ -199,37 +203,37 @@ class EventDetails extends Component {
             className="form-control"
             placeholder="Enter the Event Name"
             ref="title"
-            value={this.state.eventDetail.title}
-            onChange={e => this.changeHandler(e, 'title')}
+            value={eventDetail.title}
+            onChange={e => handleDataChange(e, "title")}
           />
 
           <label> Start Date </label>
-          {this.state.eventDetail.allDay ? (
+          {eventDetail.allDay ? (
             <Datetime
-              value={this.state.eventDetail.start}
+              value={eventDetail.start}
               dateFormat="MM-DD-YYYY"
               timeFormat={false}
-              onChange={e => this.changeHandler(e, 'start')}
+              onChange={e => handleDataChange(e, "start")}
             />
           ) : (
             <Datetime
-              value={this.state.eventDetail.start}
-              onChange={e => this.changeHandler(e, 'start')}
+              value={eventDetail.start}
+              onChange={e => handleDataChange(e, "start")}
             />
           )}
 
           <label> End Date </label>
-          {this.state.eventDetail.allDay ? (
+          {eventDetail.allDay ? (
             <Datetime
-              value={this.state.eventDetail.end}
+              value={eventDetail.end}
               dateFormat="MM-DD-YYYY"
               timeFormat={false}
-              onChange={e => this.changeHandler(e, 'end')}
+              onChange={e => handleDataChange(e, "end")}
             />
           ) : (
             <Datetime
-              value={this.state.eventDetail.end}
-              onChange={e => this.changeHandler(e, 'end')}
+              value={eventDetail.end}
+              onChange={e => handleDataChange(e, "end")}
             />
           )}
 
@@ -238,8 +242,8 @@ class EventDetails extends Component {
             className="form-control"
             placeholder="Event Notes"
             ref="notes"
-            value={this.state.eventDetail.notes}
-            onChange={e => this.changeHandler(e, 'notes')}
+            value={eventDetail.notes}
+            onChange={e => handleDataChange(e, "notes")}
           />
 
           <label> Guests </label>
@@ -247,89 +251,81 @@ class EventDetails extends Component {
             className="form-control"
             placeholder="Event guests"
             ref="guests"
-            value={this.state.eventDetail.guests}
-            onChange={e => this.changeHandler(e, 'guests')}
+            value={eventDetail.guests}
+            onChange={e => handleDataChange(e, "guests")}
           />
 
           <label> Event Color </label>
           <input
             type="color"
-            value={this.state.eventDetail.hexColor}
-            onChange={e => this.changeHandler(e, 'hexColor')}
-            style={{ marginRight: '20px', marginLeft: '5px' }}
+            value={eventDetail.hexColor}
+            onChange={e => handleDataChange(e, "hexColor")}
+            style={{ marginRight: "20px", marginLeft: "5px" }}
           />
 
           <input
             type="checkBox"
             name="all_Day"
-            value={this.state.eventDetail.id}
-            checked={this.state.eventDetail.allDay}
-            onChange={e => this.changeHandler(e, 'allDay')}
+            value={eventDetail.id}
+            checked={eventDetail.allDay}
+            onChange={e => handleDataChange(e, "allDay")}
           />
           <label> All Day </label>
           <input
             type="checkBox"
             name="public"
-            value={this.state.eventDetail.public}
-            checked={this.state.eventDetail.public}
-            onChange={e => this.changeHandler(e, 'public')}
+            value={eventDetail.public}
+            checked={eventDetail.public}
+            onChange={e => handleDataChange(e, "public")}
           />
           <label> Public </label>
         </Modal.Body>
         <Modal.Footer>
-          {this.props.eventType === 'add' ? null : (
+          {eventType === "add" ? null : (
             <Button
               bsStyle="warning"
-              enabled={{ hasGuests }}
-              onClick={() => this.showInvitesModal()}
+              disabled={!hasGuests}
+              onClick={() => popInvitesModal(eventDetail)}
             >
               Send Invites
             </Button>
           )}
-          {this.props.eventType === 'add' ? (
-            <Button bsStyle="success" onClick={() => this.addEvent()}>
+          {eventType === "add" ? (
+            <Button bsStyle="success" onClick={() => addEvent()}>
               Add
             </Button>
           ) : (
-            <Button
-              bsStyle="warning"
-              onClick={() => this.props.updateEvent(this.state.eventDetail)}
-            >
+            <Button bsStyle="warning" onClick={() => updateEvent(eventDetail)}>
               Update
             </Button>
           )}
-          {this.props.eventType === 'add' ? null : (
+          {eventType === "add" ? null : (
             <Button
               bsStyle="danger"
-              onClick={() => this.props.deleteEvent(this.state.eventDetail.id)}
+              onClick={() => deleteEvent(eventDetail.id)}
             >
               Delete
             </Button>
           )}
-          <Button onClick={this.props.handleHide}>Close</Button>
+          <Button onClick={handleHide}>Close</Button>
         </Modal.Footer>
 
-        <Modal
-          show={this.state.showInvitesModal}
-          onHide={this.handleInvitesHide}
-        >
+        <Modal show={showInvitesModal} onHide={handleInvitesHide}>
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title">
-              {this.state.eventDetail.title}
+              {eventDetail.title}
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             Send invites according to their Blockstack settings:
-            <GuestList guests={this.state.eventDetail.guests} />
-            {this.state.sending && !this.props.inviteError && (
-              <ProgressBar active now={50} />
-            )}
-            {this.props.inviteError && inviteErrorMsg}
+            <GuestList guests={eventDetail.guests} />
+            {sending && !inviteError && <ProgressBar active now={50} />}
+            {inviteError && inviteErrorMsg}
             <Modal.Footer>
-              <Button bsStyle="success" onClick={() => this.sendInvites()}>
+              <Button bsStyle="success" onClick={() => sendInvites()}>
                 Send
               </Button>
-              <Button onClick={this.handleInvitesHide}>Close</Button>
+              <Button onClick={handleInvitesHide}>Close</Button>
             </Modal.Footer>
           </Modal.Body>
         </Modal>

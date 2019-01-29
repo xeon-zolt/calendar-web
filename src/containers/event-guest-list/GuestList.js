@@ -1,24 +1,23 @@
-import React, { Component } from 'react';
-import { ProgressBar } from 'react-bootstrap';
+import React, { Component } from "react";
+import { ProgressBar } from "react-bootstrap";
 
-const GUEST_BASE = 'https://debutapp.social/';
+const GUEST_BASE = "https://debutapp.social/";
 
 function renderGuestList(guests) {
+  console.log(JSON.stringify(guests));
   var list = [];
   for (var property in guests) {
     if (guests.hasOwnProperty(property)) {
       var guest = guests[property];
-      guest.username = property;
-      console.log('g', guest);
-      list.push(<Guest key={property} guest={guest} />);
+      list.push(<Guest key={property} guest={guest} username={property} />);
     }
   }
   return list;
 }
 
-const Guest = ({ guest }) => {
+const Guest = ({ guest, username }) => {
   console.log('UI guest', guest);
-  const guestUrl = GUEST_BASE + guest.username;
+  const guestUrl = GUEST_BASE + username;
   var avatarUrl;
   if (guest.image && guest.image.length > 0 && guest.image[0].contentUrl) {
     avatarUrl = guest.image[0].contentUrl;
@@ -39,7 +38,7 @@ const Guest = ({ guest }) => {
 
 class GuestList extends Component {
   render() {
-    console.log('UI props', this.props);
+    console.log("UI props", this.props);
     const guests = this.props.guests;
     const numberOfGuests = this.props.guestsCount || 1;
     const numberOfGuestsLoaded = this.props.guestsLoaded || 0;
