@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import './App.css';
-import EventCalendar from './containers/event-calendar/redux-connect';
-import UserProfile from './containers/auth-user-profile/redux-connect';
+import React, { Component } from "react";
+import "./App.css";
+import EventCalendar from "../event-calendar/redux-connect";
+import UserProfile from "../auth-user-profile/redux-connect";
 
 class App extends Component {
   render() {
@@ -12,9 +12,9 @@ class App extends Component {
             <img
               src="/android-chrome-192x192.png"
               alt="logo"
-              style={{ marginRight: '10px', height: '40px' }}
+              style={{ marginRight: "10px", height: "40px" }}
             />
-            OI Calendar{' '}
+            OI Calendar{" "}
           </h1>
           <UserProfile />
         </header>
@@ -23,12 +23,12 @@ class App extends Component {
           <hr />
           <h5>
             Developed By <a href="https://openintents.org">OpenIntents</a>, free
-            and{' '}
+            and{" "}
             <a href="https://github.com/friedger/oi-calendar">open source</a>,
-            based on work by{' '}
+            based on work by{" "}
             <a href="https://github.com/yasnaraj/react-calendar-events-example">
               Yasna R.
-            </a>{' '}
+            </a>{" "}
             | {new Date().getFullYear().toString()}
           </h5>
           <h5>

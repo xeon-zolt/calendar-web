@@ -21,13 +21,10 @@ function checkHasGuests(str) {
 }
 
 const eventDefaults = {
-  title: null,
   start: moment(),
   end: moment(),
   allDay: false,
-  hexColor: "#265985",
-  notes: "",
-  guests: ""
+  hexColor: "#265985"
 };
 
 class EventDetails extends Component {
