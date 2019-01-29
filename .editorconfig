@@ -8,12 +8,12 @@ insert_final_newline = true
 [*.{html,js}]
 indent_style = space
 indent_size = 2
-quote_type = single
+quote_type = double
 
 [*.{json}, package.json]
 indent_style = space
 indent_size = 2
-quote_type = single
+quote_type = double
 
 [*.md]
 indent_style = space
