@@ -281,18 +281,39 @@ const defaultEvents = [
 
 function loadCalendarData(dispatch) {
   var calendars = [
-    { name: "default" },
-    { user: "friedger.id", name: "public" },
     {
-      ics:
-        "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
+      type: "default",
+      name: "default",
+      data: { src: "default/AllEvents", events: defaultEvents }
+    },
+    {
+      type: "blockstack-user",
+      name: "public@friedger.id",
+      mode: "read-only",
+      data: { user: "friedger.id", src: "public/AllEvents" }
+    },
+    {
+      type: "ics",
+      name: "hollidays",
+      mode: "read-only",
+      data: {
+        src:
+          "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
+      },
+      hexColor: "#b8004f"
     }
   ];
-  var calendarEvents = {};
-  var calendarPromises = Promise.resolve(calendarEvents);
-  for (var i in calendars) {
-    var calendar = calendars[i];
-    calendarPromises = calendarPromises.then(addCalendarEvents(calendar));
+
+  let calendarEvents = {};
+  let calendarPromises = Promise.resolve(calendarEvents);
+  for (let i in calendars) {
+    const calendar = calendars[i];
+    calendarPromises = calendarPromises.then(calendarEvents => {
+      return importCalendarEvents(calendar).then(events => {
+        calendarEvents[calendar.name] = { name: calendar, allEvents: events };
+        return calendarEvents;
+      });
+    });
   }
   calendarPromises.then(calendarEvents => {
     console.log("cals", calendarEvents);
@@ -312,18 +333,43 @@ function loadCalendarData(dispatch) {
   });
 }
 
-function addCalendarEvents(calendar) {
-  return calendarEvents => {
-    if (calendar.ics) {
-      return addCalendarEventsFromICS(calendarEvents, calendar);
-    } else {
-      return addCalendarEventsFromJSON(calendarEvents, calendar);
-    }
-  };
+function guaranteeHexColor(hex) {
+  return hex || "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
 
-function addCalendarEventsFromICS(calendarEvents, calendar) {
-  return fetch(calendar.ics)
+function importCalendarEvents(calendar) {
+  const { type, data, hexColor } = calendar;
+  let fn;
+  if (type === "ics") {
+    fn = importCalendarEventsFromICS;
+  } else if (type === "blockstack-user") {
+    fn = importPublicEventsFromUser;
+  } else {
+    fn = initializeDefaultEvents;
+  }
+  return fn(data).then(events => {
+    if (events) {
+      const hexColorOrRandom = guaranteeHexColor(hexColor);
+      return events.map(d => {
+        d.hexColor = hexColorOrRandom;
+        d.mode = calendar.mode;
+        return d;
+      });
+    }
+  });
+}
+
+// ###########################################################################
+// List of all available import functions as promises
+// ###########################################################################
+
+function initializeDefaultEvents({ src, events }) {
+  blockstack.putFile(src, JSON.stringify(events));
+  return Promise.resolve(events);
+}
+
+function importCalendarEventsFromICS({ src }) {
+  return fetch(src)
     .then(result => result.text())
     .then(icsContent => {
       try {
@@ -331,72 +377,40 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
         var comp = new ICAL.Component(jCal);
         var vevents = comp.getAllSubcomponents("vevent");
         var allEvents = [];
-        var hexColor = "#b8004f";
         for (var i in vevents) {
           var vevent = new ICAL.Event(vevents[i]);
           var event = {
             title: vevent.summary,
             start: vevent.startDate.toJSDate().toISOString(),
             end: vevent.endDate.toJSDate().toISOString(),
-            uid: vevent.uid,
-            hexColor,
-            mode: "read-only"
+            uid: vevent.uid
           };
           allEvents.push(event);
         }
-        calendarEvents[calendar.ics] = {
-          allEvents,
-          hexColor,
-          name: calendar.ics
-        };
-        return calendarEvents;
+        return Promise.resolve(allEvents);
       } catch (e) {
         console.log("ics error", e);
-        return calendarEvents;
+        return;
       }
     });
 }
 
-function guaranteeHexColor(hex) {
-  return hex || "#" + Math.floor(Math.random() * 16777215).toString(16);
-}
-
-function addCalendarEventsFromJSON(calendarEvents, calendar) {
-  var options = {};
-  if (calendar.user) {
-    options.decrypt = false;
-    options.username = calendar.user;
-  }
-  var path = calendar.name + "/AllEvents";
-  return blockstack.getFile(path, options).then(allEve => {
-    var id = calendar.name;
-    if (calendar.user) {
-      id = id + "@" + calendar.user;
-    }
-    var allEvents;
-    if (allEve) {
-      allEvents = JSON.parse(allEve);
-    } else {
-      if (!calendar.user && calendar.name === "default") {
-        blockstack.putFile(path, JSON.stringify(defaultEvents));
+function importPublicEventsFromUser({ src, user }) {
+  console.log("importPublicEventsFromUser", { src, user });
+  return blockstack
+    .getFile(src, {
+      decrypt: false,
+      username: user
+    })
+    .then(allEvents => {
+      if (allEvents && typeof allEvents === "string") {
+        allEvents = JSON.parse(allEvents);
+        allEvents = Object.values(allEvents); // convert from public calendar
       } else {
-        if (calendar.user) {
-          allEvents = {};
-        } else {
-          allEvents = [];
-        }
+        allEvents = [];
       }
-    }
-
-    if (calendar.user) {
-      allEvents = Object.values(allEvents); // convert from public calendar
-    }
-    console.log("ALlEvents", allEvents);
-    calendar.allEvents = allEvents;
-    calendar.hexColor = guaranteeHexColor(calendar.hexColor);
-    calendarEvents[id] = calendar;
-    return Promise.resolve(calendarEvents);
-  });
+      return Promise.resolve(allEvents);
+    });
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
@@ -408,6 +422,8 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
     });
 }
 
+/* :Q: why have this here instead of the previous flow?  */
+/* :Note: this does nothing for now  */
 loadCalendarEventFromUser(
   "friedger.id",
   "307baf34-9ceb-492f-8dab-ab595f2a09df",
