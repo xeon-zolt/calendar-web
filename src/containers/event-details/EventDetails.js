@@ -203,7 +203,7 @@ class EventDetails extends Component {
             className="form-control"
             placeholder="Enter the Event Name"
             ref="title"
-            value={eventDetail.title}
+            value={eventDetail.title || ""}
             onChange={e => handleDataChange(e, "title")}
           />
 
@@ -242,7 +242,7 @@ class EventDetails extends Component {
             className="form-control"
             placeholder="Event Notes"
             ref="notes"
-            value={eventDetail.notes}
+            value={eventDetail.notes || ""}
             onChange={e => handleDataChange(e, "notes")}
           />
 
@@ -251,14 +251,14 @@ class EventDetails extends Component {
             className="form-control"
             placeholder="Event guests"
             ref="guests"
-            value={eventDetail.guests}
+            value={eventDetail.guests || ""}
             onChange={e => handleDataChange(e, "guests")}
           />
 
           <label> Event Color </label>
           <input
             type="color"
-            value={eventDetail.hexColor}
+            value={eventDetail.hexColor || ""}
             onChange={e => handleDataChange(e, "hexColor")}
             style={{ marginRight: "20px", marginLeft: "5px" }}
           />

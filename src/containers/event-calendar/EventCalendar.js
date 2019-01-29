@@ -47,7 +47,7 @@ class EventCalendar extends Component {
     console.log("handleEditEvent", event);
     this.setState({
       eventModal: {
-        eventType: "edit",
+        eventType: event.mode || "edit",
         eventInfo: event
       }
     });

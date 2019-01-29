@@ -1,9 +1,9 @@
-import * as types from './eventActionTypes';
-import * as authTypes from './authActionTypes';
-import moment from 'moment';
-import * as blockstack from 'blockstack';
-import * as ics from 'ics';
-import * as ICAL from 'ical.js';
+import * as types from "./eventActionTypes";
+import * as authTypes from "./authActionTypes";
+import moment from "moment";
+import * as blockstack from "blockstack";
+import * as ics from "ics";
+import * as ICAL from "ical.js";
 
 export function SendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
@@ -29,14 +29,14 @@ export function LoadGuestList(guests, eventInfo) {
     const contacts = getState().events.contacts;
     loadGuestProfiles(guests, contacts).then(
       ({ profiles, contacts }) => {
-        console.log('profiles', profiles);
+        console.log("profiles", profiles);
         dispatch({
           type: types.CURRENT_GUESTS,
           payload: { profiles, eventInfo }
         });
       },
       error => {
-        console.log('load guest list failed', error);
+        console.log("load guest list failed", error);
       }
     );
   };
@@ -56,7 +56,7 @@ function loadGuestProfiles(guests, contacts) {
             return { profiles, contacts };
           },
           error => {
-            console.log('invalid guest ' + guest, error);
+            console.log("invalid guest " + guest, error);
             return Promise.resolve({ profiles, contacts });
           }
         );
@@ -67,15 +67,15 @@ function loadGuestProfiles(guests, contacts) {
 }
 
 function uuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     var r = (Math.random() * 16) | 0,
-      v = c === 'x' ? r : (r & 0x3) | 0x8;
+      v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
 function sendInvitesToGuests(state, eventInfo, guests) {
-  console.log('state', state);
+  console.log("state", state);
   const contacts = state.events.contacts;
   eventInfo.privKey = blockstack.makeECPrivateKey();
   eventInfo.pubKey = blockstack.getPublicKeyFromPrivate(eventInfo.privKey);
@@ -94,14 +94,14 @@ function sendInvitesToGuests(state, eventInfo, guests) {
         if (guest && guest.length > 0) {
           addGuestPromises = addGuestPromises.then(
             ({ contacts, eventInfo }) => {
-              console.log('check', eventInfo, contacts);
+              console.log("check", eventInfo, contacts);
               return blockstack.lookupProfile(guest).then(
                 guestProfile => {
-                  console.log('found guest ', guestProfile.name);
+                  console.log("found guest ", guestProfile.name);
                   return addGuest(guest, eventInfo, contacts, state);
                 },
                 error => {
-                  console.log('invalid guest ' + guest, error);
+                  console.log("invalid guest " + guest, error);
                   return Promise.resolve({ contacts, eventInfo });
                 }
               );
@@ -111,9 +111,9 @@ function sendInvitesToGuests(state, eventInfo, guests) {
       }
       return addGuestPromises.then(
         ({ contacts, eventInfo }) => {
-          console.log('contacts', contacts);
+          console.log("contacts", contacts);
           return blockstack
-            .putFile('Contacts', JSON.stringify(contacts))
+            .putFile("Contacts", JSON.stringify(contacts))
             .then(() => {
               return { contacts, eventInfo };
             });
@@ -126,30 +126,30 @@ function sendInvitesToGuests(state, eventInfo, guests) {
 }
 
 function addGuest(guest, eventInfo, contacts, state) {
-  console.log('check in addGuest', eventInfo, contacts);
+  console.log("check in addGuest", eventInfo, contacts);
   var roomPromise;
   if (contacts[guest] && contacts[guest].roomId) {
-    console.log('reusing room');
+    console.log("reusing room");
     roomPromise = Promise.resolve({ room_id: contacts[guest].roomId });
   } else {
-    console.log('creating new room');
+    console.log("creating new room");
     if (!contacts[guest]) {
       contacts[guest] = {};
     }
     roomPromise = state.events.userSessionChat.createNewRoom(
-      'Events with ' + state.events.user.username,
-      'Invitations, Updates,..'
+      "Events with " + state.events.user.username,
+      "Invitations, Updates,.."
     );
   }
 
-  console.log('check before room promise', eventInfo, contacts);
+  console.log("check before room promise", eventInfo, contacts);
   return roomPromise.then(
     roomResult => {
-      console.log('check after room', eventInfo, contacts);
+      console.log("check after room", eventInfo, contacts);
 
       var roomId = roomResult.room_id;
       Object.assign(contacts[guest], { roomId });
-      console.log('check after assign', eventInfo, contacts);
+      console.log("check after assign", eventInfo, contacts);
 
       return sendInviteMessage(
         guest,
@@ -160,29 +160,29 @@ function addGuest(guest, eventInfo, contacts, state) {
         getUserAppAccount(state.auth.user)
       )
         .then(() => {
-          console.log('check after invitation', eventInfo, contacts);
+          console.log("check after invitation", eventInfo, contacts);
           return { contacts, eventInfo };
         })
         .catch(error => {
-          console.log('Invitation not sent', error);
+          console.log("Invitation not sent", error);
           return { contacts, eventInfo };
         });
     },
     error => {
-      console.log('room failure', error);
+      console.log("room failure", error);
       return Promise.reject(error);
     }
   );
 }
 
 function sharedUrl(eventUid) {
-  return 'shared/' + eventUid + '/event.json';
+  return "shared/" + eventUid + "/event.json";
 }
 
 function getUserAppAccount(user) {
   const gaiaUrl = user.apps[window.location.origin];
   if (gaiaUrl) {
-    const urlParts = gaiaUrl.split('/');
+    const urlParts = gaiaUrl.split("/");
     var appUserAddress = urlParts[urlParts.length - 2];
     return addressToAccount(appUserAddress);
   }
@@ -190,7 +190,7 @@ function getUserAppAccount(user) {
 
 function addressToAccount(address) {
   // TODO lookup home server for user
-  return '@' + address.toLowerCase() + ':openintents.modular.im';
+  return "@" + address.toLowerCase() + ":openintents.modular.im";
 }
 
 function sendInviteMessage(
@@ -202,25 +202,25 @@ function sendInviteMessage(
   userAppAccount
 ) {
   return userSessionChat.sendMessage(guest, roomId, {
-    msgtype: 'm.text',
-    body: 'You are invited to ' + eventInfo.title,
-    format: 'org.matrix.custom.html',
+    msgtype: "m.text",
+    body: "You are invited to " + eventInfo.title,
+    format: "org.matrix.custom.html",
     formatted_body:
       "You are invited to <a href='" +
       window.location.origin +
-      '?u=' +
+      "?u=" +
       username +
-      '&e=' +
+      "&e=" +
       eventInfo.uuid +
-      '&p=' +
+      "&p=" +
       eventInfo.privKey +
-      '&r=' +
+      "&r=" +
       roomId +
-      '&s=' +
+      "&s=" +
       userAppAccount +
       "'>" +
       eventInfo.title +
-      '</a>'
+      "</a>"
   });
 }
 
@@ -233,12 +233,12 @@ function respondToInvite(
 ) {
   var text;
   if (rsvp) {
-    text = 'I will come to ' + eventInfo.title;
+    text = "I will come to " + eventInfo.title;
   } else {
     text = "I won't come to " + eventInfo.title;
   }
   return userSessionChat.sendMessage(senderAppAccount, roomId, {
-    msgtype: 'm.text',
+    msgtype: "m.text",
     body: text
   });
 }
@@ -246,18 +246,18 @@ console.log(respondToInvite);
 
 export function GetInitialEvents() {
   return async (dispatch, getState) => {
-    console.log('get events');
+    console.log("get events");
     if (blockstack.isUserSignedIn()) {
-      console.log('is signed in');
+      console.log("is signed in");
       const userData = blockstack.loadUserData();
       dispatch({ type: authTypes.AUTH_CONNECTED, user: userData });
       dispatch({ type: types.USER, user: userData });
 
       loadCalendarData(dispatch);
     } else if (blockstack.isSignInPending()) {
-      console.log('handling pending sign in');
+      console.log("handling pending sign in");
       blockstack.handlePendingSignIn().then(userData => {
-        console.log('redirecting to ' + window.location.origin);
+        console.log("redirecting to " + window.location.origin);
         window.location = window.location.origin;
         dispatch({ type: authTypes.AUTH_CONNECTED, user: userData });
       });
@@ -270,22 +270,22 @@ export function GetInitialEvents() {
 const defaultEvents = [
   {
     id: 0,
-    title: 'Today!',
+    title: "Today!",
     allDay: true,
     start: new Date(moment()),
     end: new Date(moment()),
-    hexColor: '#265985',
-    notes: 'Have a great day!'
+    hexColor: "#265985",
+    notes: "Have a great day!"
   }
 ];
 
 function loadCalendarData(dispatch) {
   var calendars = [
-    { name: 'default' },
-    { user: 'friedger.id', name: 'public' },
+    { name: "default" },
+    { user: "friedger.id", name: "public" },
     {
       ics:
-        'https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics'
+        "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
     }
   ];
   var calendarEvents = {};
@@ -295,13 +295,13 @@ function loadCalendarData(dispatch) {
     calendarPromises = calendarPromises.then(addCalendarEvents(calendar));
   }
   calendarPromises.then(calendarEvents => {
-    console.log('cals', calendarEvents);
+    console.log("cals", calendarEvents);
     var allCalendars = Object.values(calendarEvents);
     var allEvents = [].concat.apply([], allCalendars.map(c => c.allEvents));
     dispatch({ type: types.ALL_EVENTS, allEvents });
   });
 
-  blockstack.getFile('Contacts').then(contactsContent => {
+  blockstack.getFile("Contacts").then(contactsContent => {
     var contacts;
     if (contactsContent == null) {
       contacts = {};
@@ -329,11 +329,11 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
       try {
         var jCal = ICAL.parse(icsContent);
         var comp = new ICAL.Component(jCal);
-        var vevents = comp.getAllSubcomponents('vevent');
+        var vevents = comp.getAllSubcomponents("vevent");
         var allEvents = [];
         var hexColor =
           calendar.hexColor |
-          ('#' + Math.floor(Math.random() * 16777215).toString(16));
+          ("#" + Math.floor(Math.random() * 16777215).toString(16));
         for (var i in vevents) {
           var vevent = new ICAL.Event(vevents[i]);
           var event = {
@@ -341,7 +341,8 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
             start: vevent.startDate.toJSDate().toISOString(),
             end: vevent.endDate.toJSDate().toISOString(),
             uid: vevent.uid,
-            hexColor
+            hexColor,
+            mode: "read-only"
           };
           allEvents.push(event);
         }
@@ -352,7 +353,7 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
         };
         return calendarEvents;
       } catch (e) {
-        console.log('ics error', e);
+        console.log("ics error", e);
         return calendarEvents;
       }
     });
@@ -364,17 +365,17 @@ function addCalendarEventsFromJSON(calendarEvents, calendar) {
     options.decrypt = false;
     options.username = calendar.user;
   }
-  var path = calendar.name + '/AllEvents';
+  var path = calendar.name + "/AllEvents";
   return blockstack.getFile(path, options).then(allEve => {
     var id = calendar.name;
     if (calendar.user) {
-      id = id + '@' + calendar.user;
+      id = id + "@" + calendar.user;
     }
     var allEvents;
     if (allEve) {
       allEvents = JSON.parse(allEve);
     } else {
-      if (!calendar.user && calendar.name === 'default') {
+      if (!calendar.user && calendar.name === "default") {
         blockstack.putFile(path, JSON.stringify(defaultEvents));
       } else {
         if (calendar.user) {
@@ -388,11 +389,11 @@ function addCalendarEventsFromJSON(calendarEvents, calendar) {
     if (calendar.user) {
       allEvents = Object.values(allEvents); // convert from public calendar
     }
-    console.log('ALlEvents', allEvents);
+    console.log("ALlEvents", allEvents);
     calendar.allEvents = allEvents;
     calendar.hexColor =
       calendar.hexColor |
-      ('#' + Math.floor(Math.random() * 16777215).toString(16));
+      ("#" + Math.floor(Math.random() * 16777215).toString(16));
     calendarEvents[id] = calendar;
     return Promise.resolve(calendarEvents);
   });
@@ -403,20 +404,20 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
     .getFile(sharedUrl(eventUid), { decrypt: false, username })
     .then(encryptedContent => {
       var event = blockstack.decryptContent(encryptedContent, { privateKey });
-      console.log('shared event', event);
+      console.log("shared event", event);
     });
 }
 
 loadCalendarEventFromUser(
-  'friedger.id',
-  '307baf34-9ceb-492f-8dab-ab595f2a09df',
-  'e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6'
+  "friedger.id",
+  "307baf34-9ceb-492f-8dab-ab595f2a09df",
+  "e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6"
 );
 
 export function publishEvents(event, remove) {
   event.uuid = uuid(); //TODO move this into event creation
-  console.log('publishEvent ', event, event.uuid);
-  const publicEventPath = 'public/AllEvents';
+  console.log("publishEvent ", event, event.uuid);
+  const publicEventPath = "public/AllEvents";
   blockstack.getFile(publicEventPath, { decrypt: false }).then(fileContent => {
     var publicEvents = {};
     if (fileContent !== null) {
@@ -436,37 +437,37 @@ export function publishEvents(event, remove) {
     blockstack
       .putFile(publicEventPath, eventsString, {
         encrypt: false,
-        contentType: 'text/json'
+        contentType: "text/json"
       })
       .then(
         f => {
-          console.log('public calendar at ', f);
+          console.log("public calendar at ", f);
         },
         error => {
-          console.log('error publish event', error);
+          console.log("error publish event", error);
         }
       );
     try {
       var { error, value } = ics.createEvents(formatEvents(publicEvents));
       if (!error) {
         blockstack
-          .putFile(publicEventPath + '.ics', value, {
+          .putFile(publicEventPath + ".ics", value, {
             encrypt: false,
-            contentType: 'text/calendar'
+            contentType: "text/calendar"
           })
           .then(
             f => {
-              console.log('public calendar at ', f);
+              console.log("public calendar at ", f);
             },
             error => {
-              console.log('error publish event', error);
+              console.log("error publish event", error);
             }
           );
       } else {
-        console.log('error creating ics', error);
+        console.log("error creating ics", error);
       }
     } catch (e) {
-      console.log('e', e);
+      console.log("e", e);
     }
   });
 }
