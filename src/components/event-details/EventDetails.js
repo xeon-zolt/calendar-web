@@ -115,10 +115,10 @@ class EventDetails extends Component {
     return guestsStringToArray(guestsString).length > 0;
   }
 
-  deleteEvent(id) {
+  deleteEvent(obj) {
     console.log("deleteEvent");
     const { deleteEvent, handleHide } = this.props;
-    deleteEvent(id);
+    deleteEvent(obj);
     handleHide();
   }
 
@@ -299,10 +299,7 @@ class EventDetails extends Component {
               >
                 Update
               </Button>
-              <Button
-                bsStyle="danger"
-                onClick={() => deleteEvent(eventDetail.id)}
-              >
+              <Button bsStyle="danger" onClick={() => deleteEvent(eventDetail)}>
                 Delete
               </Button>
             </React.Fragment>

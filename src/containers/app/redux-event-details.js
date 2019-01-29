@@ -22,7 +22,7 @@ export default connect(
         dispatch(LoadGuestList(guests, details)),
       sendInvites: (details, guests, eventType) =>
         dispatch(SendInvites(details, guests, eventType)),
-      deleteEvent: id => dispatch({ type: REMOVE_EVENT, payload: id }),
+      deleteEvent: obj => dispatch({ type: REMOVE_EVENT, payload: { obj } }),
       addEvent: obj => dispatch({ type: ADD_EVENT, payload: obj }),
       updateEvent: obj =>
         dispatch({

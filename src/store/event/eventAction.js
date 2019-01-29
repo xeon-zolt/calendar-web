@@ -74,7 +74,7 @@ function loadGuestProfiles(guests, contacts) {
   return profilePromises;
 }
 
-function uuid() {
+export function uuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
     var r = (Math.random() * 16) | 0,
       v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -83,11 +83,10 @@ function uuid() {
 }
 
 function sendInvitesToGuests(state, eventInfo, guests) {
-  console.log("state", state);
   const contacts = state.events.contacts;
   eventInfo.privKey = blockstack.makeECPrivateKey();
   eventInfo.pubKey = blockstack.getPublicKeyFromPrivate(eventInfo.privKey);
-  eventInfo.uuid = uuid();
+  eventInfo.uid = eventInfo.uid || uuid();
   eventInfo.owner = state.auth.user.username;
   return blockstack
     .putFile(sharedUrl(eventInfo.uuid), JSON.stringify(eventInfo), {
@@ -102,7 +101,6 @@ function sendInvitesToGuests(state, eventInfo, guests) {
         if (guest && guest.length > 0) {
           addGuestPromises = addGuestPromises.then(
             ({ contacts, eventInfo }) => {
-              console.log("check", eventInfo, contacts);
               return blockstack.lookupProfile(guest).then(
                 guestProfile => {
                   console.log("found guest ", guestProfile.name);
@@ -134,7 +132,6 @@ function sendInvitesToGuests(state, eventInfo, guests) {
 }
 
 function addGuest(guest, eventInfo, contacts, state) {
-  console.log("check in addGuest", eventInfo, contacts);
   var roomPromise;
   if (contacts[guest] && contacts[guest].roomId) {
     console.log("reusing room");
@@ -150,14 +147,10 @@ function addGuest(guest, eventInfo, contacts, state) {
     );
   }
 
-  console.log("check before room promise", eventInfo, contacts);
   return roomPromise.then(
     roomResult => {
-      console.log("check after room", eventInfo, contacts);
-
       var roomId = roomResult.room_id;
       Object.assign(contacts[guest], { roomId });
-      console.log("check after assign", eventInfo, contacts);
 
       return sendInviteMessage(
         guest,
@@ -168,7 +161,6 @@ function addGuest(guest, eventInfo, contacts, state) {
         getUserAppAccount(state.auth.user)
       )
         .then(() => {
-          console.log("check after invitation", eventInfo, contacts);
           return { contacts, eventInfo };
         })
         .catch(error => {
@@ -219,7 +211,7 @@ function sendInviteMessage(
       "?u=" +
       username +
       "&e=" +
-      eventInfo.uuid +
+      eventInfo.uid +
       "&p=" +
       eventInfo.privKey +
       "&r=" +
@@ -250,18 +242,17 @@ function respondToInvite(
     body: text
   });
 }
-// console.log(respondToInvite);
 
 export function GetInitialEvents() {
   return async (dispatch, getState) => {
-    // console.log("get events");
     if (blockstack.isUserSignedIn()) {
       console.log("is signed in");
       const userData = blockstack.loadUserData();
       dispatch({ type: AUTH_CONNECTED, user: userData });
       dispatch({ type: USER, user: userData });
-
-      loadCalendarData(dispatch);
+      getCalendars().then(calendars => {
+        loadCalendarData(dispatch, calendars);
+      });
     } else if (blockstack.isSignInPending()) {
       console.log("handling pending sign in");
       blockstack.handlePendingSignIn().then(userData => {
@@ -311,8 +302,8 @@ const defaultCalendars = [
   }
 ];
 
-function loadCalendars(dispatch) {
-  blockstack.getFile("Calendars").then(calendarsContent => {
+function getCalendars() {
+  return blockstack.getFile("Calendars").then(calendarsContent => {
     var calendars;
     if (calendarsContent == null) {
       blockstack.putFile("Calendars", JSON.stringify(defaultCalendars));
@@ -320,24 +311,32 @@ function loadCalendars(dispatch) {
     } else {
       calendars = JSON.parse(calendarsContent);
     }
-    dispatch({ type: types.ALL_CALENDARS, payload: { calendars } });
+    return calendars;
   });
 }
 
-function loadCalendarData(dispatch) {
+function loadCalendarData(dispatch, calendars) {
   let calendarEvents = {};
   let calendarPromises = Promise.resolve(calendarEvents);
   for (let i in calendars) {
     const calendar = calendars[i];
     calendarPromises = calendarPromises.then(calendarEvents => {
-      return importCalendarEvents(calendar).then(events => {
-        calendarEvents[calendar.name] = { name: calendar, allEvents: events };
-        return calendarEvents;
-      });
+      return importCalendarEvents(calendar).then(
+        events => {
+          calendarEvents[calendar.name] = {
+            name: calendar.name,
+            allEvents: events
+          };
+          return calendarEvents;
+        },
+        error => {
+          console.log("error", error);
+          return calendarEvents;
+        }
+      );
     });
   }
   calendarPromises.then(calendarEvents => {
-    // console.log("cals", calendarEvents);
     var allCalendars = Object.values(calendarEvents);
     var allEvents = [].concat.apply([], allCalendars.map(c => c.allEvents));
     dispatch({ type: ALL_EVENTS, allEvents });
@@ -359,7 +358,7 @@ function guaranteeHexColor(hex) {
 }
 
 function importCalendarEvents(calendar) {
-  const { type, data, hexColor } = calendar;
+  const { type, data, hexColor, name } = calendar;
   let fn;
   if (type === "ics") {
     fn = importCalendarEventsFromICS;
@@ -377,9 +376,11 @@ function importCalendarEvents(calendar) {
   return fn(data).then(events => {
     if (events) {
       const hexColorOrRandom = guaranteeHexColor(hexColor);
+      const calendarName = type === "private" ? name : null;
       return events.map(d => {
         d.hexColor = hexColorOrRandom;
         d.mode = calendar.mode;
+        d.calendarName = calendarName;
         return d;
       });
     }
@@ -391,11 +392,6 @@ function importCalendarEvents(calendar) {
 // :NOTE: As there is no more reliance on any knowledge of how these evens are managed
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
-
-function initializeWithEvents({ src, events }) {
-  blockstack.putFile(src, JSON.stringify(events));
-  return Promise.resolve(events);
-}
 
 function importCalendarEventsFromICS({ src }) {
   return fetch(src)
@@ -425,7 +421,6 @@ function importCalendarEventsFromICS({ src }) {
 }
 
 function importPublicEventsFromUser({ src, user }) {
-  // console.log("importPublicEventsFromUser", { src, user });
   return blockstack
     .getFile(src, {
       decrypt: false,
@@ -443,7 +438,6 @@ function importPublicEventsFromUser({ src, user }) {
 }
 
 function importPrivateEvents({ src }) {
-  console.log("importPrivateEvents", { src });
   return blockstack.getFile(src).then(allEvents => {
     if (allEvents && typeof allEvents === "string") {
       allEvents = JSON.parse(allEvents);
@@ -455,7 +449,6 @@ function importPrivateEvents({ src }) {
 }
 
 function importPrivateEventsWithDefaults({ src }) {
-  console.log("importPrivateEventsWithDefaults", { src });
   return blockstack.getFile(src).then(allEvents => {
     if (allEvents && typeof allEvents === "string") {
       allEvents = JSON.parse(allEvents);
@@ -468,16 +461,23 @@ function importPrivateEventsWithDefaults({ src }) {
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
-  blockstack
+  return blockstack
     .getFile(sharedUrl(eventUid), { decrypt: false, username })
-    .then(encryptedContent => {
-      // var event = blockstack.decryptContent(encryptedContent, { privateKey });
-      // console.log("shared event", event);
-    });
+    .then(
+      encryptedContent => {
+        return blockstack.decryptContent(encryptedContent, { privateKey });
+      },
+      error => {
+        return Promise.reject("Couldn't load event", {
+          username,
+          eventUid,
+          error
+        });
+      }
+    );
 }
 
-/* :Q: why have this here instead of the previous flow?  */
-/* :Note: this does nothing for now  */
+/* This is here just to demonstrate how to load an event from a user */
 loadCalendarEventFromUser(
   "friedger.id",
   "307baf34-9ceb-492f-8dab-ab595f2a09df",
@@ -486,60 +486,78 @@ loadCalendarEventFromUser(
 
 // END of import options
 
-export function publishEvents(event, remove) {
-  event.uuid = uuid(); //TODO move this into event creation
-  console.log("publishEvent ", event, event.uuid);
+export function addPublicEvent(eventInfo, publicEvents) {
+  eventInfo.uid = eventInfo.uid || uuid();
+
+  publicEvents[eventInfo.uid] = eventInfo;
+  return { republish: true, publicEvents };
+}
+
+export function updatePublicEvent(eventInfo, publicEvents) {
+  publicEvents[eventInfo.uid] = eventInfo;
+  return { republish: true, publicEvents };
+}
+
+export function removePublicEvent(eventUid, publicEvents) {
+  if (!publicEvents[eventUid]) {
+    //nothing to do
+    return { republish: false, publicEvents };
+  } else {
+    delete publicEvents[eventUid];
+    return { republish: true, publicEvents };
+  }
+}
+
+export function publishEvents(param, updatePublicEvents) {
   const publicEventPath = "public/AllEvents";
   blockstack.getFile(publicEventPath, { decrypt: false }).then(fileContent => {
     var publicEvents = {};
     if (fileContent !== null) {
       publicEvents = JSON.parse(fileContent);
     }
-    if (remove) {
-      if (!publicEvents[event.uuid]) {
-        //nothing to do
-        return;
-      } else {
-        delete publicEvents[event.uuid];
-      }
-    } else {
-      publicEvents[event.uuid] = event;
-    }
-    var eventsString = JSON.stringify(publicEvents);
-    blockstack
-      .putFile(publicEventPath, eventsString, {
-        encrypt: false,
-        contentType: "text/json"
-      })
-      .then(
-        f => {
-          console.log("public calendar at ", f);
-        },
-        error => {
-          console.log("error publish event", error);
+
+    var { republish, newPublicEvents } = updatePublicEvents(
+      param,
+      publicEvents
+    );
+
+    if (republish) {
+      var eventsString = JSON.stringify(newPublicEvents);
+      blockstack
+        .putFile(publicEventPath, eventsString, {
+          encrypt: false,
+          contentType: "text/json"
+        })
+        .then(
+          f => {
+            console.log("public calendar at ", f);
+          },
+          error => {
+            console.log("error publish event", error);
+          }
+        );
+      try {
+        var { error, value } = ics.createEvents(formatEvents(newPublicEvents));
+        if (!error) {
+          blockstack
+            .putFile(publicEventPath + ".ics", value, {
+              encrypt: false,
+              contentType: "text/calendar"
+            })
+            .then(
+              f => {
+                console.log("public calendar at ", f);
+              },
+              error => {
+                console.log("error publish event", error);
+              }
+            );
+        } else {
+          console.log("error creating ics", error);
         }
-      );
-    try {
-      var { error, value } = ics.createEvents(formatEvents(publicEvents));
-      if (!error) {
-        blockstack
-          .putFile(publicEventPath + ".ics", value, {
-            encrypt: false,
-            contentType: "text/calendar"
-          })
-          .then(
-            f => {
-              console.log("public calendar at ", f);
-            },
-            error => {
-              console.log("error publish event", error);
-            }
-          );
-      } else {
-        console.log("error creating ics", error);
+      } catch (e) {
+        console.log("failed to format events for ics file", e);
       }
-    } catch (e) {
-      console.log("e", e);
     }
   });
 }
@@ -553,7 +571,7 @@ function formatEvents(events) {
     ical.description = event.description;
     ical.start = dateToArray(event, new Date(event.start));
     ical.end = dateToArray(event, new Date(event.end));
-    ical.uid = event.uuid;
+    ical.uid = event.uid;
     icsEvents.push(ical);
   }
   console.log(icsEvents);

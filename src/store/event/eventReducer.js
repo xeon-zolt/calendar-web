@@ -12,7 +12,13 @@ import {
   CURRENT_GUESTS
 } from "../ActionTypes";
 
-import { publishEvents } from "./eventAction";
+import {
+  publishEvents,
+  updatePublicEvent,
+  removePublicEvent,
+  addPublicEvent,
+  uuid
+} from "./eventAction";
 import { putFile } from "blockstack";
 import { UserSessionChat } from "./UserSessionChat";
 
@@ -35,34 +41,39 @@ export default function reduce(state = initialState, action = {}) {
     case REMOVE_EVENT:
       var newState = state;
       newState.allEvents = newState.allEvents.filter(function(obj) {
-        return obj && obj.id !== action.payload;
+        return obj && obj.id !== action.payload.obj.id;
       });
-      publishEvents(action.payload, true);
-      putFile("AllEvents", JSON.stringify(newState.allEvents));
+      publishEvents(action.payload.obj.uid, removePublicEvent);
+      saveEvents("default", newState.allEvents);
       return newState;
     case ADD_EVENT:
       var newState2 = state;
+      action.payload.calendarName = "default";
       newState2.allEvents.push(action.payload);
       if (action.payload.public) {
-        publishEvents(action.payload, false);
+        publishEvents(action.payload, addPublicEvent);
       }
-      // console.log("new state after add event", newState2);
-      putFile("AllEvents", JSON.stringify(newState2.allEvents));
+      saveEvents("default", newState2.allEvents);
       return newState2;
     case UPDATE_EVENT:
       var newState3 = state;
-      newState3.allEvents[action.payload.id] = action.payload.obj;
-      if (action.payload.obj.public) {
-        publishEvents(action.payload.obj, false);
+      var eventInfo = action.payload.obj;
+      newState3.allEvents[eventInfo.id] = eventInfo;
+      if (eventInfo.public) {
+        eventInfo.uid = eventInfo.uid || uuid();
+        publishEvents(eventInfo, updatePublicEvent);
+      } else {
+        if (eventInfo.uid) {
+          publishEvents(eventInfo.uid, removePublicEvent);
+        }
       }
-      putFile("AllEvents", JSON.stringify(newState3.allEvents));
+      saveEvents("default", newState3.allEvents);
       return newState3;
     case INVITES_SENT:
       var allEvents = state.allEvents;
       if (action.payload.type === "add") {
-        // console.log("add");
         allEvents.push(action.payload.eventInfo);
-        putFile("AllEvents", JSON.stringify(allEvents));
+        saveEvents("default", allEvents);
       }
       return {
         ...state,
@@ -86,4 +97,12 @@ export default function reduce(state = initialState, action = {}) {
     default:
       return state;
   }
+}
+
+function saveEvents(calendarName, allEvents) {
+  console.log("save", { calendarName, allEvents });
+  putFile(
+    calendarName + "/AllEvents",
+    JSON.stringify(allEvents.filter(e => e.calendarName === calendarName))
+  );
 }
