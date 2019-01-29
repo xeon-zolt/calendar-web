@@ -279,31 +279,44 @@ const defaultEvents = [
   }
 ];
 
-function loadCalendarData(dispatch) {
-  var calendars = [
-    {
-      type: "default",
-      name: "default",
-      data: { src: "default/AllEvents", events: defaultEvents }
+const defaultCalendars = [
+  {
+    type: "private",
+    name: "default",
+    data: { src: "default/AllEvents", events: defaultEvents }
+  },
+  {
+    type: "blockstack-user",
+    name: "public@friedger.id",
+    mode: "read-only",
+    data: { user: "friedger.id", src: "public/AllEvents" }
+  },
+  {
+    type: "ics",
+    name: "holidays",
+    mode: "read-only",
+    data: {
+      src:
+        "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
     },
-    {
-      type: "blockstack-user",
-      name: "public@friedger.id",
-      mode: "read-only",
-      data: { user: "friedger.id", src: "public/AllEvents" }
-    },
-    {
-      type: "ics",
-      name: "hollidays",
-      mode: "read-only",
-      data: {
-        src:
-          "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
-      },
-      hexColor: "#b8004f"
-    }
-  ];
+    hexColor: "#b8004f"
+  }
+];
 
+function loadCalendars(dispatch) {
+  blockstack.getFile("Calendars").then(calendarsContent => {
+    var calendars;
+    if (calendarsContent == null) {
+      blockstack.putFile("Calendars", JSON.stringify(defaultCalendars));
+      calendars = defaultCalendars;
+    } else {
+      calendars = JSON.parse(calendarsContent);
+    }
+    dispatch({ type: types.ALL_CALENDARS, payload: { calendars } });
+  });
+}
+
+function loadCalendarData(dispatch) {
   let calendarEvents = {};
   let calendarPromises = Promise.resolve(calendarEvents);
   for (let i in calendars) {
@@ -344,8 +357,14 @@ function importCalendarEvents(calendar) {
     fn = importCalendarEventsFromICS;
   } else if (type === "blockstack-user") {
     fn = importPublicEventsFromUser;
+  } else if (type === "private") {
+    if (name === "default") {
+      fn = importPrivateEventsWithDefaults;
+    } else {
+      fn = importPrivateEvents;
+    }
   } else {
-    fn = initializeDefaultEvents;
+    fn = () => [];
   }
   return fn(data).then(events => {
     if (events) {
@@ -365,7 +384,7 @@ function importCalendarEvents(calendar) {
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
 
-function initializeDefaultEvents({ src, events }) {
+function initializeWithEvents({ src, events }) {
   blockstack.putFile(src, JSON.stringify(events));
   return Promise.resolve(events);
 }
@@ -413,6 +432,31 @@ function importPublicEventsFromUser({ src, user }) {
       }
       return Promise.resolve(allEvents);
     });
+}
+
+function importPrivateEvents({ src }) {
+  console.log("importPrivateEvents", { src });
+  return blockstack.getFile(src).then(allEvents => {
+    if (allEvents && typeof allEvents === "string") {
+      allEvents = JSON.parse(allEvents);
+    } else {
+      allEvents = [];
+    }
+    return Promise.resolve(allEvents);
+  });
+}
+
+function importPrivateEventsWithDefaults({ src }) {
+  console.log("importPrivateEventsWithDefaults", { src });
+  return blockstack.getFile(src).then(allEvents => {
+    if (allEvents && typeof allEvents === "string") {
+      allEvents = JSON.parse(allEvents);
+    } else {
+      blockstack.putFile(src, JSON.stringify(defaultEvents));
+      allEvents = defaultEvents;
+    }
+    return Promise.resolve(allEvents);
+  });
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
