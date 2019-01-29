@@ -153,7 +153,7 @@ class EventDetails extends Component {
     const { eventDetail } = this.state;
     const { eventType, sendInvites } = this.props;
     this.setState({ sending: true });
-const guestsString = this.state.eventDetail.guests;
+    const guestsString = this.state.eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
     sendInvites(eventDetail, guests, eventType);
   }
@@ -281,31 +281,33 @@ const guestsString = this.state.eventDetail.guests;
           <label> Public </label>
         </Modal.Body>
         <Modal.Footer>
-          {eventType === "add" ? null : (
-            <Button
-              bsStyle="warning"
-              disabled={!hasGuests}
-              onClick={() => popInvitesModal(eventDetail)}
-            >
-              Send Invites
-            </Button>
-          )}
-          {eventType === "add" ? (
+          {eventType === "add" && (
             <Button bsStyle="success" onClick={() => addEvent()}>
               Add
             </Button>
-          ) : (
-            <Button bsStyle="warning" onClick={() => updateEvent(eventDetail)}>
-              Update
-            </Button>
           )}
-          {eventType === "add" ? null : (
-            <Button
-              bsStyle="danger"
-              onClick={() => deleteEvent(eventDetail.id)}
-            >
-              Delete
-            </Button>
+          {eventType === "edit" && (
+            <React.Fragment>
+              <Button
+                bsStyle="warning"
+                disabled={!hasGuests}
+                onClick={() => popInvitesModal(eventDetail)}
+              >
+                Send Invites
+              </Button>
+              <Button
+                bsStyle="warning"
+                onClick={() => updateEvent(eventDetail)}
+              >
+                Update
+              </Button>
+              <Button
+                bsStyle="danger"
+                onClick={() => deleteEvent(eventDetail.id)}
+              >
+                Delete
+              </Button>
+            </React.Fragment>
           )}
           <Button onClick={handleHide}>Close</Button>
         </Modal.Footer>
