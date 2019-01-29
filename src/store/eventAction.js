@@ -331,9 +331,7 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
         var comp = new ICAL.Component(jCal);
         var vevents = comp.getAllSubcomponents("vevent");
         var allEvents = [];
-        var hexColor =
-          calendar.hexColor |
-          ("#" + Math.floor(Math.random() * 16777215).toString(16));
+        var hexColor = "#b8004f";
         for (var i in vevents) {
           var vevent = new ICAL.Event(vevents[i]);
           var event = {
@@ -357,6 +355,10 @@ function addCalendarEventsFromICS(calendarEvents, calendar) {
         return calendarEvents;
       }
     });
+}
+
+function guaranteeHexColor(hex) {
+  return hex || "#" + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 function addCalendarEventsFromJSON(calendarEvents, calendar) {
@@ -391,9 +393,7 @@ function addCalendarEventsFromJSON(calendarEvents, calendar) {
     }
     console.log("ALlEvents", allEvents);
     calendar.allEvents = allEvents;
-    calendar.hexColor =
-      calendar.hexColor |
-      ("#" + Math.floor(Math.random() * 16777215).toString(16));
+    calendar.hexColor = guaranteeHexColor(calendar.hexColor);
     calendarEvents[id] = calendar;
     return Promise.resolve(calendarEvents);
   });
