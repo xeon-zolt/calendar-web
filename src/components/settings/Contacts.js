@@ -42,17 +42,29 @@ export class Contacts extends Component {
     return list;
   }
 
+  lookupContacts(contactQuery) {
+    this.setState({ lookingUpContacts: true });
+    const { lookupContacts } = this.props;
+    lookupContacts(contactQuery).then(proposedContacts =>
+      this.setState({ proposedContacts, lookingUpContacts: false })
+    );
+  }
+
   render() {
     const { contacts } = this.props;
     const contactsView = this.renderContacts(contacts);
     return (
       <div className="settings">
+        <input
+          type="text"
+          onChange={e => {
+            this.lookupContacts(e.target.value);
+          }}
+        />
+        <Button onClick={() => this.addContact()}>Add</Button>
         {contactsView}
-        <Button bsStyle="success" onClick={() => deleteContacts()}>
+        <Button bsStyle="danger" onClick={() => this.deleteContacts()}>
           Delete
-        </Button>
-        <Button bsStyle="success" onClick={() => addContacts()}>
-          Add
         </Button>
       </div>
     );
