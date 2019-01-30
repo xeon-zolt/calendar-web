@@ -19,6 +19,7 @@ import {
   updatePublicEvent,
   removePublicEvent,
   addPublicEvent,
+  uuid,
   createSessionChat
 } from "../../io/event";
 import { uuid } from "../../io/eventFN";
@@ -41,7 +42,11 @@ export default function reduce(state = initialState, action = {}) {
     case ALL_EVENTS:
       return { ...state, allEvents: action.allEvents };
     case VIEW_EVENT:
-      return { ...state, currentEvent: action.payload.eventInfo };
+      return {
+        ...state,
+        currentEvent: action.payload.eventInfo,
+        currentEventType: action.payload.eventType
+      };
     case REMOVE_EVENT:
       let { allEvents } = state;
       allEvents = allEvents.filter(function(obj) {
@@ -59,6 +64,9 @@ export default function reduce(state = initialState, action = {}) {
         publishEvents(action.payload, addPublicEvent);
       }
       saveEvents("default", allEvents);
+      window.history.pushState({}, "OI Calendar", "/");
+      delete state.currentEvent;
+      delete steate.currentEventType;
       return { ...state, allEvents };
     case UPDATE_EVENT:
       allEvents = state.allEvents;

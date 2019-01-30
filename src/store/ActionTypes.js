@@ -18,3 +18,4 @@ export const INVITES_SENT = "contacts.INVITES_SENT";
 export const SEND_INVITES_FAILED = "contacts.SEND_INVITES_FAILED";
 export const LOAD_GUEST_LIST = "contacts.LOAD_GUEST_LIST";
 export const CURRENT_GUESTS = "contacts.CURRENT_GUESTS";
+export const ADD_CALENDAR = "calendar.ADD_CALENDAR";

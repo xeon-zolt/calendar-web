@@ -9,7 +9,7 @@ export default connect(
     const { events, auth } = state;
     const { EventDetails } = redux.store.views;
     const signedIn = !!auth.user;
-    const { inviteSuccess, currentEvent } = events || {};
+    const { inviteSuccess, currentEvent, currentEventType } = events || {};
     return {
       events,
       signedIn,
@@ -17,7 +17,8 @@ export default connect(
       views: {
         EventDetails
       },
-      currentEvent
+      currentEvent,
+      currentEventType
     };
   },
   dispatch => {

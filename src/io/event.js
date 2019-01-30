@@ -334,11 +334,29 @@ function importPrivateEventsWithDefaults(defaultEvents) {
   };
 }
 
-export function ViewEventInQueryString(query, asyncReturn) {
+export function ViewEventInQueryString(
+  query,
+  onPrivateEvent,
+  onNewEvent,
+  onICSUrl
+) {
   if (query) {
-    const { u, e, p } = parseQueryString(query);
+    const { u, e, p, intent, title, start, end, via, url } = parseQueryString(
+      query
+    );
     if (u && e && p) {
-      return loadCalendarEventFromUser(u, e, p).then(asyncReturn);
+      return loadCalendarEventFromUser(u, e, p).then(onPrivateEvent);
+    } else if (intent) {
+      if (intent.toLowerCase() === "addevent") {
+        const eventInfo = {};
+        eventInfo.title = title || "New Event";
+        eventInfo.start = start != null ? new Date(start) : new Date();
+        eventInfo.end = end != null ? new Date(end) : null;
+        eventInfo.owner = via != null ? via : userData.username;
+        onNewEvent(eventInfo);
+      } else if (intent.toLowerCase === "addics") {
+        onICSUrl(url);
+      }
     }
   }
 }
