@@ -35,8 +35,10 @@ class EventCalendar extends Component {
       this.setState({ eventModal: undefined });
     }
     if (nextProps.currentEvent) {
+      const eventType = nextProps.currentEventType || "view";
+      const eventInfo = nextProps.currentEvent;
       this.setState({
-        eventModal: { eventType: "view", eventInfo: nextProps.currentEvent }
+        eventModal: { eventType, eventInfo }
       });
     }
   }

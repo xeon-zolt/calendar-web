@@ -275,7 +275,10 @@ export function GetInitialEvents(query) {
             eventInfo.start = start != null ? new Date(start) : new Date();
             eventInfo.end = end != null ? new Date(end) : null;
             eventInfo.owner = via != null ? via : userData.username;
-            dispatch({ type: VIEW_EVENT, payload: { eventInfo } });
+            dispatch({
+              type: VIEW_EVENT,
+              payload: { eventInfo, eventType: "add" }
+            });
           }
         }
       }

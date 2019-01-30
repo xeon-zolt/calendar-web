@@ -40,7 +40,11 @@ export default function reduce(state = initialState, action = {}) {
     case ALL_EVENTS:
       return { ...state, allEvents: action.allEvents };
     case VIEW_EVENT:
-      return { ...state, currentEvent: action.payload.eventInfo };
+      return {
+        ...state,
+        currentEvent: action.payload.eventInfo,
+        currentEventType: action.payload.eventType
+      };
     case REMOVE_EVENT:
       var newState = state;
       newState.allEvents = newState.allEvents.filter(function(obj) {
