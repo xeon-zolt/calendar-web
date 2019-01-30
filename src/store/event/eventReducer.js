@@ -45,38 +45,37 @@ export default function reduce(state = initialState, action = {}) {
     case REMOVE_EVENT:
       let { allEvents } = state;
       allEvents = allEvents.filter(function(obj) {
-        return obj && obj.id !== action.payload.obj.id;
+        return obj && obj.uid !== action.payload.obj.uid;
       });
       publishEvents(action.payload.obj.uid, removePublicEvent);
       saveEvents("default", allEvents);
       return { ...state, allEvents };
     case ADD_EVENT:
-      var { allEvents } = state;
+      allEvents = state.allEvents;
       action.payload.calendarName = "default";
-      allEvents.push(action.payload);
+      action.payload.uid = uuid();
+      allEvents[action.payload.uid] = action.payload;
       if (action.payload.public) {
         publishEvents(action.payload, addPublicEvent);
       }
       saveEvents("default", allEvents);
       return { ...state, allEvents };
     case UPDATE_EVENT:
-      var { allEvents } = state;
+      allEvents = state.allEvents;
       var eventInfo = action.payload.obj;
-      allEvents[eventInfo.id] = eventInfo;
+      eventInfo.uid = eventInfo.uid || uuid();
+      allEvents[eventInfo.uid] = eventInfo;
       if (eventInfo.public) {
-        eventInfo.uid = eventInfo.uid || uuid();
         publishEvents(eventInfo, updatePublicEvent);
       } else {
-        if (eventInfo.uid) {
-          publishEvents(eventInfo.uid, removePublicEvent);
-        }
+        publishEvents(eventInfo.uid, removePublicEvent);
       }
       saveEvents("default", allEvents);
       return { ...state, allEvents };
     case INVITES_SENT:
-      var { allEvents } = state;
+      allEvents = state.allEvents;
       if (action.payload.type === "add") {
-        allEvents.push(action.payload.eventInfo);
+        allEvents[action.payload.eventInfo.uid] = action.payload.eventInfo;
         saveEvents("default", allEvents);
       }
       return {

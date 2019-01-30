@@ -3,7 +3,7 @@ import moment from "moment";
 import { Panel, Grid, Row, Col } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-
+import { uuid } from "../../io/eventFN";
 let localizer = BigCalendar.momentLocalizer(moment);
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
 
@@ -60,7 +60,7 @@ class EventCalendar extends Component {
 
   handleAddEvent(slotInfo) {
     console.log("handleAddEvent");
-    slotInfo.id = this.props.events.allEvents.length; // currentIndex
+    slotInfo.uid = uuid();
     this.setState({
       eventModal: {
         eventType: "add",
@@ -167,7 +167,7 @@ class EventCalendar extends Component {
         <BigCalendar
           localizer={localizer}
           selectable={this.props.signedIn}
-          events={this.props.events.allEvents}
+          events={Object.values(this.props.events.allEvents)}
           views={allViews}
           step={60}
           showMultiDayTimes
