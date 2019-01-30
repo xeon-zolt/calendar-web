@@ -302,18 +302,21 @@ const defaultCalendars = [
   {
     type: "private",
     name: "default",
+    active: true,
     data: { src: "default/AllEvents", events: defaultEvents }
   },
   {
     type: "blockstack-user",
     name: "public@friedger.id",
     mode: "read-only",
+    active: true,
     data: { user: "friedger.id", src: "public/AllEvents" }
   },
   {
     type: "ics",
     name: "holidays",
     mode: "read-only",
+    active: true,
     data: {
       src:
         "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
