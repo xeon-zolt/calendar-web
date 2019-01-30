@@ -1,7 +1,5 @@
-import React from "react";
-import { createStore, applyMiddleware, combineReducers } from "redux";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import thunk from "redux-thunk";
 import App from "./App";
 
 import ConnectedEventCalendar from "./redux-event-calendar";
@@ -10,9 +8,8 @@ import ConnectedUserProfile from "./redux-user-profile";
 import ConnectedGuestList from "./redux-guest-list";
 
 import registerServiceWorker from "./registerServiceWorker";
-
-import * as reducers from "../store/rootReducer";
-const store = createStore(combineReducers(reducers), applyMiddleware(thunk));
+import { createInitialStore, storeAfterAppMount } from "../store/storeManager";
+let store = createInitialStore();
 
 // #############################################################################################
 // :NOTE: Declaring all views instead of blindly passing store to all subcomponents, even the dumb ones.
@@ -42,6 +39,17 @@ const ConnectedApp = connect((state, redux) => {
   };
 })(App);
 
+class DynamicApp extends Component {
+  render() {
+    return <ConnectedApp store={store} />;
+  }
+  componentDidMount() {
+    storeAfterAppMount(store, () => {
+      this.forceUpdate();
+    });
+  }
+}
+
 registerServiceWorker();
 
-export default <ConnectedApp store={store} />;
+export default <DynamicApp />;

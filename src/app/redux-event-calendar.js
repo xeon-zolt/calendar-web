@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import EventCalendar from "../components/event-calendar/EventCalendar";
 
-import { GetInitialEvents } from "../store/event/eventAction";
+import { getInitialEvents } from "../store/event/eventAction";
 
 export default connect(
   (state, redux) => {
@@ -9,7 +9,7 @@ export default connect(
     const { events, auth } = state;
     const { EventDetails } = redux.store.views;
     const signedIn = !!auth.user;
-    const { inviteSuccess, currentEvent } = events;
+    const { inviteSuccess, currentEvent } = events || {};
     return {
       events,
       signedIn,
@@ -22,7 +22,7 @@ export default connect(
   },
   dispatch => {
     return {
-      getInitialEvents: search => dispatch(GetInitialEvents(search))
+      getInitialEvents: search => dispatch(getInitialEvents(search))
     };
   }
 )(EventCalendar);
