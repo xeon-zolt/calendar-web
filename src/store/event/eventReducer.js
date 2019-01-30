@@ -21,9 +21,8 @@ import {
   addPublicEvent,
   uuid,
   createSessionChat
-} from "./eventAction";
-import { putFile } from "blockstack";
-import { UserSessionChat } from "./UserSessionChat";
+} from "../../io/event";
+import { uuid } from "../../io/eventFN";
 
 let initialState = {
   allEvents: [],
@@ -49,29 +48,29 @@ export default function reduce(state = initialState, action = {}) {
         currentEventType: action.payload.eventType
       };
     case REMOVE_EVENT:
-      var newState = state;
-      newState.allEvents = newState.allEvents.filter(function(obj) {
+      let { allEvents } = state;
+      allEvents = allEvents.filter(function(obj) {
         return obj && obj.id !== action.payload.obj.id;
       });
       publishEvents(action.payload.obj.uid, removePublicEvent);
-      saveEvents("default", newState.allEvents);
-      return newState;
+      saveEvents("default", allEvents);
+      return { ...state, allEvents };
     case ADD_EVENT:
-      var newState2 = state;
+      var { allEvents } = state;
       action.payload.calendarName = "default";
-      newState2.allEvents.push(action.payload);
+      allEvents.push(action.payload);
       if (action.payload.public) {
         publishEvents(action.payload, addPublicEvent);
       }
-      saveEvents("default", newState2.allEvents);
+      saveEvents("default", allEvents);
       window.history.pushState({}, "OI Calendar", "/");
-      delete newState2.currentEvent;
-      delete newState2.currentEventType;
-      return newState2;
+      delete state.currentEvent;
+      delete steate.currentEventType;
+      return { ...state, allEvents };
     case UPDATE_EVENT:
-      var newState3 = state;
+      var { allEvents } = state;
       var eventInfo = action.payload.obj;
-      newState3.allEvents[eventInfo.id] = eventInfo;
+      allEvents[eventInfo.id] = eventInfo;
       if (eventInfo.public) {
         eventInfo.uid = eventInfo.uid || uuid();
         publishEvents(eventInfo, updatePublicEvent);
@@ -80,10 +79,10 @@ export default function reduce(state = initialState, action = {}) {
           publishEvents(eventInfo.uid, removePublicEvent);
         }
       }
-      saveEvents("default", newState3.allEvents);
-      return newState3;
+      saveEvents("default", allEvents);
+      return { ...state, allEvents };
     case INVITES_SENT:
-      var allEvents = state.allEvents;
+      var { allEvents } = state;
       if (action.payload.type === "add") {
         allEvents.push(action.payload.eventInfo);
         saveEvents("default", allEvents);

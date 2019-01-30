@@ -1,7 +1,11 @@
 import UserProfile from "../components/auth-user-profile/UserProfile";
 
 import { connect } from "react-redux";
-import { SignUserIn, SignUserOut } from "../store/auth/authAction";
+
+import {
+  asAction_SignUserIn,
+  asAction_SignUserOut
+} from "../store/auth/authAction";
 
 const mapStateToProps = (state, redux) => {
   const user = state.auth.user;
@@ -20,8 +24,8 @@ const mapStateToProps = (state, redux) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    userSignIn: () => dispatch(SignUserIn()),
-    userSignOut: () => dispatch(SignUserOut())
+    userSignIn: () => dispatch(asAction_SignUserIn()),
+    userSignOut: () => dispatch(asAction_SignUserOut())
   };
 };
 
