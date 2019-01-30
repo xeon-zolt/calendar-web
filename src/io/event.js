@@ -11,10 +11,6 @@ import {
   makeECPrivateKey,
   getPublicKeyFromPrivate,
   putFile,
-  isUserSignedIn,
-  loadUserData,
-  isSignInPending,
-  handlePendingSignIn,
   getFile,
   decryptContent
 } from "blockstack";
@@ -26,7 +22,6 @@ import {
   Component as iCalComponent,
   Event as iCalEvent
 } from "ical.js";
-import moment from "moment";
 
 export function createSessionChat() {
   return new UserSessionChat();
@@ -74,7 +69,7 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
   eventInfo.pubKey = getPublicKeyFromPrivate(eventInfo.privKey);
   eventInfo.uid = eventInfo.uid || uuid();
   eventInfo.owner = state.auth.user.username;
-  return putFile(sharedUrl(eventInfo.uuid), JSON.stringify(eventInfo), {
+  return putFile(sharedUrl(eventInfo.uid), JSON.stringify(eventInfo), {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
@@ -255,14 +250,20 @@ export function importCalendarEvents(calendar, defaultEvents) {
   }
   return fn(data).then(events => {
     if (events) {
+      console.log();
       const hexColorOrRandom = guaranteeHexColor(hexColor);
       const calendarName = type === "private" ? name : null;
-      return events.map(d => {
-        d.hexColor = hexColorOrRandom;
-        d.mode = calendar.mode;
-        d.calendarName = calendarName;
-        return d;
-      });
+      var event;
+      return Object.keys(events).reduce((es, key) => {
+        event = events[key];
+        event.hexColor = hexColorOrRandom;
+        event.mode = calendar.mode;
+        event.calendarName = calendarName;
+        es[key] = event;
+        return es;
+      }, {});
+    } else {
+      return {};
     }
   });
 }
@@ -275,7 +276,7 @@ function importCalendarEventsFromICS({ src }) {
         var jCal = iCalParse(icsContent);
         var comp = new iCalComponent(jCal);
         var vevents = comp.getAllSubcomponents("vevent");
-        var allEvents = [];
+        var allEvents = {};
         for (var i in vevents) {
           var vevent = new iCalEvent(vevents[i]);
           var event = {
@@ -284,7 +285,7 @@ function importCalendarEventsFromICS({ src }) {
             end: vevent.endDate.toJSDate().toISOString(),
             uid: vevent.uid
           };
-          allEvents.push(event);
+          allEvents[event.uid] = event;
         }
         return Promise.resolve(allEvents);
       } catch (e) {
@@ -301,9 +302,8 @@ function importPublicEventsFromUser({ src, user }) {
   }).then(allEvents => {
     if (allEvents && typeof allEvents === "string") {
       allEvents = JSON.parse(allEvents);
-      allEvents = Object.values(allEvents); // convert from public calendar
     } else {
-      allEvents = [];
+      allEvents = {};
     }
     return Promise.resolve(allEvents);
   });
@@ -314,7 +314,7 @@ function importPrivateEvents({ src }) {
     if (allEvents && typeof allEvents === "string") {
       allEvents = JSON.parse(allEvents);
     } else {
-      allEvents = [];
+      allEvents = {};
     }
     return Promise.resolve(allEvents);
   });
@@ -440,8 +440,12 @@ export function publishEvents(param, updatePublicEvents) {
 
 export function saveEvents(calendarName, allEvents) {
   console.log("save", { calendarName, allEvents });
-  putFile(
-    calendarName + "/AllEvents",
-    JSON.stringify(allEvents.filter(e => e.calendarName === calendarName))
-  );
+  const calendarEvents = Object.keys(allEvents)
+    .filter(key => allEvents[key].calendarName === calendarName)
+    .reduce((res, key) => {
+      res[key] = allEvents[key];
+      return res;
+    }, {});
+
+  putFile(calendarName + "/AllEvents", JSON.stringify(calendarEvents));
 }
