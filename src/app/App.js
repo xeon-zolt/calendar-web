@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
-import { AppHeader, AppFooter, AppMenu } from "./AppHeaderAndFooter";
+import { AppHeader, AppFooter } from "./AppHeaderAndFooter";
+import { AppMenu } from "../components/app-menu/AppMenu";
 
 class App extends Component {
   render() {
