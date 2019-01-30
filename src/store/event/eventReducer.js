@@ -5,14 +5,17 @@ import {
   UPDATE_EVENT,
   USER,
   ALL_CONTACTS,
-  INVITES_SENT,
-  SEND_INVITES_FAILED,
+  INVITES_SENT_OK,
+  INVITES_SENT_FAIL,
   // ADD_CONTACT,
   // LOAD_GUEST_LIST,
-  CURRENT_GUESTS,
+  SET_CURRENT_GUESTS,
   VIEW_EVENT
 } from "../ActionTypes";
 
+// :WARN: reducer should have no dependency on io/event
+// A reducer should have no side effect other than change the state of
+// the store
 import {
   publishEvents,
   saveEvents,
@@ -81,7 +84,7 @@ export default function reduce(state = initialState, action = {}) {
       }
       saveEvents("default", allEvents);
       return { ...state, allEvents };
-    case INVITES_SENT:
+    case INVITES_SENT_OK:
       allEvents = state.allEvents;
       if (payload.type === "add") {
         allEvents[payload.eventInfo.uid] = payload.eventInfo;
@@ -93,13 +96,13 @@ export default function reduce(state = initialState, action = {}) {
         inviteSuccess: true,
         inviteError: undefined
       };
-    case SEND_INVITES_FAILED:
+    case INVITES_SENT_FAIL:
       return {
         ...state,
         inviteSuccess: false,
         inviteError: payload.error
       };
-    case CURRENT_GUESTS:
+    case SET_CURRENT_GUESTS:
       return {
         ...state,
         currentGuests: payload.profiles,

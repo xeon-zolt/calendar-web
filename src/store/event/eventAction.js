@@ -1,8 +1,8 @@
 import {
   ALL_EVENTS,
-  INVITES_SENT,
-  SEND_INVITES_FAILED,
-  CURRENT_GUESTS,
+  INVITES_SENT_OK,
+  INVITES_SENT_FAIL,
+  SET_CURRENT_GUESTS,
   USER,
   ALL_CONTACTS,
   VIEW_EVENT,
@@ -19,8 +19,13 @@ import {
   getCalendars,
   sendInvitesToGuests,
   loadGuestProfiles,
-  fetchContactData
+  fetchContactData,
+  updatePublicEvent,
+  removePublicEvent,
+  addPublicEvent,
+  createSessionChat
 } from "../../io/event";
+import { uuid } from "../../io/eventFN";
 
 import {
   isUserSignedIn,
@@ -35,19 +40,19 @@ import {
 
 function asAction_invitesSentOk(eventInfo, type) {
   return {
-    type: INVITES_SENT,
+    type: INVITES_SENT_OK,
     payload: { eventInfo, type }
   };
 }
 
 function asAction_invitesSentFail(error) {
   return {
-    type: SEND_INVITES_FAILED,
+    type: INVITES_SENT_FAIL,
     payload: { error }
   };
 }
 
-export function SendInvites(eventInfo, guests, type) {
+export function sendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
     sendInvitesToGuests(getState(), eventInfo, guests).then(
       ({ eventInfo, contacts }) => {
@@ -65,12 +70,12 @@ export function SendInvites(eventInfo, guests, type) {
 // #########################
 function asAction_setGuests(profiles, eventInfo) {
   return {
-    type: CURRENT_GUESTS,
+    type: SET_CURRENT_GUESTS,
     payload: { profiles, eventInfo }
   };
 }
 
-export function LoadGuestList(guests, eventInfo) {
+export function loadGuestList(guests, eventInfo) {
   return async (dispatch, getState) => {
     const contacts = getState().events.contacts;
     loadGuestProfiles(guests, contacts).then(
@@ -121,7 +126,8 @@ function asAction_addCalendar(url) {
   return { type: ADD_CALENDAR, payload: { url } };
 }
 
-export function getInitialEvents(query) {
+export function initializeEvents() {
+  const query = window.location.search;
   return async (dispatch, getState) => {
     if (isUserSignedIn()) {
       console.log("is signed in");
@@ -191,4 +197,51 @@ function loadCalendarData(calendars) {
       }, {});
     return allEvents;
   });
+}
+
+// ################
+// Edit Event
+// ################
+
+export function deleteEvent(event) {
+  return async (dispatch, getState) => {
+    let { allEvents } = getState();
+    allEvents = allEvents.filter(function(obj) {
+      return obj && obj.uid !== event.uid;
+    });
+    publishEvents(event.uid, removePublicEvent);
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
+}
+
+export function addEvent(event, details) {
+  return async (dispatch, getState) => {
+    let state = getState();
+    let { allEvents } = state;
+    event.calendarName = "default";
+    event.uid = uuid();
+    allEvents[event.uid] = event;
+    saveEvents("default", allEvents);
+    window.history.pushState({}, "OI Calendar", "/");
+    delete state.currentEvent;
+    delete state.currentEventType;
+    dispatch(asAction_setEvents(allEvents));
+  };
+}
+
+export function updateEvent(event, details) {
+  return async (dispatch, getState) => {
+    let { allEvents } = getState();
+    var eventInfo = event.obj;
+    eventInfo.uid = eventInfo.uid || uuid();
+    allEvents[eventInfo.uid] = eventInfo;
+    if (eventInfo.public) {
+      publishEvents(eventInfo, updatePublicEvent);
+    } else {
+      publishEvents(eventInfo.uid, removePublicEvent);
+    }
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
 }

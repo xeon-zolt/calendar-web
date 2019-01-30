@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import EventCalendar from "../components/event-calendar/EventCalendar";
 
-import { getInitialEvents } from "../store/event/eventAction";
+import { initializeEvents } from "../store/event/eventAction";
 
 export default connect(
   (state, redux) => {
@@ -23,7 +23,7 @@ export default connect(
   },
   dispatch => {
     return {
-      getInitialEvents: search => dispatch(getInitialEvents(search))
+      initializeEvents: () => dispatch(initializeEvents())
     };
   }
 )(EventCalendar);
