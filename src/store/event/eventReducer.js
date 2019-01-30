@@ -22,6 +22,7 @@ import {
 } from "./eventAction";
 import { putFile } from "blockstack";
 import { UserSessionChat } from "./UserSessionChat";
+import { defineLocale } from "moment";
 
 let initialState = {
   allEvents: [],
@@ -61,6 +62,9 @@ export default function reduce(state = initialState, action = {}) {
         publishEvents(action.payload, addPublicEvent);
       }
       saveEvents("default", newState2.allEvents);
+      window.history.pushState({}, "OI Calendar", "/");
+      delete newState2.currentEvent;
+      delete newState2.currentEventType;
       return newState2;
     case UPDATE_EVENT:
       var newState3 = state;
