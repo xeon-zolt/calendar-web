@@ -7,6 +7,7 @@ import {
   ALL_CONTACTS,
   VIEW_EVENT
 } from "../ActionTypes";
+
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";

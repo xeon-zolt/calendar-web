@@ -1,4 +1,5 @@
-import React from "react";
+import React, { Component } from "react";
+import { Dropdown, DropdownButton } from "react-bootstrap";
 
 export const AppHeader = props => {
   return (
@@ -15,6 +16,12 @@ export const AppHeader = props => {
     </div>
   );
 };
+
+export class AppMenu extends Component {
+  render() {
+    return <div>Settings</div>;
+  }
+}
 
 export const AppFooter = props => {
   return (
