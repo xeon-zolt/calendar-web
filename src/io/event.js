@@ -15,6 +15,7 @@ import {
   decryptContent
 } from "blockstack";
 import { createEvents } from "ics";
+import { defaultEvents, defaultCalendars } from "./eventDefaults";
 
 import { UserSessionChat } from "./UserSessionChat";
 import {
@@ -214,7 +215,7 @@ export function respondToInvite(
   });
 }
 
-export function getCalendars(defaultCalendars) {
+export function getCalendars() {
   return getFile("Calendars").then(calendarsContent => {
     var calendars;
     if (calendarsContent == null) {
@@ -232,7 +233,7 @@ export function getCalendars(defaultCalendars) {
 // :NOTE: As there is no more reliance on any knowledge of how these evens are managed
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
-export function importCalendarEvents(calendar, defaultEvents) {
+export function importCalendarEvents(calendar) {
   const { type, data, hexColor, name } = calendar;
   let fn;
   if (type === "ics") {
@@ -336,26 +337,27 @@ function importPrivateEventsWithDefaults(defaultEvents) {
 
 export function ViewEventInQueryString(
   query,
-  onPrivateEvent,
-  onNewEvent,
-  onICSUrl
+  username,
+  whenPrivateEvent,
+  whenNewEvent,
+  whenICSUrl
 ) {
   if (query) {
     const { u, e, p, intent, title, start, end, via, url } = parseQueryString(
       query
     );
     if (u && e && p) {
-      return loadCalendarEventFromUser(u, e, p).then(onPrivateEvent);
+      return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
       if (intent.toLowerCase() === "addevent") {
         const eventInfo = {};
         eventInfo.title = title || "New Event";
         eventInfo.start = start != null ? new Date(start) : new Date();
         eventInfo.end = end != null ? new Date(end) : null;
-        eventInfo.owner = via != null ? via : userData.username;
-        onNewEvent(eventInfo);
+        eventInfo.owner = via != null ? via : username;
+        whenNewEvent(eventInfo);
       } else if (intent.toLowerCase === "addics") {
-        onICSUrl(url);
+        whenICSUrl(url);
       }
     }
   }

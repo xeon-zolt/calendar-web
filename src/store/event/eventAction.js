@@ -11,8 +11,6 @@ import {
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 
-import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
-
 import {
   saveEvents,
   publishEvents,
@@ -26,18 +24,10 @@ import {
 
 import {
   isUserSignedIn,
-  loadUserData,
   isSignInPending,
   handlePendingSignIn,
   loadUserData
 } from "blockstack";
-import { UserSessionChat } from "./UserSessionChat";
-import { createEvents } from "ics";
-import {
-  parse as iCalParse,
-  Component as iCalComponent,
-  Event as iCalEvent
-} from "ical.js";
 
 // #########################
 // INVITES
@@ -111,8 +101,12 @@ function asAction_user(userData) {
   return { type: USER, user: userData };
 }
 
-function asAction_viewEvent(eventInfo) {
-  return { type: VIEW_EVENT, payload: { eventInfo } };
+function asAction_viewEvent(eventInfo, eventType) {
+  let payload = { eventInfo };
+  if (eventType) {
+    payload.eventType = eventType;
+  }
+  return { type: VIEW_EVENT, payload };
 }
 
 function asAction_setEvents(allEvents) {
@@ -121,6 +115,10 @@ function asAction_setEvents(allEvents) {
 
 function asAction_setContacts(contacts) {
   return { type: ALL_CONTACTS, payload: { contacts } };
+}
+
+function asAction_addCalendar(url) {
+  return { type: ADD_CALENDAR, payload: { url } };
 }
 
 export function getInitialEvents(query) {
@@ -133,22 +131,15 @@ export function getInitialEvents(query) {
 
       handleIntentsInQueryString(
         query,
+        userData.username,
         eventInfo => {
           dispatch(asAction_viewEvent(eventInfo));
         },
-        eventInfo =>
-          dispatch({
-            type: VIEW_EVENT,
-            payload: { eventInfo, eventType: "add" }
-          }),
-        url =>
-          dispatch({
-            type: ADD_CALENDAR,
-            payload: { url }
-          })
+        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        url => dispatch(asAction_addCalendar(url))
       );
 
-      getCalendars(defaultCalendars).then(calendars => {
+      getCalendars().then(calendars => {
         loadCalendarData(calendars).then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
         });
@@ -175,7 +166,7 @@ function loadCalendarData(calendars) {
   for (let i in calendars) {
     const calendar = calendars[i];
     calendarPromises = calendarPromises.then(calendarEvents => {
-      return importCalendarEvents(calendar, defaultEvents).then(
+      return importCalendarEvents(calendar).then(
         events => {
           calendarEvents[calendar.name] = {
             name: calendar.name,

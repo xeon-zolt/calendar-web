@@ -19,9 +19,9 @@ import {
   updatePublicEvent,
   removePublicEvent,
   addPublicEvent,
-  uuid,
   createSessionChat
 } from "../../io/event";
+
 import { uuid } from "../../io/eventFN";
 
 let initialState = {
@@ -33,44 +33,45 @@ let initialState = {
 
 export default function reduce(state = initialState, action = {}) {
   console.log("EventReducer", action);
-  switch (action.type) {
+  const { type, payload } = action;
+  switch (type) {
     case USER:
       return { ...state, user: action.user };
     case ALL_CONTACTS:
-      // console.log('all contacts', action.payload.contacts);
-      return { ...state, contacts: action.payload.contacts };
+      // console.log('all contacts', payload.contacts);
+      return { ...state, contacts: payload.contacts };
     case ALL_EVENTS:
       return { ...state, allEvents: action.allEvents };
     case VIEW_EVENT:
       return {
         ...state,
-        currentEvent: action.payload.eventInfo,
-        currentEventType: action.payload.eventType
+        currentEvent: payload.eventInfo,
+        currentEventType: payload.eventType
       };
     case REMOVE_EVENT:
       let { allEvents } = state;
       allEvents = allEvents.filter(function(obj) {
-        return obj && obj.uid !== action.payload.obj.uid;
+        return obj && obj.uid !== payload.obj.uid;
       });
-      publishEvents(action.payload.obj.uid, removePublicEvent);
+      publishEvents(payload.obj.uid, removePublicEvent);
       saveEvents("default", allEvents);
       return { ...state, allEvents };
     case ADD_EVENT:
       allEvents = state.allEvents;
-      action.payload.calendarName = "default";
-      action.payload.uid = uuid();
-      allEvents[action.payload.uid] = action.payload;
-      if (action.payload.public) {
-        publishEvents(action.payload, addPublicEvent);
+      payload.calendarName = "default";
+      payload.uid = uuid();
+      allEvents[payload.uid] = payload;
+      if (payload.public) {
+        publishEvents(payload, addPublicEvent);
       }
       saveEvents("default", allEvents);
       window.history.pushState({}, "OI Calendar", "/");
       delete state.currentEvent;
-      delete steate.currentEventType;
+      delete state.currentEventType;
       return { ...state, allEvents };
     case UPDATE_EVENT:
       allEvents = state.allEvents;
-      var eventInfo = action.payload.obj;
+      var eventInfo = payload.obj;
       eventInfo.uid = eventInfo.uid || uuid();
       allEvents[eventInfo.uid] = eventInfo;
       if (eventInfo.public) {
@@ -82,8 +83,8 @@ export default function reduce(state = initialState, action = {}) {
       return { ...state, allEvents };
     case INVITES_SENT:
       allEvents = state.allEvents;
-      if (action.payload.type === "add") {
-        allEvents[action.payload.eventInfo.uid] = action.payload.eventInfo;
+      if (payload.type === "add") {
+        allEvents[payload.eventInfo.uid] = payload.eventInfo;
         saveEvents("default", allEvents);
       }
       return {
@@ -96,12 +97,12 @@ export default function reduce(state = initialState, action = {}) {
       return {
         ...state,
         inviteSuccess: false,
-        inviteError: action.payload.error
+        inviteError: payload.error
       };
     case CURRENT_GUESTS:
       return {
         ...state,
-        currentGuests: action.payload.profiles,
+        currentGuests: payload.profiles,
         inviteSuccess: undefined,
         inviteError: undefined
       };

@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Button } from "react-bootstrap";
 
+import avatarDefault from "./avatar.png";
+
 const LINK_URL_BASE = "https://debutapp.social/";
 
 const Contact = props => {
@@ -14,7 +16,7 @@ const Contact = props => {
   ) {
     avatarUrl = contact.image[0].contentUrl;
   } else {
-    avatarUrl = "/images/avatar.png";
+    avatarUrl = avatarDefault;
   }
   var name = contact.name;
   if (!name) {

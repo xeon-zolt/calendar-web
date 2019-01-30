@@ -18,7 +18,7 @@ const Calendar = props => {
       />
       <label>{calendar.name}</label>
       {privateCalendar && (
-        <Button bsStyle="light">
+        <Button variant="light">
           <span className="glyphicon glyphicon-pencil" />
         </Button>
       )}
