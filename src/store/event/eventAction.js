@@ -253,7 +253,7 @@ export function GetInitialEvents(query) {
       dispatch({ type: USER, user: userData });
 
       if (query) {
-        const { u, e, p } = (query.substring(1).split("&") || []).reduce(
+        const params = (query.substring(1).split("&") || []).reduce(
           (acc, d) => {
             const [k, v] = d.split("=");
             if (k) {
@@ -263,10 +263,20 @@ export function GetInitialEvents(query) {
           },
           {}
         );
+        const { u, e, p, intent, title, start, end, via } = params;
         if (u && e && p) {
           loadCalendarEventFromUser(u, e, p).then(eventInfo => {
             dispatch({ type: VIEW_EVENT, payload: { eventInfo } });
           });
+        } else if (intent) {
+          if (intent.toLowerCase() === "addevent") {
+            const eventInfo = {};
+            eventInfo.title = title || "New Event";
+            eventInfo.start = start != null ? new Date(start) : new Date();
+            eventInfo.end = end != null ? new Date(end) : null;
+            eventInfo.owner = via != null ? via : userData.username;
+            dispatch({ type: VIEW_EVENT, payload: { eventInfo } });
+          }
         }
       }
 
