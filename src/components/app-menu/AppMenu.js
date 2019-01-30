@@ -7,10 +7,10 @@ export class AppMenu extends Component {
       <SplitButton
         drop="down"
         variant="secondary"
-        title="Drop down"
+        title="Settings"
         id="dropdown-menu"
       >
-        <MenuItem>Settings</MenuItem>
+        <MenuItem>Calendars</MenuItem>
         <MenuItem divider={true} />
       </SplitButton>
     );
