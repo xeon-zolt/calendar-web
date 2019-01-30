@@ -5,7 +5,8 @@ import {
   CURRENT_GUESTS,
   USER,
   ALL_CONTACTS,
-  VIEW_EVENT
+  VIEW_EVENT,
+  ADD_CALENDAR
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -263,7 +264,7 @@ export function GetInitialEvents(query) {
           },
           {}
         );
-        const { u, e, p, intent, title, start, end, via } = params;
+        const { u, e, p, intent, title, start, end, via, url } = params;
         if (u && e && p) {
           loadCalendarEventFromUser(u, e, p).then(eventInfo => {
             dispatch({ type: VIEW_EVENT, payload: { eventInfo } });
@@ -278,6 +279,11 @@ export function GetInitialEvents(query) {
             dispatch({
               type: VIEW_EVENT,
               payload: { eventInfo, eventType: "add" }
+            });
+          } else if (intent.toLowerCase === "addics") {
+            dispatch({
+              type: ADD_CALENDAR,
+              payload: { url }
             });
           }
         }
