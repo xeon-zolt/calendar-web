@@ -1,10 +1,10 @@
 import {
-  ALL_EVENTS,
+  SET_EVENTS,
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
   SET_CURRENT_GUESTS,
   USER,
-  ALL_CONTACTS,
+  SET_CONTACTS,
   VIEW_EVENT,
   ADD_CALENDAR
 } from "../ActionTypes";
@@ -56,7 +56,12 @@ export function sendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
     sendInvitesToGuests(getState(), eventInfo, guests).then(
       ({ eventInfo, contacts }) => {
-        dispatch(asAction_invitesSentOk(eventInfo, type));
+        let { allEvents } = getState();
+        if (type === "add") {
+          allEvents[eventInfo.uid] = eventInfo;
+          saveEvents("default", allEvents);
+        }
+        dispatch(asAction_invitesSentOk(allEvents));
       },
       error => {
         dispatch(asAction_invitesSentFail(error));
@@ -115,11 +120,11 @@ function asAction_viewEvent(eventInfo, eventType) {
 }
 
 function asAction_setEvents(allEvents) {
-  return { type: ALL_EVENTS, allEvents };
+  return { type: SET_EVENTS, allEvents };
 }
 
 function asAction_setContacts(contacts) {
-  return { type: ALL_CONTACTS, payload: { contacts } };
+  return { type: SET_CONTACTS, payload: { contacts } };
 }
 
 function asAction_addCalendar(url) {

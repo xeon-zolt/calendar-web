@@ -12,16 +12,13 @@ export const INITIALIZE_CHAT = "chat.INITIALIZE_CHAT";
 
 // Events
 export const EVENTS_ENABLED = "events.EVENTS_ENABLED";
-export const ALL_EVENTS = "events.ALL_EVENTS";
-export const REMOVE_EVENT = "events.REMOVE_EVENT";
-export const ADD_EVENT = "events.ADD_EVENT";
-export const UPDATE_EVENT = "events.UPDATE_EVENT";
+export const SET_EVENTS = "events.SET_EVENTS";
 export const VIEW_EVENT = "events.VIEW_EVENT";
 
 // Contacts
 export const USER = "contacts.USER";
 export const ADD_CONTACT = "contacts.ADD_CONTACT";
-export const ALL_CONTACTS = "contacts.ALL";
+export const SET_CONTACTS = "contacts.ALL";
 export const LOAD_GUEST_LIST = "contacts.LOAD_GUEST_LIST";
 export const SET_CURRENT_GUESTS = "contacts.SET_CURRENT_GUESTS";
 export const SEND_INVITES_REQUEST = "contacts.SEND_INVITES_REQUEST";

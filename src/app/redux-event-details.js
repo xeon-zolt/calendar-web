@@ -7,7 +7,6 @@ import {
   deleteEvent,
   updateEvent
 } from "../store/event/eventAction";
-import { REMOVE_EVENT, ADD_EVENT, UPDATE_EVENT } from "../store/ActionTypes";
 
 export default connect(
   (state, redux) => {
