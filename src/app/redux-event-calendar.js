@@ -5,23 +5,24 @@ import { GetInitialEvents } from "../store/event/eventAction";
 
 export default connect(
   (state, redux) => {
-    console.log("[ConnectedEventCalendar]", state, redux.store);
+    console.log("[ConnectedEventCalendar2]", state, redux.store);
     const { events, auth } = state;
     const { EventDetails } = redux.store.views;
     const signedIn = !!auth.user;
-    const { inviteSuccess } = events;
+    const { inviteSuccess, currentEvent } = events;
     return {
       events,
       signedIn,
       inviteSuccess,
       views: {
         EventDetails
-      }
+      },
+      currentEvent
     };
   },
   dispatch => {
     return {
-      GetInitialEvents: search => dispatch(GetInitialEvents(search))
+      getInitialEvents: search => dispatch(GetInitialEvents(search))
     };
   }
 )(EventCalendar);

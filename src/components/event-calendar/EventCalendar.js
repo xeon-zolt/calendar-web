@@ -27,12 +27,17 @@ class EventCalendar extends Component {
   }
 
   componentWillMount() {
-    this.props.GetInitialEvents(window.location.search);
+    this.props.getInitialEvents(window.location.search);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.inviteSuccess) {
       this.setState({ eventModal: undefined });
+    }
+    if (nextProps.currentEvent) {
+      this.setState({
+        eventModal: { eventType: "view", eventInfo: nextProps.currentEvent }
+      });
     }
   }
   handleHide() {
@@ -97,10 +102,10 @@ class EventCalendar extends Component {
       handleEditEvent,
       handleAddEvent
     } = this.bound;
-    // console.log("allevents", this.props.events.allEvents);
     return (
       <div className="bodyContainer">
-        {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions? */}
+        {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions?
+        :A: No*/}
         {signedIn && showInstructions && (
           <Panel>
             <Panel.Heading>
