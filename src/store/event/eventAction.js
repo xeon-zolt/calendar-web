@@ -15,7 +15,7 @@ import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
 import {
   saveEvents,
   publishEvents,
-  ViewEventInQueryString,
+  ViewEventInQueryString as handleIntentsInQueryString,
   importCalendarEvents,
   getCalendars,
   respondToInvite,
@@ -132,9 +132,22 @@ export function getInitialEvents(query) {
       dispatch(asAction_authenticated(userData));
       dispatch(asAction_user(userData));
 
-      ViewEventInQueryString(query, eventInfo => {
-        dispatch(asAction_viewEvent(eventInfo));
-      });
+      handleIntentsInQueryString(
+        query,
+        eventInfo => {
+          dispatch(asAction_viewEvent(eventInfo));
+        },
+        eventInfo =>
+          dispatch({
+            type: VIEW_EVENT,
+            payload: { eventInfo, eventType: "add" }
+          }),
+        url =>
+          dispatch({
+            type: ADD_CALENDAR,
+            payload: { url }
+          })
+      );
 
       getCalendars(defaultCalendars).then(calendars => {
         loadCalendarData(calendars).then(allEvents => {
