@@ -9,7 +9,7 @@ export default connect(
     const { events, auth } = state;
     const { EventDetails } = redux.store.views;
     const signedIn = !!auth.user;
-    const { inviteSuccess, currentEvent, currentEventType } = events;
+    const { inviteSuccess, currentEvent, currentEventType } = events || {};
     return {
       events,
       signedIn,

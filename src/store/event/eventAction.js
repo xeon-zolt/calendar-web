@@ -11,9 +11,29 @@ import {
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 import moment from "moment";
-import * as blockstack from "blockstack";
-import * as ics from "ics";
-import * as ICAL from "ical.js";
+import {
+  lookupProfile,
+  makeECPrivateKey,
+  getPublicKeyFromPrivate,
+  putFile,
+  isUserSignedIn,
+  loadUserData,
+  isSignInPending,
+  handlePendingSignIn,
+  getFile,
+  decryptContent
+} from "blockstack";
+import { UserSessionChat } from "./UserSessionChat";
+import { createEvents } from "ics";
+import {
+  parse as iCalParse,
+  Component as iCalComponent,
+  Event as iCalEvent
+} from "ical.js";
+
+export function createSessionChat() {
+  return new UserSessionChat();
+}
 
 export function SendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
@@ -60,7 +80,7 @@ function loadGuestProfiles(guests, contacts) {
     const guest = guests[i];
     if (guest && guest.length > 0) {
       profilePromises = profilePromises.then(({ profiles, contacts }) => {
-        return blockstack.lookupProfile(guest).then(
+        return lookupProfile(guest).then(
           guestProfile => {
             profiles[guest] = guestProfile;
             return { profiles, contacts };
@@ -86,51 +106,45 @@ export function uuid() {
 
 function sendInvitesToGuests(state, eventInfo, guests) {
   const contacts = state.events.contacts;
-  eventInfo.privKey = blockstack.makeECPrivateKey();
-  eventInfo.pubKey = blockstack.getPublicKeyFromPrivate(eventInfo.privKey);
+  eventInfo.privKey = makeECPrivateKey();
+  eventInfo.pubKey = getPublicKeyFromPrivate(eventInfo.privKey);
   eventInfo.uid = eventInfo.uid || uuid();
   eventInfo.owner = state.auth.user.username;
-  return blockstack
-    .putFile(sharedUrl(eventInfo.uuid), JSON.stringify(eventInfo), {
-      encrypt: eventInfo.pubKey
-    })
-    .then(readUrl => {
-      eventInfo.readUrl = readUrl;
-      var addGuestPromises = Promise.resolve({ contacts, eventInfo });
+  return putFile(sharedUrl(eventInfo.uuid), JSON.stringify(eventInfo), {
+    encrypt: eventInfo.pubKey
+  }).then(readUrl => {
+    eventInfo.readUrl = readUrl;
+    var addGuestPromises = Promise.resolve({ contacts, eventInfo });
 
-      for (var i in guests) {
-        const guest = guests[i];
-        if (guest && guest.length > 0) {
-          addGuestPromises = addGuestPromises.then(
-            ({ contacts, eventInfo }) => {
-              return blockstack.lookupProfile(guest).then(
-                guestProfile => {
-                  console.log("found guest ", guestProfile.name);
-                  return addGuest(guest, eventInfo, contacts, state);
-                },
-                error => {
-                  console.log("invalid guest " + guest, error);
-                  return Promise.resolve({ contacts, eventInfo });
-                }
-              );
+    for (var i in guests) {
+      const guest = guests[i];
+      if (guest && guest.length > 0) {
+        addGuestPromises = addGuestPromises.then(({ contacts, eventInfo }) => {
+          return lookupProfile(guest).then(
+            guestProfile => {
+              console.log("found guest ", guestProfile.name);
+              return addGuest(guest, eventInfo, contacts, state);
+            },
+            error => {
+              console.log("invalid guest " + guest, error);
+              return Promise.resolve({ contacts, eventInfo });
             }
           );
-        }
+        });
       }
-      return addGuestPromises.then(
-        ({ contacts, eventInfo }) => {
-          console.log("contacts", contacts);
-          return blockstack
-            .putFile("Contacts", JSON.stringify(contacts))
-            .then(() => {
-              return { contacts, eventInfo };
-            });
-        },
-        error => {
-          return Promise.reject(error);
-        }
-      );
-    });
+    }
+    return addGuestPromises.then(
+      ({ contacts, eventInfo }) => {
+        console.log("contacts", contacts);
+        return putFile("Contacts", JSON.stringify(contacts)).then(() => {
+          return { contacts, eventInfo };
+        });
+      },
+      error => {
+        return Promise.reject(error);
+      }
+    );
+  });
 }
 
 function addGuest(guest, eventInfo, contacts, state) {
@@ -247,9 +261,9 @@ function respondToInvite(
 
 export function GetInitialEvents(query) {
   return async (dispatch, getState) => {
-    if (blockstack.isUserSignedIn()) {
+    if (isUserSignedIn()) {
       console.log("is signed in");
-      const userData = blockstack.loadUserData();
+      const userData = loadUserData();
       dispatch({ type: AUTH_CONNECTED, user: userData });
       dispatch({ type: USER, user: userData });
 
@@ -292,9 +306,9 @@ export function GetInitialEvents(query) {
       getCalendars().then(calendars => {
         loadCalendarData(dispatch, calendars);
       });
-    } else if (blockstack.isSignInPending()) {
+    } else if (isSignInPending()) {
       console.log("handling pending sign in");
-      blockstack.handlePendingSignIn().then(userData => {
+      handlePendingSignIn().then(userData => {
         console.log("redirecting to " + window.location.origin);
         window.location = window.location.origin;
         dispatch({ type: AUTH_CONNECTED, user: userData });
@@ -342,10 +356,10 @@ const defaultCalendars = [
 ];
 
 function getCalendars() {
-  return blockstack.getFile("Calendars").then(calendarsContent => {
+  return getFile("Calendars").then(calendarsContent => {
     var calendars;
     if (calendarsContent == null) {
-      blockstack.putFile("Calendars", JSON.stringify(defaultCalendars));
+      putFile("Calendars", JSON.stringify(defaultCalendars));
       calendars = defaultCalendars;
     } else {
       calendars = JSON.parse(calendarsContent);
@@ -381,7 +395,7 @@ function loadCalendarData(dispatch, calendars) {
     dispatch({ type: ALL_EVENTS, allEvents });
   });
 
-  blockstack.getFile("Contacts").then(contactsContent => {
+  getFile("Contacts").then(contactsContent => {
     var contacts;
     if (contactsContent == null) {
       contacts = {};
@@ -437,12 +451,12 @@ function importCalendarEventsFromICS({ src }) {
     .then(result => result.text())
     .then(icsContent => {
       try {
-        var jCal = ICAL.parse(icsContent);
-        var comp = new ICAL.Component(jCal);
+        var jCal = iCalParse(icsContent);
+        var comp = new iCalComponent(jCal);
         var vevents = comp.getAllSubcomponents("vevent");
         var allEvents = [];
         for (var i in vevents) {
-          var vevent = new ICAL.Event(vevents[i]);
+          var vevent = new iCalEvent(vevents[i]);
           var event = {
             title: vevent.summary,
             start: vevent.startDate.toJSDate().toISOString(),
@@ -460,24 +474,22 @@ function importCalendarEventsFromICS({ src }) {
 }
 
 function importPublicEventsFromUser({ src, user }) {
-  return blockstack
-    .getFile(src, {
-      decrypt: false,
-      username: user
-    })
-    .then(allEvents => {
-      if (allEvents && typeof allEvents === "string") {
-        allEvents = JSON.parse(allEvents);
-        allEvents = Object.values(allEvents); // convert from public calendar
-      } else {
-        allEvents = [];
-      }
-      return Promise.resolve(allEvents);
-    });
+  return getFile(src, {
+    decrypt: false,
+    username: user
+  }).then(allEvents => {
+    if (allEvents && typeof allEvents === "string") {
+      allEvents = JSON.parse(allEvents);
+      allEvents = Object.values(allEvents); // convert from public calendar
+    } else {
+      allEvents = [];
+    }
+    return Promise.resolve(allEvents);
+  });
 }
 
 function importPrivateEvents({ src }) {
-  return blockstack.getFile(src).then(allEvents => {
+  return getFile(src).then(allEvents => {
     if (allEvents && typeof allEvents === "string") {
       allEvents = JSON.parse(allEvents);
     } else {
@@ -488,11 +500,11 @@ function importPrivateEvents({ src }) {
 }
 
 function importPrivateEventsWithDefaults({ src }) {
-  return blockstack.getFile(src).then(allEvents => {
+  return getFile(src).then(allEvents => {
     if (allEvents && typeof allEvents === "string") {
       allEvents = JSON.parse(allEvents);
     } else {
-      blockstack.putFile(src, JSON.stringify(defaultEvents));
+      putFile(src, JSON.stringify(defaultEvents));
       allEvents = defaultEvents;
     }
     return Promise.resolve(allEvents);
@@ -500,22 +512,18 @@ function importPrivateEventsWithDefaults({ src }) {
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
-  return blockstack
-    .getFile(sharedUrl(eventUid), { decrypt: false, username })
-    .then(
-      encryptedContent => {
-        return JSON.parse(
-          blockstack.decryptContent(encryptedContent, { privateKey })
-        );
-      },
-      error => {
-        return Promise.reject("Couldn't load event", {
-          username,
-          eventUid,
-          error
-        });
-      }
-    );
+  return getFile(sharedUrl(eventUid), { decrypt: false, username }).then(
+    encryptedContent => {
+      return JSON.parse(decryptContent(encryptedContent, { privateKey }));
+    },
+    error => {
+      return Promise.reject("Couldn't load event", {
+        username,
+        eventUid,
+        error
+      });
+    }
+  );
 }
 
 /* This is here just to demonstrate how to load an event from a user */
@@ -551,7 +559,7 @@ export function removePublicEvent(eventUid, publicEvents) {
 
 export function publishEvents(param, updatePublicEvents) {
   const publicEventPath = "public/AllEvents";
-  blockstack.getFile(publicEventPath, { decrypt: false }).then(fileContent => {
+  getFile(publicEventPath, { decrypt: false }).then(fileContent => {
     var publicEvents = {};
     if (fileContent !== null) {
       publicEvents = JSON.parse(fileContent);
@@ -564,35 +572,31 @@ export function publishEvents(param, updatePublicEvents) {
 
     if (republish) {
       var eventsString = JSON.stringify(newPublicEvents);
-      blockstack
-        .putFile(publicEventPath, eventsString, {
-          encrypt: false,
-          contentType: "text/json"
-        })
-        .then(
-          f => {
-            console.log("public calendar at ", f);
-          },
-          error => {
-            console.log("error publish event", error);
-          }
-        );
+      putFile(publicEventPath, eventsString, {
+        encrypt: false,
+        contentType: "text/json"
+      }).then(
+        f => {
+          console.log("public calendar at ", f);
+        },
+        error => {
+          console.log("error publish event", error);
+        }
+      );
       try {
-        var { error, value } = ics.createEvents(formatEvents(newPublicEvents));
+        var { error, value } = createEvents(formatEvents(newPublicEvents));
         if (!error) {
-          blockstack
-            .putFile(publicEventPath + ".ics", value, {
-              encrypt: false,
-              contentType: "text/calendar"
-            })
-            .then(
-              f => {
-                console.log("public calendar at ", f);
-              },
-              error => {
-                console.log("error publish event", error);
-              }
-            );
+          putFile(publicEventPath + ".ics", value, {
+            encrypt: false,
+            contentType: "text/calendar"
+          }).then(
+            f => {
+              console.log("public calendar at ", f);
+            },
+            error => {
+              console.log("error publish event", error);
+            }
+          );
         } else {
           console.log("error creating ics", error);
         }
@@ -601,6 +605,14 @@ export function publishEvents(param, updatePublicEvents) {
       }
     }
   });
+}
+
+export function saveEvents(calendarName, allEvents) {
+  console.log("save", { calendarName, allEvents });
+  putFile(
+    calendarName + "/AllEvents",
+    JSON.stringify(allEvents.filter(e => e.calendarName === calendarName))
+  );
 }
 
 function formatEvents(events) {

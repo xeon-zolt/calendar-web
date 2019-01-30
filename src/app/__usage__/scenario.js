@@ -14,54 +14,72 @@ import App from "../App";
 // import moment from "moment";
 // import * as blockstack from "blockstack";
 // import * as ics from "ics";
-import * as ICAL from "ical.js";
+// import * as ICAL from "ical.js";
 
-const dynamicProfile = false;
-const dynamicCalendar = true;
+let loaded = false;
 const doNothing = () => {};
 
-const EventCalendar = props => {
-  if (dynamicCalendar) {
-    return <div>EventCalendar</div>;
-  } else {
-    /*
-    let EventCalendarBase = require("../../components/event-calendar/EventCalendar")
-      .default;
-    return (
-      <EventCalendarBase
-        GetInitialEvents={() => {}}
-        views={{ EventDetails: doNothing }}
-        events={{ allEvents: [] }}
-      />
-    );
-    /*
-     */
-  }
+let EventCalendar = props => {
+  return <div>EventCalendar</div>;
+};
+let UserProfile = props => {
+  return <div>UserProfile</div>;
 };
 
-const UserProfile = props => {
-  if (dynamicProfile) {
-    return <div>UserProfile</div>;
-  } else {
-    let UserProfileBase = require("../../components/auth-user-profile/UserProfile")
-      .default;
-    return (
-      <UserProfileBase
-        isSignedIn={true}
-        isConnecting={true}
-        userSignOut={doNothing}
-        userSignIn={doNothing}
-      />
-    );
-  }
+let whenAppLoaded = forceUpdate => {
+  console.log("whenAppLoaded");
+  import("../../components/event-calendar/EventCalendar").then(
+    ({ default: EventCalendarBase }) => {
+      EventCalendar = props => {
+        return (
+          <EventCalendarBase
+            getInitialEvents={doNothing}
+            views={{ EventDetails: doNothing }}
+            events={{ allEvents: [] }}
+          />
+        );
+      };
+      console.log("EventCalendarLoaded");
+      forceUpdate();
+    }
+  );
+
+  import("../../components/auth-user-profile/UserProfile").then(
+    ({ default: UserProfileBase }) => {
+      UserProfile = props => {
+        return (
+          <UserProfileBase
+            isSignedIn={true}
+            isConnecting={true}
+            userSignOut={doNothing}
+            userSignIn={doNothing}
+          />
+        );
+      };
+      console.log("EventCalendarLoaded");
+      // forceUpdate();
+    }
+  );
 };
+
+let dynamicApp;
+
+class DynamicApp extends Component {
+  render() {
+    return <App views={{ EventCalendar, UserProfile }} />;
+  }
+  doSomething() {}
+  componentDidMount() {
+    whenAppLoaded(() => {
+      console.log("DONE");
+      this.forceUpdate();
+    });
+  }
+}
 
 const Scenario = () => {
-  return (
-    <div>
-      <App views={{ EventCalendar, UserProfile }} />
-    </div>
-  );
+  dynamicApp = <DynamicApp />;
+  return dynamicApp;
 };
 
 export default Scenario;
