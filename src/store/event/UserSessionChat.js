@@ -6,11 +6,11 @@ import {
   putFile,
   loadUserData
 } from "blockstack";
-import * as matrixcs from "matrix-js-sdk";
+import { createClient } from "matrix-js-sdk";
 
 export class UserSessionChat {
   constructor() {
-    this.matrixClient = matrixcs.createClient("https://openintents.modular.im");
+    this.matrixClient = createClient("https://openintents.modular.im");
   }
 
   getOTP(userData) {

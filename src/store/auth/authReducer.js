@@ -5,7 +5,7 @@ import {
   AUTH_CONNECTED,
   AUTH_DISCONNECTED
 } from "../ActionTypes";
-import * as blockstack from "blockstack";
+import { redirectToSignIn, signUserOut } from "blockstack";
 
 let initialState = {
   user: undefined,
@@ -22,7 +22,7 @@ export default function reduce(state = initialState, action = {}) {
       return { ...state, user: undefined, userMessage: "disconnected" };
     case AUTH_SIGN_IN:
       try {
-        blockstack.redirectToSignIn(
+        redirectToSignIn(
           `${window.location}`,
           `${window.location.origin}/manifest.json`,
           ["store_write", "publish_data"]
@@ -34,7 +34,7 @@ export default function reduce(state = initialState, action = {}) {
       return { ...state, userMessage: "redirecting to sign-in" };
     case AUTH_SIGN_OUT:
       try {
-        blockstack.signUserOut();
+        signUserOut();
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
