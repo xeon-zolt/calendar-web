@@ -7,6 +7,14 @@ Private, encrypted calendar in the cloud using Blockstack
 * send invitations
 * add events and calendars of other users or ics files
 * export/import in ical format
+## Move from Google Calendar
+1. Login to Google Calendar and goto settings: https://calendar.google.com/calendar/r/settings
+1. Select your calendar on the left side
+1. Scroll to the bottom
+1. Copy the private address of your calendar containing your email address and ends with `basic.ics`
+1. Open OI Calendar and goto settings: https://cal.openintents.org/settings
+1. Paste the private address into the `Add Calendar` field and press enter
+1. Enjoy YOUR calendar!
 
 ## Development
 This application utilizes <a href="https://github.com/intljusticemission/react-big-calendar"> react-big-calendar </a> and 
