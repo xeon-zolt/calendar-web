@@ -12,7 +12,7 @@ import { REMOVE_EVENT, ADD_EVENT, UPDATE_EVENT } from "../store/ActionTypes";
 export default connect(
   (state, redux) => {
     console.log("[[ConnectedEventDetails]]", state, redux.store);
-    const { GuestList } = redux.store.views;
+    const { GuestList } = state.view;
     const inviteError = state.events.inviteError;
     const inviteSuccess = state.events.inviteSuccess;
     return {
