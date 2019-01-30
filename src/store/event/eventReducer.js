@@ -15,22 +15,23 @@ import {
 
 import {
   publishEvents,
+  saveEvents,
   updatePublicEvent,
   removePublicEvent,
   addPublicEvent,
-  uuid
+  uuid,
+  createSessionChat
 } from "./eventAction";
-import { putFile } from "blockstack";
-import { UserSessionChat } from "./UserSessionChat";
 
 let initialState = {
   allEvents: [],
-  userSessionChat: new UserSessionChat(),
+  userSessionChat: createSessionChat(),
   contacts: {},
   user: ""
 };
 
 export default function reduce(state = initialState, action = {}) {
+  console.log("EventReducer", action);
   switch (action.type) {
     case USER:
       return { ...state, user: action.user };
@@ -100,12 +101,4 @@ export default function reduce(state = initialState, action = {}) {
     default:
       return state;
   }
-}
-
-function saveEvents(calendarName, allEvents) {
-  console.log("save", { calendarName, allEvents });
-  putFile(
-    calendarName + "/AllEvents",
-    JSON.stringify(allEvents.filter(e => e.calendarName === calendarName))
-  );
 }

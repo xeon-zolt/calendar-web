@@ -22,12 +22,17 @@ import {
   getFile,
   decryptContent
 } from "blockstack";
+import { UserSessionChat } from "./UserSessionChat";
 import { createEvents } from "ics";
 import {
   parse as iCalParse,
   Component as iCalComponent,
   Event as iCalEvent
 } from "ical.js";
+
+export function createSessionChat() {
+  return new UserSessionChat();
+}
 
 export function SendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
@@ -581,6 +586,14 @@ export function publishEvents(param, updatePublicEvents) {
       }
     }
   });
+}
+
+export function saveEvents(calendarName, allEvents) {
+  console.log("save", { calendarName, allEvents });
+  putFile(
+    calendarName + "/AllEvents",
+    JSON.stringify(allEvents.filter(e => e.calendarName === calendarName))
+  );
 }
 
 function formatEvents(events) {
