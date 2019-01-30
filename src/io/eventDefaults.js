@@ -1,4 +1,5 @@
 import moment from "moment";
+import { uuid } from "./eventFN";
 
 export const defaultEvents = [
   {
@@ -12,26 +13,29 @@ export const defaultEvents = [
   }
 ];
 
-export const defaultCalendars = [
-  {
-    type: "private",
-    name: "default",
-    data: { src: "default/AllEvents", events: defaultEvents }
+const uuids = [uuid(), uuid(), uuid()];
+export const defaultCalendars = {};
+defaultCalendars[uuids[0]] = {
+  uid: uuids[0],
+  type: "private",
+  name: "default",
+  data: { src: "default/AllEvents", events: defaultEvents }
+};
+defaultCalendars[uuids[1]] = {
+  uid: uuids[1],
+  type: "blockstack-user",
+  name: "public@friedger.id",
+  mode: "read-only",
+  data: { user: "friedger.id", src: "public/AllEvents" }
+};
+defaultCalendars[uuids[2]] = {
+  uid: uuids[2],
+  type: "ics",
+  name: "holidays",
+  mode: "read-only",
+  data: {
+    src:
+      "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
   },
-  {
-    type: "blockstack-user",
-    name: "public@friedger.id",
-    mode: "read-only",
-    data: { user: "friedger.id", src: "public/AllEvents" }
-  },
-  {
-    type: "ics",
-    name: "holidays",
-    mode: "read-only",
-    data: {
-      src:
-        "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
-    },
-    hexColor: "#b8004f"
-  }
-];
+  hexColor: "#b8004f"
+};

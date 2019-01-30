@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
-import { AppHeader, AppFooter } from "./AppHeaderAndFooter";
+import { AppHeader, AppFooter, AppMenu } from "./AppHeaderAndFooter";
 
 class App extends Component {
   render() {
@@ -12,6 +12,7 @@ class App extends Component {
           <AppHeader>
             <UserProfile />
           </AppHeader>
+          <AppMenu />
         </header>
         <EventCalendar />
         <footer>

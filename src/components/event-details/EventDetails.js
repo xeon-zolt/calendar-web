@@ -267,7 +267,7 @@ class EventDetails extends Component {
           <input
             type="checkBox"
             name="all_Day"
-            value={eventDetail.id}
+            value={eventDetail.allDay}
             checked={eventDetail.allDay}
             onChange={e => handleDataChange(e, "allDay")}
           />

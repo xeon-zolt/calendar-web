@@ -8,6 +8,7 @@ import {
   VIEW_EVENT,
   ADD_CALENDAR
 } from "../ActionTypes";
+
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
@@ -18,11 +19,9 @@ import {
   ViewEventInQueryString as handleIntentsInQueryString,
   importCalendarEvents,
   getCalendars,
-  respondToInvite,
   sendInvitesToGuests,
   loadGuestProfiles,
-  fetchContactData,
-  createSessionChat
+  fetchContactData
 } from "../../io/event";
 
 import {
@@ -185,7 +184,7 @@ function loadCalendarData(calendars) {
           return calendarEvents;
         },
         error => {
-          console.log("error", error);
+          console.log(error);
           return calendarEvents;
         }
       );
@@ -193,7 +192,12 @@ function loadCalendarData(calendars) {
   }
   return calendarPromises.then(calendarEvents => {
     var allCalendars = Object.values(calendarEvents);
-    var allEvents = [].concat.apply([], allCalendars.map(c => c.allEvents));
+    console.log("allCalendars", allCalendars);
+    var allEvents = allCalendars
+      .map(c => c.allEvents)
+      .reduce((acc, cur, i) => {
+        return { ...acc, ...cur };
+      }, {});
     return allEvents;
   });
 }

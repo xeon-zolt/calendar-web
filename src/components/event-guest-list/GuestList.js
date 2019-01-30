@@ -15,14 +15,14 @@ function renderGuestList(guests) {
   return list;
 }
 
-const Guest = ({ guest, username }) => {
-  console.log('UI guest', guest);
+export const Guest = ({ guest, username }) => {
+  console.log("UI guest", guest);
   const guestUrl = GUEST_BASE + username;
   var avatarUrl;
   if (guest.image && guest.image.length > 0 && guest.image[0].contentUrl) {
     avatarUrl = guest.image[0].contentUrl;
   } else {
-    avatarUrl = '/images/avatar.png';
+    avatarUrl = "/images/avatar.png";
   }
   var name = guest.name;
   if (!name) {

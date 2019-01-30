@@ -26,7 +26,7 @@ export default connect(
       updateEvent: obj =>
         dispatch({
           type: UPDATE_EVENT,
-          payload: { id: obj.id, obj: obj }
+          payload: { uid: obj.uid, obj: obj }
         })
     };
   }

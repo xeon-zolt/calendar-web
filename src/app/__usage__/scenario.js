@@ -35,7 +35,7 @@ let whenAppLoaded = forceUpdate => {
           <EventCalendarBase
             getInitialEvents={doNothing}
             views={{ EventDetails: doNothing }}
-            events={{ allEvents: [] }}
+            events={{ allEvents: {} }}
           />
         );
       };
