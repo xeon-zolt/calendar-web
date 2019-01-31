@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import App from "./App";
 
 import ConnectedEventCalendar from "./redux-event-calendar";
-import ConnectedUserProfile from "./redux-user-profile";
 
 import registerServiceWorker from "./registerServiceWorker";
 import { createInitialStore } from "../store/storeManager";
@@ -23,9 +22,7 @@ let views = {
   EventCalendar: props => {
     return <ConnectedEventCalendar store={store} {...props} />;
   },
-  UserProfile: props => {
-    return <ConnectedUserProfile store={store} {...props} />;
-  },
+  UserProfile: PlaceHolder,
   EventDetails: PlaceHolder,
   GuestList: PlaceHolder
 };
