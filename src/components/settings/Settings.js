@@ -9,6 +9,7 @@ export default class Settings extends Component {
       show,
       handleHide,
       calendars,
+      addCalendarUrl,
       contacts,
       addCalendar,
       lookupContacts,
@@ -18,11 +19,15 @@ export default class Settings extends Component {
     return (
       <Modal show={show} onHide={handleHide}>
         <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
+          <Modal.Title id="contained-modal-title">Settings</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <label>Calendars</label>
-          <Calendars calendars={calendars} addCalendar={addCalendar} />
+          <Calendars
+            calendars={calendars}
+            addCalendar={addCalendar}
+            addCalendarUrl={addCalendarUrl}
+          />
         </Modal.Body>
         <Modal.Body>
           <label>Contacts</label>

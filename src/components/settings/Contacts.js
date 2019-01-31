@@ -23,7 +23,7 @@ const Contact = props => {
     <div>
       <input type="checkbox" />
       {avatarUrl && <img src={avatarUrl} height="16px" alt="avatar" />}
-      {!avatarUrl && <span class="glyphicon glyphicon-user" />}
+      {!avatarUrl && <span className="glyphicon glyphicon-user" />}
       <a href={linkUrl}>{name}</a>
     </div>
   );
@@ -54,12 +54,18 @@ export default class Contacts extends Component {
   }
 
   lookupContacts(event) {
-    const { lookupContacts } = this.props;
+    const { lookupContacts, contacts } = this.props;
     const contactQuery = event.target.value;
 
     this.setState({ lookingUpContacts: true, nameToAdd: contactQuery });
-    lookupContacts(contactQuery).then(proposedContacts =>
-      this.setState({ proposedContacts, lookingUpContacts: false })
+    const proposedContacts = contacts.filter(c => c.contains(contactQuery));
+    this.setState({ proposedContacts, lookingUpContacts: false });
+    lookupContacts(contactQuery).then(
+      proposedContacts =>
+        this.setState({ proposedContacts, lookingUpContacts: false }),
+      () => {
+        this.setState({ lookingUpContacts: false });
+      }
     );
   }
 

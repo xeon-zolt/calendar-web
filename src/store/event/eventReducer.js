@@ -9,6 +9,7 @@ import {
   INITIALIZE_CHAT,
   SHOW_SETTINGS,
   HIDE_SETTINGS,
+  SHOW_SETTINGS_ADD_CALENDAR,
   SET_CALENDARS
 } from "../ActionTypes";
 
@@ -77,6 +78,14 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         showSettings: true
+      };
+      break;
+
+    case SHOW_SETTINGS_ADD_CALENDAR:
+      newState = {
+        ...state,
+        showSettings: true,
+        showSettingsAddCalendarUrl: action.payload.url
       };
       break;
 

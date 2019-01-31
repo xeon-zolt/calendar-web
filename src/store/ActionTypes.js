@@ -33,3 +33,4 @@ export const ADD_CALENDAR = "calendar.ADD_CALENDAR";
 export const SHOW_SETTINGS = "settings.SHOW_SETTINGS";
 export const HIDE_SETTINGS = "settings.HIDE_SETTINGS";
 export const VIEW_MY_CALENDAR = "settings.VIEW_MY_CALENDAR";
+export const SHOW_SETTINGS_ADD_CALENDAR = "settings.SHOW_SETTINGS_ADD_CALENDAR";

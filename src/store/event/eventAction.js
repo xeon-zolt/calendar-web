@@ -7,7 +7,7 @@ import {
   SET_CONTACTS,
   VIEW_EVENT,
   SET_CALENDARS,
-  ADD_CALENDAR,
+  SHOW_SETTINGS_ADD_CALENDAR,
   INITIALIZE_CHAT
 } from "../ActionTypes";
 
@@ -18,14 +18,14 @@ import {
   publishEvents,
   ViewEventInQueryString as handleIntentsInQueryString,
   importCalendarEvents,
-  getCalendars,
+  fetchCalendars,
   publishCalendars,
   sendInvitesToGuests,
   loadGuestProfiles,
   fetchContactData,
   updatePublicEvent,
-  removePublicEvent
-  // addPublicEvent, :WARN: NOT IN USE
+  removePublicEvent,
+  publishContacts
 } from "../../io/event";
 import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
@@ -150,8 +150,9 @@ function asAction_setContacts(contacts) {
 function asAction_setCalendars(calendars) {
   return { type: SET_CALENDARS, payload: { calendars } };
 }
-function asAction_addCalendar(url) {
-  return { type: ADD_CALENDAR, payload: { url } };
+
+function asAction_showSettingsAddCalendar(url) {
+  return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
 export function initializeEvents() {
@@ -170,10 +171,10 @@ export function initializeEvents() {
           dispatch(asAction_viewEvent(eventInfo));
         },
         eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
-        url => dispatch(asAction_addCalendar(url))
+        url => dispatch(asAction_showSettingsAddCalendar(url))
       );
 
-      getCalendars().then(calendars => {
+      fetchCalendars().then(calendars => {
         if (!calendars) {
           calendars = defaultCalendars;
           // :Q: why save the default instead of waiting for a change?
@@ -278,5 +279,33 @@ export function updateEvent(event, details) {
     }
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));
+  };
+}
+
+// ################
+// Calendars
+// ################
+export function addCalendar(calendar) {
+  return async (dispatch, getState) => {
+    fetchCalendars().then(calendars => {
+      // TODO check for duplicates
+      calendars.push(calendar);
+      publishCalendars(calendars);
+      dispatch(asAction_setCalendars(calendars));
+    });
+  };
+}
+
+// ################
+// Contacts
+// ################
+export function addContact(contact) {
+  return async (dispatch, getState) => {
+    fetchContactData().then(contacts => {
+      // TODO check for duplicates
+      contacts.push(contact);
+      publishContacts(contacts);
+      dispatch(asAction_setContacts(contacts));
+    });
   };
 }

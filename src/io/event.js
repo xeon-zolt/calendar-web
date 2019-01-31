@@ -21,6 +21,10 @@ export function fetchContactData() {
   return fetchFromBlockstack("Contacts");
 }
 
+export function publishContacts(contacts) {
+  return putOnBlockstack("Contacts", contacts);
+}
+
 export function loadGuestProfiles(guests, contacts) {
   const profiles = {};
   var profilePromises = Promise.resolve({ profiles, contacts });
@@ -57,7 +61,7 @@ function asInviteEvent(d, username) {
 export function sendInvitesToGuests(state, eventInfo, guests) {
   const contacts = state.events.contacts;
   eventInfo = asInviteEvent(eventInfo, state.auth.user.username);
-  return putOnBlocstack(sharedUrl(eventInfo.uid), eventInfo, {
+  return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
@@ -82,7 +86,7 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
     return addGuestPromises.then(
       ({ contacts, eventInfo }) => {
         console.log("contacts", contacts);
-        return putOnBlocstack("Contacts", contacts).then(() => {
+        return publishContacts(contacts).then(() => {
           return { contacts, eventInfo };
         });
       },
@@ -225,7 +229,7 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
     });
 }
 
-function putOnBlocstack(src, text, config) {
+function putOnBlockstack(src, text, config) {
   if (text && typeof text !== "string") {
     text = JSON.stringify(text);
   }
@@ -235,12 +239,12 @@ function putOnBlocstack(src, text, config) {
 // ###########################################################################
 // List of calendars
 // ###########################################################################
-export function getCalendars() {
+export function fetchCalendars() {
   return fetchFromBlockstack("Calendars").then(objectToArray);
 }
 
 export function publishCalendars(calendars) {
-  putOnBlocstack("Calendars", calendars);
+  putOnBlockstack("Calendars", calendars);
 }
 
 // ###########################################################################
@@ -265,7 +269,7 @@ export function importCalendarEvents(calendar, defaultEvents) {
     .then(events => {
       if (!events && type === "private" && name === "default") {
         // :Q: why save the default instead of waiting for a change?
-        putOnBlocstack(data.src, defaultEvents);
+        putOnBlockstack(data.src, defaultEvents);
         events = Object.values(defaultEvents);
       }
       return (events || [])
@@ -368,7 +372,7 @@ function publishCalendar(text, filepath, contentType) {
     console.log("empty calendar", filepath);
     return;
   }
-  putOnBlocstack(filepath, text, {
+  putOnBlockstack(filepath, text, {
     encrypt: false,
     contentType
   }).then(
@@ -409,5 +413,5 @@ export function saveEvents(calendarName, allEvents) {
       return res;
     }, {});
 
-  putOnBlocstack(calendarName + "/AllEvents", calendarEvents);
+  putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
 }

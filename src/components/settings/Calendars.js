@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Button } from "react-bootstrap";
 const Calendar = props => {
   const { calendar, handleDataChange } = props;
-  const privateCalendar = calendar.type === "private";
+  //const privateCalendar = calendar.type === "private";
   return (
     <div>
       <input
@@ -70,6 +70,7 @@ export default class Calendars extends Component {
   addCalendar() {
     const { calendarToAdd } = this.state;
     const { addCalendar } = this.props;
+    console.log("calendarToAdd", this.state);
     if (calendarToAdd) {
       if (calendarToAdd.startsWith("http")) {
         addCalendar({
@@ -105,13 +106,14 @@ export default class Calendars extends Component {
   }
 
   render() {
-    const { calendars } = this.props;
+    const { calendars, addCalendarUrl } = this.props;
     const view = this.renderCalendars(calendars);
     return (
       <div className="settings">
         <input
           placeholder="e.g. public@user.id or https://google..../basic.ics"
           type="text"
+          value={addCalendarUrl}
           onChange={e => this.bound.handleDataChange(e, "calendarToAdd")}
         />
         <Button onClick={() => this.bound.addCalendar()}>Add</Button>

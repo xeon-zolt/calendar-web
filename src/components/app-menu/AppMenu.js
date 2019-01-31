@@ -32,6 +32,7 @@ export default class AppMenu extends Component {
         bsStyle="default"
         title="Menu"
         id="dropdown-menu"
+        pullRight
         onSelect={onSelect}
       >
         <MenuItem eventKey="settings">Settings</MenuItem>
