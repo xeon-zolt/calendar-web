@@ -237,7 +237,7 @@ function putOnBlockstack(src, text, config) {
   if (text && typeof text !== "string") {
     text = JSON.stringify(text);
   }
-  putFile(src, text, config);
+  return putFile(src, text, config);
 }
 
 // ###########################################################################
@@ -411,7 +411,7 @@ function publishCalendar(events, filepath, contentType) {
       console.log("public calendar at ", f);
     },
     error => {
-      console.log("error publish event", error);
+      console.log("error publish calendar", error);
     }
   );
 }
@@ -424,7 +424,7 @@ export function publishEvents(param, updatePublicEvents) {
     if (!publicEvents) {
       publicEvents = {};
     }
-    const { republish, newPublicEvents } = updatePublicEvents(
+    const { republish, publicEvents: newPublicEvents } = updatePublicEvents(
       param,
       publicEvents
     );
@@ -432,6 +432,8 @@ export function publishEvents(param, updatePublicEvents) {
       publishCalendar(newPublicEvents, publicEventPath, "text/json");
       var ics = icsFromEvents(newPublicEvents);
       publishCalendar(ics, publicEventPath + ".ics", "text/calendar");
+    } else {
+      console.log("nothing to publish");
     }
   });
 }
@@ -446,4 +448,12 @@ export function saveEvents(calendarName, allEvents) {
     }, {});
 
   putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
+}
+
+export function fetchPreferences() {
+  return fetchFromBlockstack("Preferences");
+}
+
+export function savePreferences(preferences) {
+  putOnBlockstack("Preferences", preferences);
 }

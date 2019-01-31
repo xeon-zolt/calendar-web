@@ -13,7 +13,8 @@ import {
   SET_CALENDARS,
   SHOW_MY_PUBLIC_CALENDAR,
   SHOW_ALL_CALENDARS,
-  SET_PUBLIC_CALENDAR_EVENTS
+  SET_PUBLIC_CALENDAR_EVENTS,
+  SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 let initialState = {
@@ -112,6 +113,12 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         publicCalendarEvents: action.payload.allEvents,
         publicCalendar: action.payload.calendar.name
+      };
+      break;
+    case SHOW_INSTRUCTIONS:
+      newState = {
+        ...state,
+        showInstructions: { general: action.payload.show }
       };
       break;
     default:

@@ -11,7 +11,6 @@ class EventCalendar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showInstructions: true,
       eventModal: undefined
     };
 
@@ -48,7 +47,7 @@ class EventCalendar extends Component {
   }
 
   handleHideInstructions() {
-    this.setState({ showInstructions: false });
+    this.props.hideInstructions();
   }
   handleViewAllCalendars() {
     this.props.showAllCalendars();
@@ -101,16 +100,16 @@ class EventCalendar extends Component {
       views,
       myPublicCalendar,
       publicCalendar,
-      publicCalendarEvents
+      publicCalendarEvents,
+      showGeneralInstructions
     } = this.props;
-    const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {
       handleHide,
       handleHideInstructions,
       handleEditEvent,
       handleAddEvent,
-      handleViewAllCalendars: handleShowAllCalendars
+      handleViewAllCalendars
     } = this.bound;
     let events = Object.values(this.props.events.allEvents);
     let shareUrl = null;
@@ -146,55 +145,58 @@ class EventCalendar extends Component {
       <div className="bodyContainer">
         {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions?
         :A: No*/}
-        {signedIn && showInstructions && !myPublicCalendar && !publicCalendar && (
-          <Panel>
-            <Panel.Heading>
-              Instructions
-              <button
-                type="button"
-                className="close"
-                onClick={handleHideInstructions}
-              >
-                <span aria-hidden="true">×</span>
-                <span className="sr-only">Close</span>
-              </button>
-            </Panel.Heading>
-            <Panel.Body>
-              <Grid style={{ width: "100%" }}>
-                <Row style={{ textAlign: "left" }}>
-                  <Col md={6}>
-                    <strong>To add an event: </strong> Click or long-press on
-                    the day you want to add an event or drag up to the day you
-                    want to add the event for multiple day event! <br />
-                  </Col>
-                  <Col md={6}>
-                    <strong>To update and delete an event:</strong> Click on the
-                    event you wish to update or delete!
-                  </Col>
-                </Row>
-                <Row style={{ textAlign: "left" }}>
-                  <Col md={2}>
-                    <img
-                      src="/images/gcalendar.png"
-                      width="48px"
-                      alt="Google Calendar"
-                    />
-                  </Col>
-                  <Col md={10}>
-                    <strong>Move from Google Calendar</strong>: Done in a
-                    minutes! Follow the <a href="/move">2-steps tutorial</a>.
-                    <br />
-                    <input
-                      style={{ width: "100%" }}
-                      type="text"
-                      placeholder="https://calendar.google..../basic.ics"
-                    />
-                  </Col>
-                </Row>
-              </Grid>
-            </Panel.Body>
-          </Panel>
-        )}
+        {signedIn &&
+          showGeneralInstructions &&
+          !myPublicCalendar &&
+          !publicCalendar && (
+            <Panel>
+              <Panel.Heading>
+                Instructions
+                <button
+                  type="button"
+                  className="close"
+                  onClick={handleHideInstructions}
+                >
+                  <span aria-hidden="true">×</span>
+                  <span className="sr-only">Close</span>
+                </button>
+              </Panel.Heading>
+              <Panel.Body>
+                <Grid style={{ width: "100%" }}>
+                  <Row style={{ textAlign: "left" }}>
+                    <Col md={6}>
+                      <strong>To add an event: </strong> Click or long-press on
+                      the day you want to add an event or drag up to the day you
+                      want to add the event for multiple day event! <br />
+                    </Col>
+                    <Col md={6}>
+                      <strong>To update and delete an event:</strong> Click on
+                      the event you wish to update or delete!
+                    </Col>
+                  </Row>
+                  <Row style={{ textAlign: "left" }}>
+                    <Col md={2}>
+                      <img
+                        src="/images/gcalendar.png"
+                        width="48px"
+                        alt="Google Calendar"
+                      />
+                    </Col>
+                    <Col md={10}>
+                      <strong>Move from Google Calendar</strong>: Done in a
+                      minutes! Follow the <a href="/move">2-steps tutorial</a>.
+                      <br />
+                      <input
+                        style={{ width: "100%" }}
+                        type="text"
+                        placeholder="https://calendar.google..../basic.ics"
+                      />
+                    </Col>
+                  </Row>
+                </Grid>
+              </Panel.Body>
+            </Panel>
+          )}
         {!signedIn && (
           <Panel>
             <Panel.Heading>
@@ -223,7 +225,7 @@ class EventCalendar extends Component {
               <button
                 type="button"
                 className="close"
-                onClick={handleShowAllCalendars}
+                onClick={handleViewAllCalendars}
               >
                 <span aria-hidden="true">×</span>
                 <span className="sr-only">Close</span>

@@ -36,3 +36,4 @@ export const HIDE_SETTINGS = "settings.HIDE_SETTINGS";
 export const SHOW_MY_PUBLIC_CALENDAR = "settings.SHOW_MY_PUBLIC_CALENDAR";
 export const SHOW_ALL_CALENDARS = "settings.SHOW_ALL_CALENDARS";
 export const SHOW_SETTINGS_ADD_CALENDAR = "settings.SHOW_SETTINGS_ADD_CALENDAR";
+export const SHOW_INSTRUCTIONS = "settings.SHOW_INSTRUCTIONS";

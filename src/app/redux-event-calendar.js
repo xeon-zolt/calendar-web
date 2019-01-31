@@ -1,6 +1,6 @@
 import { connect } from "react-redux";
 import EventCalendar from "../components/event-calendar/EventCalendar";
-import { asAction_showAllCalendars } from "../store/event/eventAction";
+import { showAllCalendars, hideInstructions } from "../store/event/eventAction";
 
 export default connect(
   (state, redux) => {
@@ -13,8 +13,13 @@ export default connect(
       currentEventType,
       myPublicCalendar,
       publicCalendarEvents,
-      publicCalendar
+      publicCalendar,
+      showInstructions
     } = events || {};
+
+    const showGeneralInstructions = showInstructions
+      ? showInstructions.general
+      : true;
     return {
       events,
       signedIn,
@@ -24,14 +29,18 @@ export default connect(
       currentEventType,
       myPublicCalendar,
       publicCalendarEvents,
-      publicCalendar
+      publicCalendar,
+      showGeneralInstructions
     };
   },
   dispatch => {
     return {
       initializeEvents: () => {},
       showAllCalendars: () => {
-        dispatch(asAction_showAllCalendars());
+        dispatch(showAllCalendars());
+      },
+      hideInstructions: () => {
+        dispatch(hideInstructions());
       }
     };
   }

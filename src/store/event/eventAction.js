@@ -12,7 +12,8 @@ import {
   SHOW_MY_PUBLIC_CALENDAR,
   SHOW_ALL_CALENDARS,
   SHOW_SETTINGS,
-  SET_PUBLIC_CALENDAR_EVENTS
+  SET_PUBLIC_CALENDAR_EVENTS,
+  SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -30,7 +31,9 @@ import {
   updatePublicEvent,
   removePublicEvent,
   publishContacts,
-  loadPublicCalendar
+  loadPublicCalendar,
+  savePreferences,
+  fetchPreferences
 } from "../../io/event";
 import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
@@ -350,6 +353,27 @@ export function asAction_showMyPublicCalendar(name) {
 
 export function asAction_showAllCalendars() {
   return { type: SHOW_ALL_CALENDARS };
+}
+
+export function showAllCalendars() {
+  return async (dispatch, getState) => {
+    window.history.pushState({}, "OI Calendar", "/");
+    dispatch(asAction_showAllCalendars());
+  };
+}
+
+export function asAction_showInstructions(show) {
+  return { type: SHOW_INSTRUCTIONS, payload: { show } };
+}
+
+export function hideInstructions() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(prefs => {
+      prefs.showInstructions = false;
+      savePreferences(prefs);
+      dispatch(asAction_showInstructions(false));
+    });
+  };
 }
 
 // ################
