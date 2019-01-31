@@ -183,6 +183,15 @@ export function initializeEvents() {
         name => dispatch(viewPublicCalendar(name))
       );
 
+      fetchPreferences().then(preferences => {
+        dispatch(
+          asAction_showInstructions(
+            preferences.showInstructions
+              ? preferences.showInstructions.general
+              : true
+          )
+        );
+      });
       fetchCalendars().then(calendars => {
         if (!calendars) {
           calendars = defaultCalendars;
@@ -369,7 +378,7 @@ export function asAction_showInstructions(show) {
 export function hideInstructions() {
   return async (dispatch, getState) => {
     fetchPreferences().then(prefs => {
-      prefs.showInstructions = false;
+      prefs.showInstructions = { general: false };
       savePreferences(prefs);
       dispatch(asAction_showInstructions(false));
     });
