@@ -23,16 +23,20 @@ export default function reduce(state = initialState, action = {}) {
     case INITIALIZE_CHAT:
       newState = { ...state, userSessionChat: payload };
       break;
+
     case USER:
       newState = { ...state, user: action.user };
       break;
+
     case SET_CONTACTS:
       // console.log('all contacts', payload.contacts);
       newState = { ...state, contacts: payload.contacts };
       break;
+
     case SET_EVENTS:
       newState = { ...state, allEvents: action.allEvents };
       break;
+
     case VIEW_EVENT:
       newState = {
         ...state,
@@ -49,6 +53,7 @@ export default function reduce(state = initialState, action = {}) {
         inviteError: undefined
       };
       break;
+
     case INVITES_SENT_FAIL:
       newState = {
         ...state,
@@ -56,6 +61,7 @@ export default function reduce(state = initialState, action = {}) {
         inviteError: payload.error
       };
       break;
+
     case SET_CURRENT_GUESTS:
       newState = {
         ...state,
@@ -64,9 +70,11 @@ export default function reduce(state = initialState, action = {}) {
         inviteError: undefined
       };
       break;
+
     default:
       newState = state;
       break;
   }
+
   return newState;
 }

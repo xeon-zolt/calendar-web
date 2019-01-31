@@ -23,7 +23,7 @@ import {
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
-  addPublicEvent,
+  // addPublicEvent, :WARN: NOT IN USE
   createSessionChat
 } from "../../io/event";
 import { uuid } from "../../io/eventFN";
@@ -244,6 +244,7 @@ export function addEvent(event, details) {
     event.uid = uuid();
     allEvents[event.uid] = event;
     saveEvents("default", allEvents);
+    // :Q: should there be a publishEvents(SOMETHING, addPublicEvent)
     window.history.pushState({}, "OI Calendar", "/");
     delete state.currentEvent;
     delete state.currentEventType;

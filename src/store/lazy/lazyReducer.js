@@ -10,6 +10,9 @@ export default function reduce(state = initialState, action = {}) {
     case SET_VIEW:
       newState = { ...state, ...payload };
       break;
+    default:
+      newState = state;
+      break;
   }
   return newState;
 }

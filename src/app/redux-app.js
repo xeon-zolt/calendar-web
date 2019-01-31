@@ -3,12 +3,10 @@ import { connect } from "react-redux";
 import App from "./App";
 
 import ConnectedEventCalendar from "./redux-event-calendar";
-import ConnectedEventDetails from "./redux-event-details";
 import ConnectedUserProfile from "./redux-user-profile";
-import ConnectedGuestList from "./redux-guest-list";
 
 import registerServiceWorker from "./registerServiceWorker";
-import { createInitialStore, storeAfterAppMount } from "../store/storeManager";
+import { createInitialStore } from "../store/storeManager";
 import { SET_VIEW } from "../store/ActionTypes";
 
 let store = createInitialStore();

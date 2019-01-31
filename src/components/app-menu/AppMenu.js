@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, SplitButton, MenuItem } from "react-bootstrap";
+import { SplitButton, MenuItem } from "react-bootstrap";
 
 export class AppMenu extends Component {
   render() {

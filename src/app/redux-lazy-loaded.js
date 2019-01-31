@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import ConnectedEventDetails from "./redux-event-details";
 import ConnectedGuestList from "./redux-guest-list";
 
