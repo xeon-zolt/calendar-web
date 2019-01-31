@@ -235,9 +235,7 @@ function loadCalendarData(calendars) {
 export function deleteEvent(event) {
   return async (dispatch, getState) => {
     let { allEvents } = getState();
-    allEvents = allEvents.filter(function(obj) {
-      return obj && obj.uid !== event.uid;
-    });
+    Object.delete(allEvents[event.uid]);
     publishEvents(event.uid, removePublicEvent);
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));
@@ -252,7 +250,9 @@ export function addEvent(event, details) {
     event.uid = uuid();
     allEvents[event.uid] = event;
     saveEvents("default", allEvents);
-    // :Q: should there be a publishEvents(SOMETHING, addPublicEvent)
+    if (event.public) {
+      publishEvents(event, updatePublicEvent);
+    }
     window.history.pushState({}, "OI Calendar", "/");
     delete state.currentEvent;
     delete state.currentEventType;
