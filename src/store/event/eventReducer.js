@@ -50,9 +50,7 @@ export default function reduce(state = initialState, action = {}) {
       };
     case REMOVE_EVENT:
       let { allEvents } = state;
-      allEvents = allEvents.filter(function(obj) {
-        return obj && obj.uid !== payload.obj.uid;
-      });
+      delete allEvents[payload.obj.uid];
       publishEvents(payload.obj.uid, removePublicEvent);
       saveEvents("default", allEvents);
       return { ...state, allEvents };

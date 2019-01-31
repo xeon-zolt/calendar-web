@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Button, SplitButton, MenuItem } from "react-bootstrap";
+import { SplitButton, MenuItem } from "react-bootstrap";
 
 export class AppMenu extends Component {
   render() {
@@ -7,11 +7,15 @@ export class AppMenu extends Component {
       <SplitButton
         drop="down"
         variant="secondary"
-        title="Settings"
+        title="Menu"
         id="dropdown-menu"
       >
-        <MenuItem>Calendars</MenuItem>
+        <MenuItem>Settings</MenuItem>
+        <MenuItem>View public calendar</MenuItem>
+        <MenuItem>Export data</MenuItem>
+        <MenuItem>Support</MenuItem>
         <MenuItem divider={true} />
+        <MenuItem>Logout</MenuItem>
       </SplitButton>
     );
   }

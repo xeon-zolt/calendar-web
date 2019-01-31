@@ -124,14 +124,27 @@ class EventCalendar extends Component {
             <Panel.Body>
               <Grid>
                 <Row style={{ textAlign: "left" }}>
-                  <Col md={5}>
+                  <Col md={6}>
                     <strong>To add an event: </strong> Click on the day you want
                     to add an event or drag up to the day you want to add the
                     event for multiple day event! <br />
                   </Col>
-                  <Col md={5}>
+                  <Col md={6}>
                     <strong>To update and delete an event:</strong> Click on the
                     event you wish to update or delete!
+                  </Col>
+                </Row>
+                <Row>
+                  <Col md={2}>
+                    <img
+                      src="/images/gcalendar.png"
+                      width="48px"
+                      alt="Google Calendar"
+                    />
+                  </Col>
+                  <Col md={10}>
+                    <strong>Move from Google Calendar</strong>: Done in a
+                    minutes! Follow the <a href="/move">2-steps tutorial</a>.
                   </Col>
                 </Row>
               </Grid>

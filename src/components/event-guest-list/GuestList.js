@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ProgressBar } from "react-bootstrap";
+import { ProgressBar, OverlayTrigger, Tooltip } from "react-bootstrap";
 
 const GUEST_BASE = "https://debutapp.social/";
 
@@ -16,7 +16,6 @@ function renderGuestList(guests) {
 }
 
 export const Guest = ({ guest, username }) => {
-  console.log("UI guest", guest);
   const guestUrl = GUEST_BASE + username;
   var avatarUrl;
   if (guest.image && guest.image.length > 0 && guest.image[0].contentUrl) {
@@ -28,10 +27,24 @@ export const Guest = ({ guest, username }) => {
   if (!name) {
     name = guest.username;
   }
+  const commMethodUrl = "/images/oichat.png";
   return (
     <div>
       <img src={avatarUrl} height="16px" alt="avatar" />
       <a href={guestUrl}>{name}</a>
+      <OverlayTrigger
+        placement="right"
+        overlay={
+          <Tooltip id={`tooltip`}>
+            OI Chat (chat.openintents.org) is a matrix service of Blockstack.
+          </Tooltip>
+        }
+      >
+        <span>
+          (via
+          <img src={commMethodUrl} height="16px" alt="avatar" />)
+        </span>
+      </OverlayTrigger>
     </div>
   );
 };
