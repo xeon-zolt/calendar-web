@@ -18,14 +18,17 @@ import {
   ViewEventInQueryString as handleIntentsInQueryString,
   importCalendarEvents,
   getCalendars,
+  publishCalendars,
   sendInvitesToGuests,
   loadGuestProfiles,
   fetchContactData,
   updatePublicEvent,
-  removePublicEvent,
+  removePublicEvent
   // addPublicEvent, :WARN: NOT IN USE
-  createSessionChat
 } from "../../io/event";
+import { createSessionChat } from "../../io/chat";
+import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
+
 import { uuid } from "../../io/eventFN";
 
 import {
@@ -167,6 +170,11 @@ export function initializeEvents() {
       );
 
       getCalendars().then(calendars => {
+        if (!calendars) {
+          calendars = defaultCalendars;
+          // :Q: why save the default instead of waiting for a change?
+          publishCalendars(calendars);
+        }
         loadCalendarData(calendars).then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
         });
@@ -193,7 +201,7 @@ function loadCalendarData(calendars) {
   for (let i in calendars) {
     const calendar = calendars[i];
     calendarPromises = calendarPromises.then(calendarEvents => {
-      return importCalendarEvents(calendar).then(
+      return importCalendarEvents(calendar, defaultEvents).then(
         events => {
           calendarEvents[calendar.name] = {
             name: calendar.name,

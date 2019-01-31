@@ -189,3 +189,7 @@ export class UserSessionChat {
     });
   }
 }
+
+export function createSessionChat() {
+  return new UserSessionChat();
+}
