@@ -4,7 +4,6 @@ import { DropdownButton, MenuItem } from "react-bootstrap";
 export default class AppMenu extends Component {
   constructor(props) {
     super(props);
-    console.log("porps", props);
     this.bound = ["onSelect"].reduce((acc, d) => {
       acc[d] = this[d].bind(this);
       return acc;
@@ -14,10 +13,10 @@ export default class AppMenu extends Component {
   onSelect(eventKey) {
     switch (eventKey) {
       case "settings":
-        this.props.viewSettings();
+        this.props.showSettings();
         break;
       case "publicCalendar":
-        this.props.viewPublicCalendar();
+        this.props.viewMyPublicCalendar("public@" + this.props.username);
         break;
       default:
         console.warn("invalid menu item ", eventKey);
@@ -26,18 +25,21 @@ export default class AppMenu extends Component {
   }
   render() {
     const { onSelect } = this.bound;
+    const { username } = this.props;
     return (
-      <DropdownButton
-        drop="down"
-        bsStyle="default"
-        title="Menu"
-        id="dropdown-menu"
-        pullRight
-        onSelect={onSelect}
-      >
-        <MenuItem eventKey="settings">Settings</MenuItem>
-        <MenuItem eventKey="publicCalendar">View public calendar</MenuItem>
-      </DropdownButton>
+      username && (
+        <DropdownButton
+          drop="down"
+          bsStyle="default"
+          title="Menu"
+          id="dropdown-menu"
+          pullRight
+          onSelect={onSelect}
+        >
+          <MenuItem eventKey="settings">Settings</MenuItem>
+          <MenuItem eventKey="publicCalendar">View public calendar</MenuItem>
+        </DropdownButton>
+      )
     );
   }
 }

@@ -10,7 +10,10 @@ import {
   SHOW_SETTINGS,
   HIDE_SETTINGS,
   SHOW_SETTINGS_ADD_CALENDAR,
-  SET_CALENDARS
+  SET_CALENDARS,
+  SHOW_MY_PUBLIC_CALENDAR,
+  SHOW_ALL_CALENDARS,
+  SET_PUBLIC_CALENDAR_EVENTS
 } from "../ActionTypes";
 
 let initialState = {
@@ -58,11 +61,7 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case INVITES_SENT_FAIL:
-      newState = {
-        ...state,
-        inviteSuccess: false,
-        inviteError: payload.error
-      };
+      newState = { ...state, inviteSuccess: false, inviteError: payload.error };
       break;
 
     case SET_CURRENT_GUESTS:
@@ -75,10 +74,7 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case SHOW_SETTINGS:
-      newState = {
-        ...state,
-        showSettings: true
-      };
+      newState = { ...state, showSettings: true };
       break;
 
     case SHOW_SETTINGS_ADD_CALENDAR:
@@ -90,18 +86,29 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case HIDE_SETTINGS:
-      newState = {
-        ...state,
-        showSettings: false
-      };
+      newState = { ...state, showSettings: false };
       break;
     case SET_CALENDARS:
+      newState = { ...state, calendars: action.payload.calendars };
+      break;
+    case SHOW_MY_PUBLIC_CALENDAR:
+      newState = { ...state, myPublicCalendar: action.payload.name };
+      break;
+    case SHOW_ALL_CALENDARS:
       newState = {
         ...state,
-        calendars: action.payload.calendars
+        myPublicCalendar: undefined,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined
       };
       break;
-
+    case SET_PUBLIC_CALENDAR_EVENTS:
+      newState = {
+        ...state,
+        publicCalendarEvents: action.payload.allEvents,
+        publicCalendar: action.payload.calendar.name
+      };
+      break;
     default:
       newState = state;
       break;

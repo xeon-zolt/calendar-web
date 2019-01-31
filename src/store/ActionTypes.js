@@ -28,9 +28,11 @@ export const INVITES_SENT_FAIL = "contacts.INVITES_SENT_FAIL";
 //Calendar
 export const SET_CALENDARS = "calendar.SET_CALENDARS";
 export const ADD_CALENDAR = "calendar.ADD_CALENDAR";
+export const SET_PUBLIC_CALENDAR_EVENTS = "calendar.SET_PUBLIC_CALENDAR_EVENTS";
 
 // Settings
 export const SHOW_SETTINGS = "settings.SHOW_SETTINGS";
 export const HIDE_SETTINGS = "settings.HIDE_SETTINGS";
-export const VIEW_MY_CALENDAR = "settings.VIEW_MY_CALENDAR";
+export const SHOW_MY_PUBLIC_CALENDAR = "settings.SHOW_MY_PUBLIC_CALENDAR";
+export const SHOW_ALL_CALENDARS = "settings.SHOW_ALL_CALENDARS";
 export const SHOW_SETTINGS_ADD_CALENDAR = "settings.SHOW_SETTINGS_ADD_CALENDAR";

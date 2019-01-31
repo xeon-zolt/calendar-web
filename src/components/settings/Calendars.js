@@ -108,7 +108,7 @@ export default class Calendars extends Component {
     return (
       <div className="settings">
         <input
-          placeholder="e.g. public@user.id or https://google..../basic.ics"
+          placeholder="e.g. public@user.id or https://calendar.google..../basic.ics"
           type="text"
           value={addCalendarUrl}
           onChange={e => this.bound.handleDataChange(e, "calendarToAdd")}

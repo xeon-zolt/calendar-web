@@ -8,7 +8,11 @@ import {
   VIEW_EVENT,
   SET_CALENDARS,
   SHOW_SETTINGS_ADD_CALENDAR,
-  INITIALIZE_CHAT
+  INITIALIZE_CHAT,
+  SHOW_MY_PUBLIC_CALENDAR,
+  SHOW_ALL_CALENDARS,
+  SHOW_SETTINGS,
+  SET_PUBLIC_CALENDAR_EVENTS
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -16,7 +20,7 @@ import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 import {
   saveEvents,
   publishEvents,
-  ViewEventInQueryString as handleIntentsInQueryString,
+  handleIntentsInQueryString,
   importCalendarEvents,
   fetchCalendars,
   publishCalendars,
@@ -25,7 +29,8 @@ import {
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
-  publishContacts
+  publishContacts,
+  loadPublicCalendar
 } from "../../io/event";
 import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
@@ -171,7 +176,8 @@ export function initializeEvents() {
           dispatch(asAction_viewEvent(eventInfo));
         },
         eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
-        url => dispatch(asAction_showSettingsAddCalendar(url))
+        url => dispatch(asAction_showSettingsAddCalendar(url)),
+        name => dispatch(viewPublicCalendar(name))
       );
 
       fetchCalendars().then(calendars => {
@@ -197,6 +203,42 @@ export function initializeEvents() {
       });
     } else {
       dispatch(asAction_disconnected());
+
+      handleIntentsInQueryString(
+        query,
+        null,
+        eventInfo => {
+          dispatch(asAction_viewEvent(eventInfo));
+        },
+        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        url => dispatch(asAction_showSettingsAddCalendar(url)),
+        name => dispatch(viewPublicCalendar(name))
+      );
+    }
+  };
+}
+
+function asAction_setPublicCalendarEvents(allEvents, calendar) {
+  return { type: SET_PUBLIC_CALENDAR_EVENTS, payload: { allEvents, calendar } };
+}
+
+function viewPublicCalendar(name) {
+  return async (dispatch, getState) => {
+    console.log("viewpubliccalendar", name);
+    if (name) {
+      const parts = name.split("@");
+      if (parts.length === 2) {
+        const calendarName = parts[0];
+        const username = parts[1];
+        loadPublicCalendar(calendarName, username).then(
+          ({ allEvents, calendar }) => {
+            dispatch(asAction_setPublicCalendarEvents(allEvents, calendar));
+          },
+          error => {
+            console.log("failed to load public calendar " + name, error);
+          }
+        );
+      }
     }
   };
 }
@@ -294,6 +336,20 @@ export function addCalendar(calendar) {
       dispatch(asAction_setCalendars(calendars));
     });
   };
+}
+
+export function asAction_showSettings() {
+  return {
+    type: SHOW_SETTINGS
+  };
+}
+
+export function asAction_showMyPublicCalendar(name) {
+  return { type: SHOW_MY_PUBLIC_CALENDAR, payload: { name } };
+}
+
+export function asAction_showAllCalendars() {
+  return { type: SHOW_ALL_CALENDARS };
 }
 
 // ################

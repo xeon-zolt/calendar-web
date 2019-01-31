@@ -1,18 +1,27 @@
 import { connect } from "react-redux";
-import { SHOW_SETTINGS, VIEW_MY_CALENDAR } from "../store/ActionTypes";
+import {
+  asAction_showSettings,
+  asAction_showMyPublicCalendar
+} from "../store/event/eventAction";
 import AppMenu from "../components/app-menu/AppMenu";
 
 export default connect(
   (state, redux) => {
-    return {};
+    var username = null;
+    if (state.auth && state.auth.user) {
+      username = state.auth.user.username;
+    }
+    return { username };
   },
-  dispatch => {
+  (dispatch, ownProps) => {
+    console.log("connect app menu", ownProps);
+
     return {
-      viewSettings: () => {
-        dispatch({ type: SHOW_SETTINGS });
+      showSettings: () => {
+        dispatch(asAction_showSettings());
       },
-      viewPublicCalendar: () => {
-        dispatch({ type: VIEW_MY_CALENDAR });
+      viewMyPublicCalendar: name => {
+        dispatch(asAction_showMyPublicCalendar(name));
       }
     };
   }

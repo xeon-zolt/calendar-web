@@ -215,7 +215,8 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
         return str;
       },
       error => {
-        return Promise.reject("Couldn't fetch from fetchFromBlockstack", {
+        return Promise.reject({
+          msg: "Couldn't fetch from fetchFromBlockstack",
           ...errorData,
           error
         });
@@ -224,6 +225,9 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
     .then(d => {
       if (d && typeof d === "string") {
         d = JSON.parse(d);
+      }
+      if (!d) {
+        d = {};
       }
       return d;
     });
@@ -300,17 +304,27 @@ function fetchAndParseIcal(src) {
     .then(iCalParseEvents);
 }
 
-export function ViewEventInQueryString(
+export function handleIntentsInQueryString(
   query,
   username,
   whenPrivateEvent,
   whenNewEvent,
-  whenICSUrl
+  whenICSUrl,
+  whenPublicCalendar
 ) {
   if (query) {
-    const { u, e, p, intent, title, start, end, via, url } = parseQueryString(
-      query
-    );
+    const {
+      u,
+      e,
+      p,
+      intent,
+      title,
+      start,
+      end,
+      via,
+      url,
+      name
+    } = parseQueryString(query);
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
@@ -323,6 +337,8 @@ export function ViewEventInQueryString(
         whenNewEvent(eventInfo);
       } else if (intent.toLowerCase() === "addics") {
         whenICSUrl(url);
+      } else if (intent.toLowerCase() === "view") {
+        whenPublicCalendar(name);
       } else {
         console.log("unsupported intent " + intent);
       }
@@ -369,6 +385,23 @@ export function removePublicEvent(eventUid, publicEvents) {
   }
 }
 
+export function loadPublicCalendar(calendarName, username) {
+  const path = calendarName + "/AllEvents";
+  console.log("username", username);
+  return fetchFromBlockstack(path, {
+    username,
+    decrypt: false
+  }).then(allEvents => {
+    const calendar = {
+      type: "blockstack-user",
+      mode: "read-only",
+      data: { user: username, src: path },
+      name: calendarName + "@" + username
+    };
+    allEvents = Object.values(allEvents);
+    return { allEvents, calendar };
+  });
+}
 function publishCalendar(text, filepath, contentType) {
   if (!text || !text.length) {
     console.log("empty calendar", filepath);
