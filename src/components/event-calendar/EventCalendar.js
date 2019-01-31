@@ -131,7 +131,7 @@ class EventCalendar extends Component {
     const calendarView = (
       <BigCalendar
         localizer={localizer}
-        selectable={this.props.signedIn && !myPublicCalendar}
+        selectable={this.props.signedIn && !myPublicCalendar && !publicCalendar}
         events={events}
         views={allViews}
         step={60}
