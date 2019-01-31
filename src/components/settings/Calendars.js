@@ -31,9 +31,7 @@ const Calendar = props => {
 export default class Calendars extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      calendarToAdd: null
-    };
+    this.state = { calendarToAdd: props.addCalendarUrl };
     this.bound = [
       "handleDataChange",
       "addCalendar",
@@ -70,7 +68,6 @@ export default class Calendars extends Component {
   addCalendar() {
     const { calendarToAdd } = this.state;
     const { addCalendar } = this.props;
-    console.log("calendarToAdd", this.state);
     if (calendarToAdd) {
       if (calendarToAdd.startsWith("http")) {
         addCalendar({

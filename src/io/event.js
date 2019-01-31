@@ -321,8 +321,10 @@ export function ViewEventInQueryString(
         eventInfo.end = end != null ? new Date(end) : null;
         eventInfo.owner = via != null ? via : username;
         whenNewEvent(eventInfo);
-      } else if (intent.toLowerCase === "addics") {
+      } else if (intent.toLowerCase() === "addics") {
         whenICSUrl(url);
+      } else {
+        console.log("unsupported intent " + intent);
       }
     }
   }

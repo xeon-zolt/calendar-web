@@ -12,11 +12,11 @@ class App extends Component {
         <header className="App-header">
           <AppHeader>
             <Row>
-              <Col sm={6} md={8} />
-              <Col xs={6} sm={4} md={2}>
+              <Col sm={6} />
+              <Col xs={6} sm={4}>
                 <UserProfile />
               </Col>
-              <Col xs={6} sm={2} md={2}>
+              <Col xs={6} sm={2}>
                 <AppMenu />
               </Col>
             </Row>

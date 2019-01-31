@@ -32,7 +32,7 @@ const Contact = props => {
 export default class Contacts extends Component {
   constructor(props) {
     super(props);
-    this.setState({ nameToAdd: "", lookingUpContacts: false });
+    this.state = { nameToAdd: "", lookingUpContacts: false };
     this.bound = ["lookupContacts", "addContact", "deleteContacts"].reduce(
       (acc, d) => {
         acc[d] = this[d].bind(this);
