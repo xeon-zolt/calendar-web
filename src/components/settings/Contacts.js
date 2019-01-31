@@ -5,7 +5,6 @@ const LINK_URL_BASE = "https://debutapp.social/";
 
 const Contact = props => {
   const { contact } = props;
-  console.log("contact", contact);
   const linkUrl = LINK_URL_BASE + contact.username;
   var avatarUrl;
   if (

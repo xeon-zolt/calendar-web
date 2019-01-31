@@ -54,7 +54,6 @@ class EventCalendar extends Component {
     this.props.showAllCalendars();
   }
   handleEditEvent(event) {
-    console.log("handleEditEvent", event);
     this.setState({
       eventModal: {
         eventType: event.mode || "edit",
@@ -64,7 +63,6 @@ class EventCalendar extends Component {
   }
 
   handleAddEvent(slotInfo) {
-    console.log("handleAddEvent");
     slotInfo.uid = uuid();
     this.setState({
       eventModal: {
@@ -105,7 +103,6 @@ class EventCalendar extends Component {
       publicCalendar,
       publicCalendarEvents
     } = this.props;
-    console.log("propsss", this.props);
     const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {

@@ -402,12 +402,8 @@ export function loadPublicCalendar(calendarName, username) {
     return { allEvents, calendar };
   });
 }
-function publishCalendar(text, filepath, contentType) {
-  if (!text || !text.length) {
-    console.log("empty calendar", filepath);
-    return;
-  }
-  putOnBlockstack(filepath, text, {
+function publishCalendar(events, filepath, contentType) {
+  putOnBlockstack(filepath, JSON.stringify(events), {
     encrypt: false,
     contentType
   }).then(
@@ -425,16 +421,17 @@ export function publishEvents(param, updatePublicEvents) {
   fetchFromBlockstack(publicEventPath, {
     decrypt: false
   }).then(publicEvents => {
-    if (publicEvents) {
-      const { republish, newPublicEvents } = updatePublicEvents(
-        param,
-        publicEvents
-      );
-      if (republish) {
-        publishCalendar(newPublicEvents, publicEventPath, "text/json");
-        var ics = icsFromEvents(newPublicEvents);
-        publishCalendar(ics, publicEventPath + ".ics", "text/calendar");
-      }
+    if (!publicEvents) {
+      publicEvents = {};
+    }
+    const { republish, newPublicEvents } = updatePublicEvents(
+      param,
+      publicEvents
+    );
+    if (republish) {
+      publishCalendar(newPublicEvents, publicEventPath, "text/json");
+      var ics = icsFromEvents(newPublicEvents);
+      publishCalendar(ics, publicEventPath + ".ics", "text/calendar");
     }
   });
 }

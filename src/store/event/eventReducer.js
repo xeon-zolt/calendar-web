@@ -92,7 +92,12 @@ export default function reduce(state = initialState, action = {}) {
       newState = { ...state, calendars: action.payload.calendars };
       break;
     case SHOW_MY_PUBLIC_CALENDAR:
-      newState = { ...state, myPublicCalendar: action.payload.name };
+      newState = {
+        ...state,
+        myPublicCalendar: action.payload.name,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined
+      };
       break;
     case SHOW_ALL_CALENDARS:
       newState = {

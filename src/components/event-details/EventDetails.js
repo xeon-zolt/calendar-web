@@ -61,19 +61,6 @@ class EventDetails extends Component {
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state;
 
-    console.log(
-      "showInvitesModal",
-      showInvitesModal,
-      nextProps.inviteSuccess,
-      !!nextProps.inviteError
-    );
-    console.log(
-      "willReceiveProps",
-      nextProps,
-      JSON.stringify(nextProps.eventInfo),
-      nextProps.eventType
-    );
-
     this.setState({
       eventDetail: Object.assign({}, eventDefaults, nextProps.eventInfo),
       showInvitesModal:
@@ -138,7 +125,6 @@ class EventDetails extends Component {
       guests = "";
     }
     const guestList = guests.toLowerCase().split(/[,\s]+/g);
-    console.log("dipatch load guest list", guestList);
     loadGuestList(guestList, eventDetail);
     this.setState({ showInvitesModal: true });
   }

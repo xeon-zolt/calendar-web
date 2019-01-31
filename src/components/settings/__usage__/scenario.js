@@ -42,7 +42,6 @@ class Scenario extends Component {
 
   addCalendar(calendar) {
     const { calendars } = this.state;
-    console.log("calendar", calendar);
     calendars.push(calendar);
     this.setState({ calendars });
   }

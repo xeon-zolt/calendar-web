@@ -17,7 +17,6 @@ export function getViews(store) {
   };
 
   const Settings = props => {
-    console.log("Settings", props);
     return <ConnectedSettings store={store} {...props} />;
   };
 

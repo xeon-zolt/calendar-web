@@ -310,8 +310,8 @@ export function addEvent(event, details) {
 
 export function updateEvent(event, details) {
   return async (dispatch, getState) => {
-    let { allEvents } = getState();
-    var eventInfo = event.obj;
+    let { allEvents } = getState().events;
+    var eventInfo = event;
     eventInfo.uid = eventInfo.uid || uuid();
     allEvents[eventInfo.uid] = eventInfo;
     if (eventInfo.public) {

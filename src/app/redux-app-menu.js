@@ -13,9 +13,7 @@ export default connect(
     }
     return { username };
   },
-  (dispatch, ownProps) => {
-    console.log("connect app menu", ownProps);
-
+  dispatch => {
     return {
       showSettings: () => {
         dispatch(asAction_showSettings());
