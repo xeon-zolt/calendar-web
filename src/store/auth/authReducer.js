@@ -1,12 +1,10 @@
 import {
-  AUTH_SIGN_IN,
-  AUTH_SIGN_OUT,
-  AUTH_CONNECTING,
   AUTH_CONNECTED,
-  AUTH_DISCONNECTED
+  AUTH_CONNECTING,
+  AUTH_DISCONNECTED,
+  AUTH_SIGN_IN,
+  AUTH_SIGN_OUT
 } from "../ActionTypes";
-
-import { userSignIn, userSignOut } from "./authAction";
 
 let initialState = {
   user: undefined,
@@ -14,30 +12,32 @@ let initialState = {
 };
 
 export default function reduce(state = initialState, action = {}) {
-  switch (action.type) {
+  const { type } = action;
+  let newState = state;
+  switch (type) {
     case AUTH_CONNECTED:
-      return { ...state, user: action.user };
+      newState = { ...state, user: action.user };
+      break;
+
     case AUTH_CONNECTING:
-      return { ...state, userMessage: "connecting" };
+      newState = { ...state, userMessage: "connecting" };
+      break;
+
     case AUTH_DISCONNECTED:
-      return { ...state, user: undefined, userMessage: "disconnected" };
+      newState = { ...state, user: undefined, userMessage: "disconnected" };
+      break;
+
     case AUTH_SIGN_IN:
-      try {
-        userSignIn();
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
-      return { ...state, userMessage: "redirecting to sign-in" };
+      newState = { ...state, userMessage: "redirecting to sign-in" };
+      break;
+
     case AUTH_SIGN_OUT:
-      try {
-        userSignOut();
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
-      return { ...state, user: undefined, userMessage: "signed out" };
+      newState = { ...state, user: undefined, userMessage: "signed out" };
+      break;
+
     default:
-      return state;
+      newState = state;
+      break;
   }
+  return newState;
 }

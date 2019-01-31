@@ -1,25 +1,20 @@
 import { createStore, applyMiddleware, combineReducers } from "redux";
 import thunk from "redux-thunk";
 
-import { events, auth } from "./rootReducer";
+import events from "./event/eventReducer";
+import auth from "./auth/authReducer";
+import lazy from "./lazy/lazyReducer";
 
-function createReducer(asyncReducers) {
+export function createReducer(asyncReducers) {
   return combineReducers({
+    lazy,
     auth,
     ...asyncReducers
   });
 }
 
 export function createInitialStore(initialState) {
-  let store = createStore(
-    combineReducers({ auth, events }),
-    applyMiddleware(thunk)
-  );
+  let store = createStore(createReducer({ events }), applyMiddleware(thunk));
   store.asyncReducers = {};
   return store;
-}
-
-export function storeAfterAppMount(store, whenDone) {
-  // store.replaceReducer(combineReducers({ auth }));
-  whenDone();
 }

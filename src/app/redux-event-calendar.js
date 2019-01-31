@@ -1,13 +1,10 @@
 import { connect } from "react-redux";
 import EventCalendar from "../components/event-calendar/EventCalendar";
 
-import { getInitialEvents } from "../store/event/eventAction";
-
 export default connect(
   (state, redux) => {
-    console.log("[ConnectedEventCalendar2]", state, redux.store);
     const { events, auth } = state;
-    const { EventDetails } = redux.store.views;
+    const { EventDetails } = state.lazy;
     const signedIn = !!auth.user;
     const { inviteSuccess, currentEvent, currentEventType } = events || {};
     return {
@@ -23,7 +20,7 @@ export default connect(
   },
   dispatch => {
     return {
-      getInitialEvents: search => dispatch(getInitialEvents(search))
+      initializeEvents: () => {}
     };
   }
 )(EventCalendar);

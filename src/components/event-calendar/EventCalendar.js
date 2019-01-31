@@ -27,7 +27,7 @@ class EventCalendar extends Component {
   }
 
   componentWillMount() {
-    this.props.getInitialEvents(window.location.search);
+    this.props.initializeEvents();
   }
 
   componentWillReceiveProps(nextProps) {

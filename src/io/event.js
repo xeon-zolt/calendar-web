@@ -1,10 +1,4 @@
-import {
-  uuid,
-  eventAsIcs,
-  guaranteeHexColor,
-  sharedUrl,
-  parseQueryString
-} from "./eventFN";
+import { uuid, guaranteeHexColor, sharedUrl, objectToArray } from "./eventFN";
 
 import {
   lookupProfile,
@@ -14,30 +8,17 @@ import {
   getFile,
   decryptContent
 } from "blockstack";
-import { createEvents } from "ics";
-import { defaultEvents, defaultCalendars } from "./eventDefaults";
+import { iCalParseEvents, icsFromEvents } from "./ical";
+import { parseQueryString, encodeQueryString } from "./queryString";
 
-import { UserSessionChat } from "./UserSessionChat";
 import {
   parse as iCalParse,
   Component as iCalComponent,
   Event as iCalEvent
 } from "ical.js";
 
-export function createSessionChat() {
-  return new UserSessionChat();
-}
-
 export function fetchContactData() {
-  return getFile("Contacts").then(contactsContent => {
-    var contacts;
-    if (contactsContent == null) {
-      contacts = {};
-    } else {
-      contacts = JSON.parse(contactsContent);
-    }
-    return contacts;
-  });
+  return fetchFromBlocstack("Contacts");
 }
 
 export function loadGuestProfiles(guests, contacts) {
@@ -64,18 +45,23 @@ export function loadGuestProfiles(guests, contacts) {
   return profilePromises;
 }
 
+function asInviteEvent(d, username) {
+  const privKey = makeECPrivateKey();
+  const pubKey = getPublicKeyFromPrivate(privKey);
+  d.privKey = privKey;
+  d.pubKey = pubKey;
+  d.uid = d.uid || uuid();
+  d.owner = username;
+}
+
 export function sendInvitesToGuests(state, eventInfo, guests) {
   const contacts = state.events.contacts;
-  eventInfo.privKey = makeECPrivateKey();
-  eventInfo.pubKey = getPublicKeyFromPrivate(eventInfo.privKey);
-  eventInfo.uid = eventInfo.uid || uuid();
-  eventInfo.owner = state.auth.user.username;
-  return putFile(sharedUrl(eventInfo.uid), JSON.stringify(eventInfo), {
+  eventInfo = asInviteEvent(eventInfo, state.auth.user.username);
+  return putOnBlocstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
     var addGuestPromises = Promise.resolve({ contacts, eventInfo });
-
     for (var i in guests) {
       const guest = guests[i];
       if (guest && guest.length > 0) {
@@ -96,7 +82,7 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
     return addGuestPromises.then(
       ({ contacts, eventInfo }) => {
         console.log("contacts", contacts);
-        return putFile("Contacts", JSON.stringify(contacts)).then(() => {
+        return putOnBlocstack("Contacts", contacts).then(() => {
           return { contacts, eventInfo };
         });
       },
@@ -173,26 +159,22 @@ function sendInviteMessage(
   username,
   userAppAccount
 ) {
+  const { title, uid, privKey } = eventInfo;
+  const queryString = encodeQueryString({
+    u: username,
+    e: uid,
+    p: privKey,
+    r: roomId,
+    s: userAppAccount
+  });
+  const ahref = `<a href='${
+    window.location.origin
+  }${queryString}"'>${title}</a>`;
   return userSessionChat.sendMessage(guest, roomId, {
     msgtype: "m.text",
-    body: "You are invited to " + eventInfo.title,
+    body: `You are invited to ${title}`,
     format: "org.matrix.custom.html",
-    formatted_body:
-      "You are invited to <a href='" +
-      window.location.origin +
-      "?u=" +
-      username +
-      "&e=" +
-      eventInfo.uid +
-      "&p=" +
-      eventInfo.privKey +
-      "&r=" +
-      roomId +
-      "&s=" +
-      userAppAccount +
-      "'>" +
-      eventInfo.title +
-      "</a>"
+    formatted_body: `You are invited to ${ahref}`
   });
 }
 
@@ -215,17 +197,50 @@ export function respondToInvite(
   });
 }
 
+// ###########################################################################
+// Blockstack helpers
+// ###########################################################################
+
+function fetchFromBlocstack(src, config, privateKey, errorData) {
+  return getFile(src, config)
+    .then(
+      str => {
+        if (privateKey) {
+          str = decryptContent(str, { privateKey });
+        }
+        return str;
+      },
+      error => {
+        return Promise.reject("Couldn't fetch from fetchFromBlocstack", {
+          ...errorData,
+          error
+        });
+      }
+    )
+    .then(d => {
+      if (d && typeof d === "string") {
+        d = JSON.parse(d);
+      }
+      return d;
+    });
+}
+
+function putOnBlocstack(src, text, config) {
+  if (text && typeof text !== "string") {
+    text = JSON.stringify(text);
+  }
+  putFile(src, text, config);
+}
+
+// ###########################################################################
+// List of calendars
+// ###########################################################################
 export function getCalendars() {
-  return getFile("Calendars").then(calendarsContent => {
-    var calendars;
-    if (calendarsContent == null) {
-      putFile("Calendars", JSON.stringify(defaultCalendars));
-      calendars = defaultCalendars;
-    } else {
-      calendars = JSON.parse(calendarsContent);
-    }
-    return calendars;
-  });
+  return fetchFromBlocstack("Calendars").then(objectToArray);
+}
+
+export function publishCalendars(calendars) {
+  putOnBlocstack("Calendars", calendars);
 }
 
 // ###########################################################################
@@ -233,106 +248,52 @@ export function getCalendars() {
 // :NOTE: As there is no more reliance on any knowledge of how these evens are managed
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
-export function importCalendarEvents(calendar) {
-  const { type, data, hexColor, name } = calendar;
-  let fn;
+export function importCalendarEvents(calendar, defaultEvents) {
+  const { type, data, name } = calendar;
+  let fn = () => {};
+  let config;
   if (type === "ics") {
-    fn = importCalendarEventsFromICS;
+    fn = fetchAndParseIcal;
   } else if (type === "blockstack-user") {
-    fn = importPublicEventsFromUser;
+    config = { decrypt: false, username: data.user };
+    fn = fetchFromBlocstack;
   } else if (type === "private") {
-    if (name === "default") {
-      fn = importPrivateEventsWithDefaults(defaultEvents);
-    } else {
-      fn = importPrivateEvents;
-    }
-  } else {
-    fn = () => [];
+    fn = fetchFromBlocstack;
   }
-  return fn(data).then(events => {
-    if (events) {
-      console.log();
-      const hexColorOrRandom = guaranteeHexColor(hexColor);
-      const calendarName = type === "private" ? name : null;
-      var event;
-      return Object.keys(events).reduce((es, key) => {
-        event = events[key];
-        event.hexColor = hexColorOrRandom;
-        event.mode = calendar.mode;
-        event.calendarName = calendarName;
-        es[key] = event;
-        return es;
-      }, {});
-    } else {
-      return {};
-    }
-  });
+  return fn(data.src, config)
+    .then(objectToArray)
+    .then(events => {
+      if (!events && type === "private" && name === "default") {
+        // :Q: why save the default instead of waiting for a change?
+        putOnBlocstack(data.src, defaultEvents);
+        events = Object.values(defaultEvents);
+      }
+      return (events || [])
+        .map(applyCalendarDefaults(calendar))
+        .reduce((acc, d) => {
+          acc[d.uid] = d;
+          return acc;
+        }, {});
+    });
 }
 
-function importCalendarEventsFromICS({ src }) {
+function applyCalendarDefaults(calendar) {
+  const { type, hexColor, mode, name: calendarName } = calendar;
+  const eventDefaults = {
+    hexColor: guaranteeHexColor(hexColor),
+    mode: mode,
+    calendarName: type === "private" ? calendarName : null
+  };
+
+  return d => {
+    return { ...eventDefaults, uid: uuid(), ...d };
+  };
+}
+
+function fetchAndParseIcal(src) {
   return fetch(src)
     .then(result => result.text())
-    .then(icsContent => {
-      try {
-        var jCal = iCalParse(icsContent);
-        var comp = new iCalComponent(jCal);
-        var vevents = comp.getAllSubcomponents("vevent");
-        var allEvents = {};
-        for (var i in vevents) {
-          var vevent = new iCalEvent(vevents[i]);
-          var event = {
-            title: vevent.summary,
-            start: vevent.startDate.toJSDate().toISOString(),
-            end: vevent.endDate.toJSDate().toISOString(),
-            uid: vevent.uid
-          };
-          allEvents[event.uid] = event;
-        }
-        return Promise.resolve(allEvents);
-      } catch (e) {
-        console.log("ics error", e);
-        return;
-      }
-    });
-}
-
-function importPublicEventsFromUser({ src, user }) {
-  return getFile(src, {
-    decrypt: false,
-    username: user
-  }).then(allEvents => {
-    if (allEvents && typeof allEvents === "string") {
-      allEvents = JSON.parse(allEvents);
-    } else {
-      allEvents = {};
-    }
-    return Promise.resolve(allEvents);
-  });
-}
-
-function importPrivateEvents({ src }) {
-  return getFile(src).then(allEvents => {
-    if (allEvents && typeof allEvents === "string") {
-      allEvents = JSON.parse(allEvents);
-    } else {
-      allEvents = {};
-    }
-    return Promise.resolve(allEvents);
-  });
-}
-
-function importPrivateEventsWithDefaults(defaultEvents) {
-  return ({ src }) => {
-    return getFile(src).then(allEvents => {
-      if (allEvents && typeof allEvents === "string") {
-        allEvents = JSON.parse(allEvents);
-      } else {
-        putFile(src, JSON.stringify(defaultEvents));
-        allEvents = defaultEvents;
-      }
-      return Promise.resolve(allEvents);
-    });
-  };
+    .then(iCalParseEvents);
 }
 
 export function ViewEventInQueryString(
@@ -364,17 +325,11 @@ export function ViewEventInQueryString(
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
-  return getFile(sharedUrl(eventUid), { decrypt: false, username }).then(
-    encryptedContent => {
-      return JSON.parse(decryptContent(encryptedContent, { privateKey }));
-    },
-    error => {
-      return Promise.reject("Couldn't load event", {
-        username,
-        eventUid,
-        error
-      });
-    }
+  return fetchFromBlocstack(
+    sharedUrl(eventUid),
+    { decrypt: false, username },
+    privateKey,
+    { username, eventUid }
   );
 }
 
@@ -408,51 +363,36 @@ export function removePublicEvent(eventUid, publicEvents) {
   }
 }
 
+function publishCalendar(text, filepath, contentType) {
+  if (!text || !text.length) {
+    console.log("empty calendar", filepath);
+    return;
+  }
+  putOnBlocstack(filepath, text, {
+    encrypt: false,
+    contentType
+  }).then(
+    f => {
+      console.log("public calendar at ", f);
+    },
+    error => {
+      console.log("error publish event", error);
+    }
+  );
+}
+
 export function publishEvents(param, updatePublicEvents) {
   const publicEventPath = "public/AllEvents";
-  getFile(publicEventPath, { decrypt: false }).then(fileContent => {
-    var publicEvents = {};
-    if (fileContent !== null) {
-      publicEvents = JSON.parse(fileContent);
-    }
-
-    var { republish, newPublicEvents } = updatePublicEvents(
-      param,
-      publicEvents
-    );
-
-    if (republish) {
-      var eventsString = JSON.stringify(newPublicEvents);
-      putFile(publicEventPath, eventsString, {
-        encrypt: false,
-        contentType: "text/json"
-      }).then(
-        f => {
-          console.log("public calendar at ", f);
-        },
-        error => {
-          console.log("error publish event", error);
-        }
+  fetchFromBlocstack(publicEventPath, { decrypt: false }).then(publicEvents => {
+    if (publicEvents) {
+      const { republish, newPublicEvents } = updatePublicEvents(
+        param,
+        publicEvents
       );
-      try {
-        var { error, value } = createEvents(newPublicEvents.map(eventAsIcs));
-        if (!error) {
-          putFile(publicEventPath + ".ics", value, {
-            encrypt: false,
-            contentType: "text/calendar"
-          }).then(
-            f => {
-              console.log("public calendar at ", f);
-            },
-            error => {
-              console.log("error publish event", error);
-            }
-          );
-        } else {
-          console.log("error creating ics", error);
-        }
-      } catch (e) {
-        console.log("failed to format events for ics file", e);
+      if (republish) {
+        publishCalendar(newPublicEvents, publicEventPath, "text/json");
+        var ics = icsFromEvents(newPublicEvents);
+        publishCalendar(ics, publicEventPath + ".ics", "text/calendar");
       }
     }
   });
@@ -467,5 +407,5 @@ export function saveEvents(calendarName, allEvents) {
       return res;
     }, {});
 
-  putFile(calendarName + "/AllEvents", JSON.stringify(calendarEvents));
+  putOnBlocstack(calendarName + "/AllEvents", calendarEvents);
 }

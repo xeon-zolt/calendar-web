@@ -1,3 +1,5 @@
+// Views
+export const SET_VIEW = "view.SET_VIEW";
 // Auth
 export const AUTH_SIGN_IN = "auth.SIGN_IN";
 export const AUTH_SIGN_OUT = "auth.SIGN_OUT";
@@ -5,17 +7,23 @@ export const AUTH_CONNECTING = "auth.CONNECTING";
 export const AUTH_CONNECTED = "auth.CONNECTED";
 export const AUTH_DISCONNECTED = "auth.DISCONNECTED";
 
+// Chat
+export const INITIALIZE_CHAT = "chat.INITIALIZE_CHAT";
+
 // Events
-export const ALL_EVENTS = "events.ALL_EVENTS";
-export const REMOVE_EVENT = "events.REMOVE_EVENT";
-export const ADD_EVENT = "events.ADD_EVENT";
-export const UPDATE_EVENT = "events.UPDATE_EVENT";
+export const EVENTS_ENABLED = "events.EVENTS_ENABLED";
+export const SET_EVENTS = "events.SET_EVENTS";
 export const VIEW_EVENT = "events.VIEW_EVENT";
+
+// Contacts
 export const USER = "contacts.USER";
 export const ADD_CONTACT = "contacts.ADD_CONTACT";
-export const ALL_CONTACTS = "contacts.ALL";
-export const INVITES_SENT = "contacts.INVITES_SENT";
-export const SEND_INVITES_FAILED = "contacts.SEND_INVITES_FAILED";
+export const SET_CONTACTS = "contacts.ALL";
 export const LOAD_GUEST_LIST = "contacts.LOAD_GUEST_LIST";
-export const CURRENT_GUESTS = "contacts.CURRENT_GUESTS";
+export const SET_CURRENT_GUESTS = "contacts.SET_CURRENT_GUESTS";
+export const SEND_INVITES_REQUEST = "contacts.SEND_INVITES_REQUEST";
+export const INVITES_SENT_OK = "contacts.INVITES_SENT";
+export const INVITES_SENT_FAIL = "contacts.INVITES_SENT_FAIL";
+
+//Calendar
 export const ADD_CALENDAR = "calendar.ADD_CALENDAR";

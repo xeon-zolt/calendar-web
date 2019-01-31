@@ -1,12 +1,13 @@
 import {
-  ALL_EVENTS,
-  INVITES_SENT,
-  SEND_INVITES_FAILED,
-  CURRENT_GUESTS,
+  SET_EVENTS,
+  INVITES_SENT_OK,
+  INVITES_SENT_FAIL,
+  SET_CURRENT_GUESTS,
   USER,
-  ALL_CONTACTS,
+  SET_CONTACTS,
   VIEW_EVENT,
-  ADD_CALENDAR
+  ADD_CALENDAR,
+  INITIALIZE_CHAT
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -17,10 +18,18 @@ import {
   ViewEventInQueryString as handleIntentsInQueryString,
   importCalendarEvents,
   getCalendars,
+  publishCalendars,
   sendInvitesToGuests,
   loadGuestProfiles,
-  fetchContactData
+  fetchContactData,
+  updatePublicEvent,
+  removePublicEvent
+  // addPublicEvent, :WARN: NOT IN USE
 } from "../../io/event";
+import { createSessionChat } from "../../io/chat";
+import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
+
+import { uuid } from "../../io/eventFN";
 
 import {
   isUserSignedIn,
@@ -30,28 +39,48 @@ import {
 } from "blockstack";
 
 // #########################
+// Chat
+// #########################
+
+function asAction_initializeChat(chat) {
+  return { type: INITIALIZE_CHAT, payload: chat };
+}
+
+export function initializeChat() {
+  return async (dispatch, getState) => {
+    let chat = createSessionChat();
+    dispatch(asAction_initializeChat(chat));
+  };
+}
+
+// #########################
 // INVITES
 // #########################
 
 function asAction_invitesSentOk(eventInfo, type) {
   return {
-    type: INVITES_SENT,
+    type: INVITES_SENT_OK,
     payload: { eventInfo, type }
   };
 }
 
 function asAction_invitesSentFail(error) {
   return {
-    type: SEND_INVITES_FAILED,
+    type: INVITES_SENT_FAIL,
     payload: { error }
   };
 }
 
-export function SendInvites(eventInfo, guests, type) {
+export function sendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
     sendInvitesToGuests(getState(), eventInfo, guests).then(
       ({ eventInfo, contacts }) => {
-        dispatch(asAction_invitesSentOk(eventInfo, type));
+        let { allEvents } = getState();
+        if (type === "add") {
+          allEvents[eventInfo.uid] = eventInfo;
+          saveEvents("default", allEvents);
+        }
+        dispatch(asAction_invitesSentOk(allEvents));
       },
       error => {
         dispatch(asAction_invitesSentFail(error));
@@ -65,12 +94,12 @@ export function SendInvites(eventInfo, guests, type) {
 // #########################
 function asAction_setGuests(profiles, eventInfo) {
   return {
-    type: CURRENT_GUESTS,
+    type: SET_CURRENT_GUESTS,
     payload: { profiles, eventInfo }
   };
 }
 
-export function LoadGuestList(guests, eventInfo) {
+export function loadGuestList(guests, eventInfo) {
   return async (dispatch, getState) => {
     const contacts = getState().events.contacts;
     loadGuestProfiles(guests, contacts).then(
@@ -110,18 +139,19 @@ function asAction_viewEvent(eventInfo, eventType) {
 }
 
 function asAction_setEvents(allEvents) {
-  return { type: ALL_EVENTS, allEvents };
+  return { type: SET_EVENTS, allEvents };
 }
 
 function asAction_setContacts(contacts) {
-  return { type: ALL_CONTACTS, payload: { contacts } };
+  return { type: SET_CONTACTS, payload: { contacts } };
 }
 
 function asAction_addCalendar(url) {
   return { type: ADD_CALENDAR, payload: { url } };
 }
 
-export function getInitialEvents(query) {
+export function initializeEvents() {
+  const query = window.location.search;
   return async (dispatch, getState) => {
     if (isUserSignedIn()) {
       console.log("is signed in");
@@ -140,6 +170,11 @@ export function getInitialEvents(query) {
       );
 
       getCalendars().then(calendars => {
+        if (!calendars) {
+          calendars = defaultCalendars;
+          // :Q: why save the default instead of waiting for a change?
+          publishCalendars(calendars);
+        }
         loadCalendarData(calendars).then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
         });
@@ -166,7 +201,7 @@ function loadCalendarData(calendars) {
   for (let i in calendars) {
     const calendar = calendars[i];
     calendarPromises = calendarPromises.then(calendarEvents => {
-      return importCalendarEvents(calendar).then(
+      return importCalendarEvents(calendar, defaultEvents).then(
         events => {
           calendarEvents[calendar.name] = {
             name: calendar.name,
@@ -191,4 +226,52 @@ function loadCalendarData(calendars) {
       }, {});
     return allEvents;
   });
+}
+
+// ################
+// Edit Event
+// ################
+
+export function deleteEvent(event) {
+  return async (dispatch, getState) => {
+    let { allEvents } = getState();
+    allEvents = allEvents.filter(function(obj) {
+      return obj && obj.uid !== event.uid;
+    });
+    publishEvents(event.uid, removePublicEvent);
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
+}
+
+export function addEvent(event, details) {
+  return async (dispatch, getState) => {
+    let state = getState();
+    let { allEvents } = state;
+    event.calendarName = "default";
+    event.uid = uuid();
+    allEvents[event.uid] = event;
+    saveEvents("default", allEvents);
+    // :Q: should there be a publishEvents(SOMETHING, addPublicEvent)
+    window.history.pushState({}, "OI Calendar", "/");
+    delete state.currentEvent;
+    delete state.currentEventType;
+    dispatch(asAction_setEvents(allEvents));
+  };
+}
+
+export function updateEvent(event, details) {
+  return async (dispatch, getState) => {
+    let { allEvents } = getState();
+    var eventInfo = event.obj;
+    eventInfo.uid = eventInfo.uid || uuid();
+    allEvents[eventInfo.uid] = eventInfo;
+    if (eventInfo.public) {
+      publishEvents(eventInfo, updatePublicEvent);
+    } else {
+      publishEvents(eventInfo.uid, removePublicEvent);
+    }
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
 }
