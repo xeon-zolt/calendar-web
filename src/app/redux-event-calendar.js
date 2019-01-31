@@ -4,7 +4,7 @@ import EventCalendar from "../components/event-calendar/EventCalendar";
 export default connect(
   (state, redux) => {
     const { events, auth } = state;
-    const { EventDetails } = state.view;
+    const { EventDetails } = state.lazy;
     const signedIn = !!auth.user;
     const { inviteSuccess, currentEvent, currentEventType } = events || {};
     return {

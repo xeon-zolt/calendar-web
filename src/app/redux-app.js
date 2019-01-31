@@ -34,7 +34,7 @@ let views = {
 store.dispatch({ type: SET_VIEW, payload: views });
 
 const ConnectedApp = connect((state, redux) => {
-  const { EventCalendar, UserProfile } = state.view || {
+  const { EventCalendar, UserProfile } = state.lazy || {
     EventCalendar: PlaceHolder,
     UserProfile: PlaceHolder
   };
@@ -51,27 +51,9 @@ class DynamicApp extends Component {
     return <ConnectedApp store={store} />;
   }
   componentDidMount() {
-    storeAfterAppMount(store, () => {
-      this.forceUpdate();
-    });
-
-    import("./redux-event-details").then(
-      ({ default: ConnectedEventDetails }) => {
-        const EventDetails = props => {
-          return <ConnectedEventDetails store={store} {...props} />;
-        };
-        store.dispatch({ type: SET_VIEW, payload: { EventDetails } });
-      }
-    );
-    import("./redux-guest-list").then(({ default: ConnectedGuestList }) => {
-      const GuestList = props => {
-        return <ConnectedGuestList store={store} {...props} />;
-      };
-      store.dispatch({ type: SET_VIEW, payload: { GuestList } });
-    });
-
-    import("../store/event/eventAction").then(({ initializeEvents }) => {
-      store.dispatch(initializeEvents());
+    import("../store/lazy/lazyAction").then(({ initializeLazy }) => {
+      store.dispatch(initializeLazy(store));
+      // this.forceUpdate();
     });
   }
 }

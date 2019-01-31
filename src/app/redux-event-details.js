@@ -11,7 +11,7 @@ import {
 export default connect(
   (state, redux) => {
     console.log("[[ConnectedEventDetails]]", state, redux.store);
-    const { GuestList } = state.view;
+    const { GuestList } = state.lazy;
     const inviteError = state.events.inviteError;
     const inviteSuccess = state.events.inviteSuccess;
     return {

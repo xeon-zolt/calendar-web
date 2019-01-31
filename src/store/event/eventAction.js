@@ -6,7 +6,8 @@ import {
   USER,
   SET_CONTACTS,
   VIEW_EVENT,
-  ADD_CALENDAR
+  ADD_CALENDAR,
+  INITIALIZE_CHAT
 } from "../ActionTypes";
 
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
@@ -33,6 +34,21 @@ import {
   handlePendingSignIn,
   loadUserData
 } from "blockstack";
+
+// #########################
+// Chat
+// #########################
+
+function asAction_initializeChat(chat) {
+  return { type: INITIALIZE_CHAT, payload: chat };
+}
+
+export function initializeChat() {
+  return async (dispatch, getState) => {
+    let chat = createSessionChat();
+    dispatch(asAction_initializeChat(chat));
+  };
+}
 
 // #########################
 // INVITES
