@@ -125,9 +125,9 @@ class EventCalendar extends Component {
               <Grid>
                 <Row style={{ textAlign: "left" }}>
                   <Col md={6}>
-                    <strong>To add an event: </strong> Click on the day you want
-                    to add an event or drag up to the day you want to add the
-                    event for multiple day event! <br />
+                    <strong>To add an event: </strong> Click or long-press on
+                    the day you want to add an event or drag up to the day you
+                    want to add the event for multiple day event! <br />
                   </Col>
                   <Col md={6}>
                     <strong>To update and delete an event:</strong> Click on the
