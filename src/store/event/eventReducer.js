@@ -6,7 +6,10 @@ import {
   INVITES_SENT_FAIL,
   SET_CURRENT_GUESTS,
   VIEW_EVENT,
-  INITIALIZE_CHAT
+  INITIALIZE_CHAT,
+  SHOW_SETTINGS,
+  HIDE_SETTINGS,
+  SET_CALENDARS
 } from "../ActionTypes";
 
 let initialState = {
@@ -29,7 +32,6 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case SET_CONTACTS:
-      // console.log('all contacts', payload.contacts);
       newState = { ...state, contacts: payload.contacts };
       break;
 
@@ -68,6 +70,26 @@ export default function reduce(state = initialState, action = {}) {
         currentGuests: payload.profiles,
         inviteSuccess: undefined,
         inviteError: undefined
+      };
+      break;
+
+    case SHOW_SETTINGS:
+      newState = {
+        ...state,
+        showSettings: true
+      };
+      break;
+
+    case HIDE_SETTINGS:
+      newState = {
+        ...state,
+        showSettings: false
+      };
+      break;
+    case SET_CALENDARS:
+      newState = {
+        ...state,
+        calendars: action.payload.calendars
       };
       break;
 

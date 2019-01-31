@@ -6,6 +6,7 @@ import {
   USER,
   SET_CONTACTS,
   VIEW_EVENT,
+  SET_CALENDARS,
   ADD_CALENDAR,
   INITIALIZE_CHAT
 } from "../ActionTypes";
@@ -146,6 +147,9 @@ function asAction_setContacts(contacts) {
   return { type: SET_CONTACTS, payload: { contacts } };
 }
 
+function asAction_setCalendars(calendars) {
+  return { type: SET_CALENDARS, payload: { calendars } };
+}
 function asAction_addCalendar(url) {
   return { type: ADD_CALENDAR, payload: { url } };
 }
@@ -175,6 +179,7 @@ export function initializeEvents() {
           // :Q: why save the default instead of waiting for a change?
           publishCalendars(calendars);
         }
+        dispatch(asAction_setCalendars(calendars));
         loadCalendarData(calendars).then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
         });

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 
-import { Calendars } from "../Calendars";
-import { Contacts } from "../Contacts";
+import Calendars from "../Calendars";
+import Contacts from "../Contacts";
+import Settings from "../Settings";
 
 class Scenario extends Component {
   constructor(props) {
@@ -52,6 +53,7 @@ class Scenario extends Component {
       <div>
         <Calendars calendars={calendars} addCalendar={this.addCalendar} />
         <Contacts contacts={contacts} lookupContacts={this.lookupContacts} />
+        <Settings show={true} />
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import App from "./App";
 
 import ConnectedEventCalendar from "./redux-event-calendar";
+import ConnectedAppMenu from "./redux-app-menu";
 
 import registerServiceWorker from "./registerServiceWorker";
 import { createInitialStore } from "../store/storeManager";
@@ -24,19 +25,27 @@ let views = {
   },
   UserProfile: PlaceHolder,
   EventDetails: PlaceHolder,
-  GuestList: PlaceHolder
+  GuestList: PlaceHolder,
+  Settings: PlaceHolder,
+  AppMenu: props => {
+    return <ConnectedAppMenu store={store} {...props} />;
+  }
 };
 store.dispatch({ type: SET_VIEW, payload: views });
 
 const ConnectedApp = connect((state, redux) => {
-  const { EventCalendar, UserProfile } = state.lazy || {
+  const { EventCalendar, UserProfile, Settings, AppMenu } = state.lazy || {
     EventCalendar: PlaceHolder,
-    UserProfile: PlaceHolder
+    UserProfile: PlaceHolder,
+    Settings: PlaceHolder,
+    AppMenu: PlaceHolder
   };
   return {
     views: {
       UserProfile,
-      EventCalendar
+      EventCalendar,
+      Settings,
+      AppMenu
     }
   };
 })(App);

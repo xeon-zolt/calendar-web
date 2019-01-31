@@ -1,22 +1,42 @@
 import React, { Component } from "react";
-import { SplitButton, MenuItem } from "react-bootstrap";
+import { DropdownButton, MenuItem } from "react-bootstrap";
 
-export class AppMenu extends Component {
+export default class AppMenu extends Component {
+  constructor(props) {
+    super(props);
+    console.log("porps", props);
+    this.bound = ["onSelect"].reduce((acc, d) => {
+      acc[d] = this[d].bind(this);
+      return acc;
+    }, {});
+  }
+
+  onSelect(eventKey) {
+    switch (eventKey) {
+      case "settings":
+        this.props.viewSettings();
+        break;
+      case "publicCalendar":
+        this.props.viewPublicCalendar();
+        break;
+      default:
+        console.warn("invalid menu item ", eventKey);
+        break;
+    }
+  }
   render() {
+    const { onSelect } = this.bound;
     return (
-      <SplitButton
+      <DropdownButton
         drop="down"
-        variant="secondary"
+        bsStyle="default"
         title="Menu"
         id="dropdown-menu"
+        onSelect={onSelect}
       >
-        <MenuItem>Settings</MenuItem>
-        <MenuItem>View public calendar</MenuItem>
-        <MenuItem>Export data</MenuItem>
-        <MenuItem>Support</MenuItem>
-        <MenuItem divider={true} />
-        <MenuItem>Logout</MenuItem>
-      </SplitButton>
+        <MenuItem eventKey="settings">Settings</MenuItem>
+        <MenuItem eventKey="publicCalendar">View public calendar</MenuItem>
+      </DropdownButton>
     );
   }
 }

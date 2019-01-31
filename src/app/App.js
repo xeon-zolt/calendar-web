@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import "./App.css";
 import { AppHeader, AppFooter } from "./AppHeaderAndFooter";
-import { AppMenu } from "../components/app-menu/AppMenu";
 
 class App extends Component {
   render() {
     const { views } = this.props;
-    const { EventCalendar, UserProfile } = views;
+    const { EventCalendar, UserProfile, Settings, AppMenu } = views;
     return (
       <div className="App">
         <header className="App-header">
@@ -15,6 +14,7 @@ class App extends Component {
           </AppHeader>
           <AppMenu />
         </header>
+        <Settings />
         <EventCalendar />
         <footer>
           <AppFooter />

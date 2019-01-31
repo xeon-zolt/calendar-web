@@ -18,7 +18,7 @@ import {
 } from "ical.js";
 
 export function fetchContactData() {
-  return fetchFromBlocstack("Contacts");
+  return fetchFromBlockstack("Contacts");
 }
 
 export function loadGuestProfiles(guests, contacts) {
@@ -201,7 +201,7 @@ export function respondToInvite(
 // Blockstack helpers
 // ###########################################################################
 
-function fetchFromBlocstack(src, config, privateKey, errorData) {
+function fetchFromBlockstack(src, config, privateKey, errorData) {
   return getFile(src, config)
     .then(
       str => {
@@ -211,7 +211,7 @@ function fetchFromBlocstack(src, config, privateKey, errorData) {
         return str;
       },
       error => {
-        return Promise.reject("Couldn't fetch from fetchFromBlocstack", {
+        return Promise.reject("Couldn't fetch from fetchFromBlockstack", {
           ...errorData,
           error
         });
@@ -236,7 +236,7 @@ function putOnBlocstack(src, text, config) {
 // List of calendars
 // ###########################################################################
 export function getCalendars() {
-  return fetchFromBlocstack("Calendars").then(objectToArray);
+  return fetchFromBlockstack("Calendars").then(objectToArray);
 }
 
 export function publishCalendars(calendars) {
@@ -256,9 +256,9 @@ export function importCalendarEvents(calendar, defaultEvents) {
     fn = fetchAndParseIcal;
   } else if (type === "blockstack-user") {
     config = { decrypt: false, username: data.user };
-    fn = fetchFromBlocstack;
+    fn = fetchFromBlockstack;
   } else if (type === "private") {
-    fn = fetchFromBlocstack;
+    fn = fetchFromBlockstack;
   }
   return fn(data.src, config)
     .then(objectToArray)
@@ -325,7 +325,7 @@ export function ViewEventInQueryString(
 }
 
 function loadCalendarEventFromUser(username, eventUid, privateKey) {
-  return fetchFromBlocstack(
+  return fetchFromBlockstack(
     sharedUrl(eventUid),
     { decrypt: false, username },
     privateKey,
@@ -383,7 +383,9 @@ function publishCalendar(text, filepath, contentType) {
 
 export function publishEvents(param, updatePublicEvents) {
   const publicEventPath = "public/AllEvents";
-  fetchFromBlocstack(publicEventPath, { decrypt: false }).then(publicEvents => {
+  fetchFromBlockstack(publicEventPath, {
+    decrypt: false
+  }).then(publicEvents => {
     if (publicEvents) {
       const { republish, newPublicEvents } = updatePublicEvents(
         param,
