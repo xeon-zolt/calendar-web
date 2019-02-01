@@ -2,17 +2,14 @@ import React from "react";
 
 export const AppHeader = props => {
   return (
-    <div>
-      <h1>
-        <img
-          src="/android-chrome-192x192.png"
-          alt="logo"
-          style={{ marginRight: "10px", height: "40px" }}
-        />
-        OI Calendar{" "}
-      </h1>
-      {props.children}
-    </div>
+    <h1 style={{ margin: "0px" }}>
+      <img
+        src="/android-chrome-192x192.png"
+        alt="logo"
+        style={{ marginRight: "10px", height: "40px" }}
+      />
+      OI Calendar{" "}
+    </h1>
   );
 };
 

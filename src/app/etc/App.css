@@ -9,17 +9,12 @@
 
 .App-header {
 	background-color: #558ed588;
-	height: 140px;
-	padding: 20px;
+	padding: 1px;
 	color: white;
 }
 
 .App-title {
-	font-size: 1.5em;
-}
-
-.App-intro {
-	font-size: large;
+	font-size: 1em;
 }
 
 .bodyContainer {
@@ -112,6 +107,7 @@ h1,
 }
 
 .authUserProfile-Root {
+	margin: 4px;
 	text-align: center;
 }
 

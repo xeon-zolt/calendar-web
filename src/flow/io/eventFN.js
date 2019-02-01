@@ -10,7 +10,7 @@ export function sharedUrl(eventUid) {
   return "shared/" + eventUid + "/event.json";
 }
 
-defaultColors = {
+const defaultColors = {
   navy: { color: "#001F3F" },
   blue: { color: "#0074D9" },
   aqua: { color: "#7FDBFF" },
@@ -28,12 +28,12 @@ defaultColors = {
   gray: { color: "#AAAAAA" },
   black: { color: "#111111" }
 };
-defaultColorList = Object.values(defaultColors);
+const defaultColorList = Object.values(defaultColors);
 
 export function guaranteeHexColor(hex) {
   return (
     hex ||
-    defaultColorList[Math.floor(Math.random() * defaultColorsList.length)].color
+    defaultColorList[Math.floor(Math.random() * defaultColorList.length)].color
   );
 }
 

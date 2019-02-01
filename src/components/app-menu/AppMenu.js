@@ -28,17 +28,19 @@ export default class AppMenu extends Component {
     const { username } = this.props;
     return (
       username && (
-        <DropdownButton
-          drop="down"
-          bsStyle="default"
-          title="Menu"
-          id="dropdown-menu"
-          pullRight
-          onSelect={onSelect}
-        >
-          <MenuItem eventKey="settings">Settings</MenuItem>
-          <MenuItem eventKey="publicCalendar">View public calendar</MenuItem>
-        </DropdownButton>
+        <div style={{ margin: "4px" }}>
+          <DropdownButton
+            drop="down"
+            bsStyle="default"
+            title="Menu"
+            id="dropdown-menu"
+            pullRight
+            onSelect={onSelect}
+          >
+            <MenuItem eventKey="settings">Settings</MenuItem>
+            <MenuItem eventKey="publicCalendar">View public calendar</MenuItem>
+          </DropdownButton>
+        </div>
       )
     );
   }
