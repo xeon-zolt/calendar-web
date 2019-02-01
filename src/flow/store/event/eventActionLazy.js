@@ -282,39 +282,6 @@ function loadCalendarData(calendars) {
   });
 }
 
-function loadCalendarDataOld(calendars) {
-  let calendarEvents = {};
-  let calendarPromises = Promise.resolve(calendarEvents);
-  for (let i in calendars) {
-    const calendar = calendars[i];
-    calendarPromises = calendarPromises.then(calendarEvents => {
-      return importCalendarEvents(calendar, defaultEvents).then(
-        events => {
-          calendarEvents[calendar.name] = {
-            name: calendar.name,
-            allEvents: events
-          };
-          return calendarEvents;
-        },
-        error => {
-          console.log(error);
-          return calendarEvents;
-        }
-      );
-    });
-  }
-  return calendarPromises.then(calendarEvents => {
-    var allCalendars = Object.values(calendarEvents);
-    console.log("allCalendars", allCalendars);
-    var allEvents = allCalendars
-      .map(c => c.allEvents)
-      .reduce((acc, cur, i) => {
-        return { ...acc, ...cur };
-      }, {});
-    return allEvents;
-  });
-}
-
 // ################
 // Edit Event
 // ################
