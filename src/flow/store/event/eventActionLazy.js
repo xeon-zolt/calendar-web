@@ -300,8 +300,8 @@ function loadCalendarData(calendars) {
 
 export function deleteEvent(event) {
   return async (dispatch, getState) => {
-    let { allEvents } = getState();
-    Object.delete(allEvents[event.uid]);
+    let { allEvents } = getState().events;
+    delete allEvents[event.uid];
     publishEvents(event.uid, removePublicEvent);
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));

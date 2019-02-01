@@ -25,11 +25,13 @@ const UserProfile = props => {
     return <div>{message}</div>;
   }
   return (
-    <BlockstackSignInButton
-      signIn={props.userSignIn}
-      signOut={props.userSignOut}
-      isSignedIn={props.isSignedIn}
-    />
+    <div className="authUserProfile-Root">
+      <BlockstackSignInButton
+        signIn={props.userSignIn}
+        signOut={props.userSignOut}
+        isSignedIn={props.isSignedIn}
+      />
+    </div>
   );
 };
 

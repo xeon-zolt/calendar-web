@@ -32,20 +32,21 @@ class DynamicApp extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <AppHeader>
-            <Grid>
-              <Row>
-                <Col md={4} xs={2} sm={2} />
-                <Col md={2} xs={6} sm={4}>
-                  {UserProfile && <UserProfile />}
-                </Col>
-                <Col md={2} xs={6} sm={2}>
-                  <ConnectedAppMenu />
-                </Col>
-              </Row>
-            </Grid>
-          </AppHeader>
+          <Grid>
+            <Row>
+              <Col sm={6} xs={12}>
+                <AppHeader />
+              </Col>
+              <Col sm={4} xs={6}>
+                {UserProfile && <UserProfile />}
+              </Col>
+              <Col sm={2} xs={6}>
+                <ConnectedAppMenu />
+              </Col>
+            </Row>
+          </Grid>
         </header>
+
         <ConnectedSettings />
         <ConnectedCalendar />
         <footer>
