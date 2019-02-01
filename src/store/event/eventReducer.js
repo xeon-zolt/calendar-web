@@ -96,6 +96,7 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         myPublicCalendar: action.payload.name,
+        myPublicCalendarIcsUrl: action.payload.icsUrl,
         publicCalendar: undefined,
         publicCalendarEvents: undefined
       };
@@ -104,6 +105,7 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
         publicCalendar: undefined,
         publicCalendarEvents: undefined
       };
@@ -111,6 +113,8 @@ export default function reduce(state = initialState, action = {}) {
     case SET_PUBLIC_CALENDAR_EVENTS:
       newState = {
         ...state,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
         publicCalendarEvents: action.payload.allEvents,
         publicCalendar: action.payload.calendar.name
       };

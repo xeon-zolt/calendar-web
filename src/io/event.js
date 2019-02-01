@@ -16,6 +16,8 @@ import {
   Component as iCalComponent,
   Event as iCalEvent
 } from "ical.js";
+import { BlockstackNetwork } from "blockstack/lib/network";
+import { getUserAppFileUrl } from "blockstack/lib/storage";
 
 export function fetchContactData() {
   return fetchFromBlockstack("Contacts");
@@ -452,6 +454,14 @@ export function saveEvents(calendarName, allEvents) {
 
 export function fetchPreferences() {
   return fetchFromBlockstack("Preferences");
+}
+
+export function fetchIcsUrl(calendarName) {
+  console.log("calendarName", calendarName);
+  const parts = calendarName.split("@");
+  const path = parts[0] + "/AllEvents.ics";
+  const username = parts[1];
+  return getUserAppFileUrl(path, username, window.location.origin);
 }
 
 export function savePreferences(preferences) {

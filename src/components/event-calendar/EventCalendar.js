@@ -99,6 +99,7 @@ class EventCalendar extends Component {
       signedIn,
       views,
       myPublicCalendar,
+      myPublicCalendarIcsUrl,
       publicCalendar,
       publicCalendarEvents,
       showGeneralInstructions
@@ -114,15 +115,16 @@ class EventCalendar extends Component {
     let events = Object.values(this.props.events.allEvents);
     let shareUrl = null;
     if (myPublicCalendar) {
-      events = events.filter(
-        e => e.public && e.calendarName === myPublicCalendar
-      );
+      // TODO proper filtering : const calendarName = myPublicCalendar.split("@")[0];
+      events = events.filter(e => {
+        return e.public && e.calendarName === "default";
+      });
       shareUrl =
         window.location.origin + "/?intent=view&name=" + myPublicCalendar;
     } else if (publicCalendarEvents) {
       events = publicCalendarEvents;
       shareUrl =
-        window.location.origin + "/?intent=view&name=" + publicCalendar;
+        window.location.origin + "/?intent=addics&url=" + publicCalendar;
     }
     const calendarView = (
       <BigCalendar
@@ -184,7 +186,11 @@ class EventCalendar extends Component {
                     </Col>
                     <Col md={10}>
                       <strong>Move from Google Calendar</strong>: Done in a
-                      minutes! Follow the <a href="/move">2-steps tutorial</a>.
+                      minutes! Follow the{" "}
+                      <a href="https://github.com/friedger/oi-calendar">
+                        2-steps tutorial
+                      </a>
+                      .
                       <br />
                       <input
                         style={{ width: "100%" }}
@@ -231,14 +237,25 @@ class EventCalendar extends Component {
                 <span className="sr-only">Close</span>
               </button>
             </Panel.Heading>
-            {events.length > 0 && (
+            {myPublicCalendar && events.length > 0 && (
               <Panel.Body>
                 Share this url: <a href={shareUrl}>{shareUrl}</a>
+                {myPublicCalendarIcsUrl && (
+                  <span>
+                    {" "}
+                    or <a href={myPublicCalendarIcsUrl}> as .ics file</a>
+                  </span>
+                )}
               </Panel.Body>
             )}
-            {events.length == 0 && (
+            {myPublicCalendar && events.length == 0 && (
               <Panel.Body>
                 No public events yet. Start publishing your events!
+              </Panel.Body>
+            )}
+            {publicCalendar && events.length > 0 && signedIn && (
+              <Panel.Body>
+                <a href={shareUrl}>Add to my calandars</a>
               </Panel.Body>
             )}
             <Panel.Body>{calendarView}</Panel.Body>

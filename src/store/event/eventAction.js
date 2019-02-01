@@ -33,7 +33,8 @@ import {
   publishContacts,
   loadPublicCalendar,
   savePreferences,
-  fetchPreferences
+  fetchPreferences,
+  fetchIcsUrl
 } from "../../io/event";
 import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
@@ -305,7 +306,7 @@ export function deleteEvent(event) {
 export function addEvent(event, details) {
   return async (dispatch, getState) => {
     let state = getState();
-    let { allEvents } = state;
+    let { allEvents } = state.events;
     event.calendarName = "default";
     event.uid = uuid();
     allEvents[event.uid] = event;
@@ -356,10 +357,18 @@ export function asAction_showSettings() {
   };
 }
 
-export function asAction_showMyPublicCalendar(name) {
-  return { type: SHOW_MY_PUBLIC_CALENDAR, payload: { name } };
+export function asAction_showMyPublicCalendar(name, icsUrl) {
+  return { type: SHOW_MY_PUBLIC_CALENDAR, payload: { name, icsUrl } };
 }
 
+export function showMyPublicCalendar(name) {
+  return async dispatch => {
+    fetchIcsUrl(name).then(url => {
+      console.log("icsurl", url);
+      dispatch(asAction_showMyPublicCalendar(name, url));
+    });
+  };
+}
 export function asAction_showAllCalendars() {
   return { type: SHOW_ALL_CALENDARS };
 }

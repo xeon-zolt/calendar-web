@@ -12,6 +12,7 @@ export default connect(
       currentEvent,
       currentEventType,
       myPublicCalendar,
+      myPublicCalendarIcsUrl,
       publicCalendarEvents,
       publicCalendar,
       showInstructions
@@ -28,6 +29,7 @@ export default connect(
       currentEvent,
       currentEventType,
       myPublicCalendar,
+      myPublicCalendarIcsUrl,
       publicCalendarEvents,
       publicCalendar,
       showGeneralInstructions

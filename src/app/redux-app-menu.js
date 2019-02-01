@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import {
   asAction_showSettings,
-  asAction_showMyPublicCalendar
+  showMyPublicCalendar
 } from "../store/event/eventAction";
 import AppMenu from "../components/app-menu/AppMenu";
 
@@ -19,7 +19,7 @@ export default connect(
         dispatch(asAction_showSettings());
       },
       viewMyPublicCalendar: name => {
-        dispatch(asAction_showMyPublicCalendar(name));
+        dispatch(showMyPublicCalendar(name));
       }
     };
   }
