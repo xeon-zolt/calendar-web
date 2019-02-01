@@ -268,7 +268,7 @@ function loadCalendarData(calendars) {
         return { name: calendar.name, events };
       },
       error => {
-        console.log(error);
+        console.log("[ERROR.loadCalendarData]", error);
         return;
       }
     );
