@@ -44,29 +44,6 @@ class SendInvitesModal extends Component {
     });
   }
 
-  /*
-  const { showInvitesModal, sending } = this.state;
-  this.setState({
-    showInvitesModal:
-      showInvitesModal &&
-      !(!!nextProps.guests || !!nextProps.inviteError),
-    sending:
-      sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
-  });
-  */
-
-  // console.log("[ConnectedGuestList]", state);
-
-  /*
-  console.log("[popInvitesModal]", eventDetail);
-  const { loadGuestList, updateCurrentEvent } = this.props;
-
-  // updateCurrentEvent(eventDetail);
-  let { guests } = eventDetail;
-
-
-  */
-
   render() {
     const {
       title,
@@ -127,6 +104,7 @@ class EventDetails extends Component {
       "deleteEvent"
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this);
+      delete this[d];
       return acc;
     }, {});
   }
@@ -138,12 +116,12 @@ class EventDetails extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state;
+    const notProcessedYet = !(
+      !!nextProps.inviteSuccess || !!nextProps.inviteError
+    );
     this.setState({
-      showInvitesModal:
-        showInvitesModal &&
-        !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
-      sending:
-        sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
+      showInvitesModal: showInvitesModal && notProcessedYet,
+      sending: sending && notProcessedYet
     });
   }
 
@@ -212,7 +190,6 @@ class EventDetails extends Component {
     this.setState({ sending: true });
     const guestsString = eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
-    console.log("[sendInvites]", eventDetail, profiles);
     sendInvites(eventDetail, guests, eventType);
   }
 

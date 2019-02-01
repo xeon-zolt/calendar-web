@@ -66,6 +66,7 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case INVITES_SENT_OK:
+      console.log("INVITES_SENT_OK");
       newState = {
         ...state,
         allEvents: payload.allEvents,
@@ -77,8 +78,11 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case INVITES_SENT_FAIL:
+      console.log("INVITES_SENT_FAIL");
       newState = {
         ...state,
+        currentEvent: undefined,
+        currentEventType: undefined,
         inviteSuccess: false,
         inviteError: payload.error
       };

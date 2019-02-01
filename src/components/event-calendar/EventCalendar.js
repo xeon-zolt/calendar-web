@@ -87,7 +87,8 @@ class EventCalendar extends Component {
       publicCalendar,
       publicCalendarEvents,
       showGeneralInstructions,
-      eventModal
+      eventModal,
+      inviteSuccess
     } = this.props;
     const { showInstructions } = this.state;
     const { EventDetails } = views;
@@ -206,7 +207,7 @@ class EventCalendar extends Component {
             </Panel.Body>
           </Panel>
         )}
-        {eventModal && <EventDetails />}
+        {eventModal && !inviteSuccess && <EventDetails />}
         {(myPublicCalendar || publicCalendar) && (
           <Panel>
             <Panel.Heading>
