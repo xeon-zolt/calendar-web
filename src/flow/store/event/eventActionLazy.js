@@ -2,6 +2,7 @@ import {
   SET_EVENTS,
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
+  SET_CURRENT_GUESTS,
   USER,
   SET_CONTACTS,
   SET_CALENDARS,
@@ -36,9 +37,11 @@ import {
   fetchPreferences,
   fetchIcsUrl
 } from "../../io/event";
+import { initializeContactData } from "./contactActionLazy";
+import { initializeCalendars } from "./calendarActionLazy";
 
 import { createSessionChat } from "../../io/chat";
-import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
+import { defaultEvents } from "../../io/eventDefaults";
 
 import { uuid } from "../../io/eventFN";
 import { setCurrentEvent } from "./eventAction";
@@ -105,8 +108,7 @@ export function sendInvites(eventInfo, guests, type) {
         dispatch(asAction_invitesSentOk(allEvents));
       },
       error => {
-        console.log(error);
-        dispatch(asAction_invitesSentFail(error, type, eventInfo));
+        dispatch(asAction_invitesSentFail(error));
       }
     );
   };
@@ -115,6 +117,12 @@ export function sendInvites(eventInfo, guests, type) {
 // #########################
 // GUESTS
 // #########################
+function asAction_setGuests(profiles, eventInfo) {
+  return {
+    type: SET_CURRENT_GUESTS,
+    payload: { profiles, eventInfo }
+  };
+}
 
 export function loadGuestList(guests, contacts, asyncReturn) {
   console.log("loadGuestList", guests, contacts);
@@ -160,7 +168,7 @@ export function showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
-export function initializeEvents() {
+export function initializeLazyActions() {
   const query = window.location.search;
   return async (dispatch, getState) => {
     if (isUserSignedIn()) {
@@ -189,20 +197,14 @@ export function initializeEvents() {
           )
         );
       });
-      fetchCalendars().then(calendars => {
-        if (!calendars) {
-          calendars = defaultCalendars;
-          // :Q: why save the default instead of waiting for a change?
-          publishCalendars(calendars);
-        }
-        dispatch(asAction_setCalendars(calendars));
-        loadCalendarData(calendars).then(allEvents => {
-          dispatch(asAction_setEvents(allEvents));
-        });
-        fetchContactData().then(contacts => {
-          dispatch(asAction_setContacts(contacts || {}));
-        });
-      });
+
+      dispatch(initializeCalendars())
+        .then(calendars =>
+          loadCalendarData(calendars).then(allEvents => {
+            dispatch(asAction_setEvents(allEvents));
+          })
+        )
+      dispatch(initializeContactData());
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
@@ -242,6 +244,7 @@ function asAction_setPublicCalendarEvents(allEvents, calendar) {
 
 function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
+    console.log("viewpubliccalendar", name);
     if (name) {
       const parts = name.split("@");
       if (parts.length === 2) {
