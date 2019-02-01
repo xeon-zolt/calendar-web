@@ -262,6 +262,27 @@ function viewPublicCalendar(name) {
 }
 
 function loadCalendarData(calendars) {
+  var promises = calendars.map(function(calendar) {
+    return importCalendarEvents(calendar, defaultEvents).then(
+      events => {
+        return { name: calendar.name, events };
+      },
+      error => {
+        console.log(error);
+        return;
+      }
+    );
+  });
+
+  return Promise.all(promises).then(allCalendars => {
+    return allCalendars.reduce((acc, cur, i) => {
+      const events = cur.events;
+      return { ...acc, ...events };
+    }, {});
+  });
+}
+
+function loadCalendarDataOld(calendars) {
   let calendarEvents = {};
   let calendarPromises = Promise.resolve(calendarEvents);
   for (let i in calendars) {
