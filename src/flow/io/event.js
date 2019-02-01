@@ -34,12 +34,10 @@ export function loadGuestProfiles(guests, contacts) {
 
   for (var i in guests) {
     const guest = guests[i];
-    console.log("guest", guest);
     if (guest && guest.length > 0) {
       profilePromises = profilePromises.then(({ profiles, contacts }) => {
         return lookupProfile(guest).then(
           guestProfile => {
-            guestProfile.username = guest;
             profiles[guest] = guestProfile;
             return { profiles, contacts };
           },
@@ -64,20 +62,32 @@ function asInviteEvent(d, username) {
   return d;
 }
 
-export function sendInvitesToGuests(state, eventInfo, guestProfiles) {
-  const contacts = state.events.contacts;
-  eventInfo = asInviteEvent(eventInfo, state.auth.user.username);
+export function sendInvitesToGuests(
+  contacts,
+  user,
+  eventInfoRaw,
+  guestProfiles,
+  chatSession
+) {
+  const eventInfo = asInviteEvent(eventInfoRaw, user.username);
   return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
     var addGuestPromises = Promise.resolve({ contacts, eventInfo });
-    for (var i in guestProfiles) {
-      const guestProfile = guestProfiles[i];
+    for (var guestUsername in guestProfiles) {
+      const guestProfile = guestProfiles[guestUsername];
       if (guestProfile) {
         addGuestPromises = addGuestPromises.then(({ contacts, eventInfo }) => {
           console.log("found guest ", guestProfile.name);
-          return addGuest(guestProfile, eventInfo, contacts, state);
+          return addGuest(
+            guestUsername,
+            guestProfile,
+            eventInfo,
+            contacts,
+            chatSession,
+            user
+          );
         });
       } else {
         console.log("invalid guest ", guestProfile);
@@ -86,10 +96,8 @@ export function sendInvitesToGuests(state, eventInfo, guestProfiles) {
     }
     return addGuestPromises.then(
       ({ contacts, eventInfo }) => {
-        console.log("contacts", contacts);
-        return publishContacts(contacts).then(() => {
-          return { contacts, eventInfo };
-        });
+        publishContacts(contacts);
+        return { contacts, eventInfo };
       },
       error => {
         return Promise.reject(error);
@@ -98,18 +106,27 @@ export function sendInvitesToGuests(state, eventInfo, guestProfiles) {
   });
 }
 
-function addGuest(guest, eventInfo, contacts, state) {
+function addGuest(
+  guestUsername,
+  guestProfile,
+  eventInfo,
+  contacts,
+  chatSession,
+  user
+) {
   var roomPromise;
-  if (contacts[guest] && contacts[guest].roomId) {
+  if (contacts[guestUsername] && contacts[guestUsername].roomId) {
     console.log("reusing room");
-    roomPromise = Promise.resolve({ room_id: contacts[guest].roomId });
+    roomPromise = Promise.resolve({
+      room_id: contacts[guestUsername].roomId
+    });
   } else {
     console.log("creating new room");
-    if (!contacts[guest]) {
-      contacts[guest] = {};
+    if (!contacts[guestUsername]) {
+      contacts[guestUsername] = {};
     }
-    roomPromise = state.events.userSessionChat.createNewRoom(
-      "Events with " + state.events.user.username,
+    roomPromise = chatSession.createNewRoom(
+      "Events with " + user.username,
       "Invitations, Updates,.."
     );
   }
@@ -117,15 +134,15 @@ function addGuest(guest, eventInfo, contacts, state) {
   return roomPromise.then(
     roomResult => {
       var roomId = roomResult.room_id;
-      Object.assign(contacts[guest], { roomId });
+      Object.assign(contacts[guestUsername], { roomId });
 
       return sendInviteMessage(
-        guest,
-        state.events.userSessionChat,
+        guestUsername,
+        chatSession,
         roomId,
         eventInfo,
-        state.auth.user.username,
-        getUserAppAccount(state.auth.user)
+        user.username,
+        getUserAppAccount(user.profile)
       )
         .then(() => {
           return { contacts, eventInfo };
@@ -142,8 +159,8 @@ function addGuest(guest, eventInfo, contacts, state) {
   );
 }
 
-function getUserAppAccount(user) {
-  const gaiaUrl = user.apps[window.location.origin];
+function getUserAppAccount(userProfile) {
+  const gaiaUrl = userProfile.apps[window.location.origin];
   if (gaiaUrl) {
     const urlParts = gaiaUrl.split("/");
     var appUserAddress = urlParts[urlParts.length - 2];
@@ -157,7 +174,7 @@ function addressToAccount(address) {
 }
 
 function sendInviteMessage(
-  guest,
+  guestUsername,
   userSessionChat,
   roomId,
   eventInfo,
@@ -175,7 +192,7 @@ function sendInviteMessage(
   const ahref = `<a href='${
     window.location.origin
   }${queryString}"'>${title}</a>`;
-  return userSessionChat.sendMessage(guest, roomId, {
+  return userSessionChat.sendMessage(guestUsername, roomId, {
     msgtype: "m.text",
     body: `You are invited to ${title}`,
     format: "org.matrix.custom.html",
@@ -385,7 +402,6 @@ export function removePublicEvent(eventUid, publicEvents) {
 
 export function loadPublicCalendar(calendarName, username) {
   const path = calendarName + "/AllEvents";
-  console.log("username", username);
   return fetchFromBlockstack(path, {
     username,
     decrypt: false
@@ -437,7 +453,6 @@ export function publishEvents(param, updatePublicEvents) {
 }
 
 export function saveEvents(calendarName, allEvents) {
-  console.log("save", { calendarName, allEvents });
   const calendarEvents = Object.keys(allEvents)
     .filter(key => allEvents[key].calendarName === calendarName)
     .reduce((res, key) => {
@@ -445,7 +460,7 @@ export function saveEvents(calendarName, allEvents) {
       return res;
     }, {});
 
-  putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
+  return putOnBlockstack(calendarName + "/AllEvents", calendarEvents);
 }
 
 export function fetchPreferences() {
@@ -453,7 +468,6 @@ export function fetchPreferences() {
 }
 
 export function fetchIcsUrl(calendarName) {
-  console.log("calendarName", calendarName);
   const parts = calendarName.split("@");
   const path = parts[0] + "/AllEvents.ics";
   const username = parts[1];

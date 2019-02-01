@@ -130,7 +130,7 @@ export class UserSessionChat {
     } else {
       const userData = loadUserData();
       return this.getOTP(userData).then(result => {
-        var deviceDisplayName = userData.username + " via Monster Kingdom";
+        var deviceDisplayName = userData.username + " via OI Calendar";
         console.log(
           "login",
           deviceDisplayName,

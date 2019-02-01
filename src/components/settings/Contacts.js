@@ -57,7 +57,9 @@ export default class Contacts extends Component {
     const contactQuery = event.target.value;
 
     this.setState({ lookingUpContacts: true, nameToAdd: contactQuery });
-    const proposedContacts = contacts.filter(c => c.contains(contactQuery));
+    const proposedContacts = (contacts || []).filter(c =>
+      c.contains(contactQuery)
+    );
     this.setState({ proposedContacts, lookingUpContacts: false });
     lookupContacts(contactQuery).then(
       proposedContacts =>

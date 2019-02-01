@@ -68,10 +68,10 @@ export function initializeChat() {
 // INVITES
 // #########################
 
-function asAction_invitesSentOk(eventInfo, type) {
+function asAction_invitesSentOk(allEvents) {
   return {
     type: INVITES_SENT_OK,
-    payload: { eventInfo, type }
+    payload: { allEvents }
   };
 }
 
@@ -84,16 +84,24 @@ function asAction_invitesSentFail(error) {
 
 export function sendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
-    sendInvitesToGuests(getState(), eventInfo, guests).then(
+    const state = getState();
+    sendInvitesToGuests(
+      state.events.contacts,
+      state.auth.user,
+      eventInfo,
+      guests,
+      state.events.userSessionChat
+    ).then(
       ({ eventInfo, contacts }) => {
-        let { allEvents } = getState();
-        if (type === "add") {
+        let { allEvents } = getState().events;
+        if (type === "add" || type === "edit") {
           allEvents[eventInfo.uid] = eventInfo;
           saveEvents("default", allEvents);
         }
-        dispatch(asAction_invitesSentOk(allEvents));
+        dispatch(asAction_invitesSentOk(allEvents, eventInfo, type));
       },
       error => {
+        console.log(error);
         dispatch(asAction_invitesSentFail(error));
       }
     );
@@ -111,24 +119,15 @@ function asAction_setGuests(profiles, eventInfo) {
 }
 
 export function loadGuestList(guests, contacts, asyncReturn) {
-  loadGuestProfiles(guests, contacts).then(asyncReturn, error => {
-    console.log("load guest list failed", error);
-  });
-}
-
-export function loadGuestListOld(guests, eventInfo) {
-  return async (dispatch, getState) => {
-    const contacts = getState().events.contacts;
-    loadGuestProfiles(guests, contacts).then(
-      ({ profiles, contacts }) => {
-        console.log("profiles", profiles);
-        dispatch(asAction_setGuests(profiles, eventInfo));
-      },
-      error => {
-        console.log("load guest list failed", error);
-      }
-    );
-  };
+  console.log("loadGuestList", guests, contacts);
+  loadGuestProfiles(guests, contacts).then(
+    ({ profiles, contacts }) => {
+      asyncReturn({ profiles, contacts });
+    },
+    error => {
+      console.log("load guest list failed", error);
+    }
+  );
 }
 
 // ################
@@ -244,7 +243,6 @@ function asAction_setPublicCalendarEvents(allEvents, calendar) {
 
 function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
-    console.log("viewpubliccalendar", name);
     if (name) {
       const parts = name.split("@");
       if (parts.length === 2) {

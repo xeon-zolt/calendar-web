@@ -4,6 +4,7 @@ import { Modal, Button, ProgressBar } from "react-bootstrap";
 import moment from "moment";
 
 import "../../css/datetime.css";
+import GuestList from "../event-guest-list/GuestList";
 
 var Datetime = require("react-datetime");
 
@@ -191,7 +192,7 @@ class EventDetails extends Component {
     eventDetail.noInvites = true;
   }
 
-  sendInvites() {
+  sendInvites(profiles) {
     const { sendInvites, eventType, eventDetail } = this.props;
     const { guests } = this.state;
     this.setState({ sending: true });
@@ -202,6 +203,9 @@ class EventDetails extends Component {
     console.log("[EVENDETAILS.render]", this.props);
     const { showInvitesModal, sending, guests } = this.state;
     const { handleClose } = this.bound;
+<<<<<<< HEAD
+    const { inviteError, eventType, eventDetail } = this.props;
+=======
     const {
       views,
       inviteError,
@@ -210,6 +214,8 @@ class EventDetails extends Component {
       loadGuestList
     } = this.props;
     const { GuestList } = views;
+    console.log("VIEWS", views, GuestList);
+>>>>>>> 93fb9a8cf7ad0abf0ef44d0c9e82adc7c52643d3
     const {
       handleDataChange,
       handleInvitesHide,
@@ -220,7 +226,7 @@ class EventDetails extends Component {
       deleteEvent
     } = this.bound;
     const hasGuests = checkHasGuests(eventDetail.guests);
-
+    // console.log("hasGuests", hasGuests);
     var inviteErrorMsg = [];
     if (inviteError) {
       const error = inviteError;
@@ -355,6 +361,27 @@ class EventDetails extends Component {
           <Button onClick={handleClose}>Close</Button>
         </Modal.Footer>
 
+<<<<<<< HEAD
+        <Modal show={showInvitesModal} onHide={handleInvitesHide}>
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title">
+              {eventDetail.title}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Send invites according to their Blockstack settings:
+            <GuestList guests={guests} />
+            {sending && !inviteError && <ProgressBar active now={50} />}
+            {inviteError && inviteErrorMsg}
+            <Modal.Footer>
+              <Button bsStyle="success" onClick={() => sendInvites()}>
+                Send
+              </Button>
+              <Button onClick={handleInvitesHide}>Close</Button>
+            </Modal.Footer>
+          </Modal.Body>
+        </Modal>
+=======
         {showInvitesModal && (
           <SendInvitesModal
             guests={eventDetail.guests}
@@ -369,6 +396,7 @@ class EventDetails extends Component {
             loadGuestList={loadGuestList}
           />
         )}
+>>>>>>> 93fb9a8cf7ad0abf0ef44d0c9e82adc7c52643d3
       </Modal>
     );
   }
