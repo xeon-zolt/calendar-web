@@ -268,18 +268,23 @@ function loadCalendarData(calendars) {
         return { name: calendar.name, events };
       },
       error => {
-        console.log("[ERROR.loadCalendarData]", error);
-        return;
+        console.log("[ERROR.loadCalendarData]", error, calendar);
+        return { name: calendar.name, events: {} };
       }
     );
   });
 
-  return Promise.all(promises).then(allCalendars => {
-    return allCalendars.reduce((acc, cur, i) => {
-      const events = cur.events;
-      return { ...acc, ...events };
-    }, {});
-  });
+  return Promise.all(promises).then(
+    allCalendars => {
+      return allCalendars.reduce((acc, cur, i) => {
+        const events = cur.events;
+        return { ...acc, ...events };
+      }, {});
+    },
+    error => {
+      return Promise.reject(error);
+    }
+  );
 }
 
 // ################
