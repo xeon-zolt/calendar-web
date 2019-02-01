@@ -1,7 +1,6 @@
 import { connect } from "react-redux";
 import { HIDE_SETTINGS } from "../store/ActionTypes";
-import Settings from "../components/settings/Settings";
-import { addCalendar, addContact } from "../store/event/eventAction";
+import { addCalendar, addContact } from "../store/event/eventActionLazy";
 
 export default connect(
   (state, redux) => {
@@ -28,4 +27,4 @@ export default connect(
       }
     };
   }
-)(Settings);
+);

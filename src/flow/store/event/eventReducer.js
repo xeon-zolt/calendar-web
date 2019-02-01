@@ -5,7 +5,8 @@ import {
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
   SET_CURRENT_GUESTS,
-  VIEW_EVENT,
+  SET_CURRENT_EVENT,
+  UNSET_CURRENT_EVENT,
   INITIALIZE_CHAT,
   SHOW_SETTINGS,
   HIDE_SETTINGS,
@@ -24,7 +25,7 @@ let initialState = {
 };
 
 export default function reduce(state = initialState, action = {}) {
-  console.log("EventReducer", action);
+  // console.log("EventReducer", action);
   const { type, payload } = action;
   let newState = state;
   switch (type) {
@@ -37,6 +38,7 @@ export default function reduce(state = initialState, action = {}) {
       break;
 
     case SET_CONTACTS:
+      // console.log('all contacts', payload.contacts);
       newState = { ...state, contacts: payload.contacts };
       break;
 
@@ -44,11 +46,22 @@ export default function reduce(state = initialState, action = {}) {
       newState = { ...state, allEvents: action.allEvents };
       break;
 
-    case VIEW_EVENT:
+    case SET_CURRENT_EVENT:
+      console.log("SET_CURRENT_EVENT", payload);
       newState = {
         ...state,
-        currentEvent: payload.eventInfo,
-        currentEventType: payload.eventType
+        currentEvent: payload.currentEvent,
+        currentEventType: payload.currentEventType
+      };
+      break;
+
+    case UNSET_CURRENT_EVENT:
+      newState = {
+        ...state,
+        currentEvent: undefined,
+        currentEventType: undefined,
+        inviteSuccess: undefined,
+        inviteError: undefined
       };
       break;
 
@@ -56,13 +69,19 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         allEvents: payload.allEvents,
+        currentEvent: undefined,
+        currentEventType: undefined,
         inviteSuccess: true,
         inviteError: undefined
       };
       break;
 
     case INVITES_SENT_FAIL:
-      newState = { ...state, inviteSuccess: false, inviteError: payload.error };
+      newState = {
+        ...state,
+        inviteSuccess: false,
+        inviteError: payload.error
+      };
       break;
 
     case SET_CURRENT_GUESTS:

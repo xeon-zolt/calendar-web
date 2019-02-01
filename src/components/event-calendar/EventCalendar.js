@@ -3,7 +3,7 @@ import moment from "moment";
 import { Panel, Grid, Row, Col } from "react-bootstrap";
 import BigCalendar from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { uuid } from "../../io/eventFN";
+import { uuid } from "../../flow/io/eventFN";
 let localizer = BigCalendar.momentLocalizer(moment);
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
 
@@ -15,7 +15,6 @@ class EventCalendar extends Component {
     };
 
     this.bound = [
-      "handleHide",
       "handleHideInstructions",
       "handleAddEvent",
       "handleEditEvent",
@@ -30,44 +29,28 @@ class EventCalendar extends Component {
     this.props.initializeEvents();
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.inviteSuccess) {
-      this.setState({ eventModal: undefined });
-    }
-    if (nextProps.currentEvent) {
-      const eventType = nextProps.currentEventType || "view";
-      const eventInfo = nextProps.currentEvent;
-      this.setState({
-        eventModal: { eventType, eventInfo }
-      });
-    }
-  }
-  handleHide() {
-    this.setState({ eventModal: undefined });
-  }
-
   handleHideInstructions() {
     this.props.hideInstructions();
   }
+
   handleViewAllCalendars() {
     this.props.showAllCalendars();
   }
+
   handleEditEvent(event) {
-    this.setState({
-      eventModal: {
-        eventType: event.mode || "edit",
-        eventInfo: event
-      }
+    const { pickEventModal } = this.props;
+    pickEventModal({
+      eventType: event.mode || "edit",
+      eventInfo: event
     });
   }
 
   handleAddEvent(slotInfo) {
+    const { pickEventModal } = this.props;
     slotInfo.uid = uuid();
-    this.setState({
-      eventModal: {
-        eventType: "add",
-        eventInfo: slotInfo
-      }
+    pickEventModal({
+      eventType: "add",
+      eventInfo: slotInfo
     });
   }
 
@@ -95,6 +78,7 @@ class EventCalendar extends Component {
   }
 
   render() {
+    console.log("[EventCalendar.render]", this.props);
     const {
       signedIn,
       views,
@@ -102,23 +86,24 @@ class EventCalendar extends Component {
       myPublicCalendarIcsUrl,
       publicCalendar,
       publicCalendarEvents,
-      showGeneralInstructions
+      showGeneralInstructions,
+      eventModal
     } = this.props;
+    const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {
-      handleHide,
       handleHideInstructions,
       handleEditEvent,
       handleAddEvent,
       handleViewAllCalendars
     } = this.bound;
+
     let events = Object.values(this.props.events.allEvents);
     let shareUrl = null;
     if (myPublicCalendar) {
-      // TODO proper filtering : const calendarName = myPublicCalendar.split("@")[0];
-      events = events.filter(e => {
-        return e.public && e.calendarName === "default";
-      });
+      events = events.filter(
+        e => e.public && e.calendarName === myPublicCalendar
+      );
       shareUrl =
         window.location.origin + "/?intent=view&name=" + myPublicCalendar;
     } else if (publicCalendarEvents) {
@@ -143,6 +128,7 @@ class EventCalendar extends Component {
         endAccessor={this.getEventEnd}
       />
     );
+
     return (
       <div className="bodyContainer">
         {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions?
@@ -185,7 +171,7 @@ class EventCalendar extends Component {
                       />
                     </Col>
                     <Col md={10}>
-                      <strong>Move from Google Calendar</strong>: Done in a
+                      <strong>Move from Google Calendar</strong>: Done in a few
                       minutes! Follow the{" "}
                       <a href="https://github.com/friedger/oi-calendar">
                         2-steps tutorial
@@ -220,9 +206,7 @@ class EventCalendar extends Component {
             </Panel.Body>
           </Panel>
         )}
-        {this.state.eventModal && (
-          <EventDetails handleHide={handleHide} {...this.state.eventModal} />
-        )}
+        {eventModal && <EventDetails />}
         {(myPublicCalendar || publicCalendar) && (
           <Panel>
             <Panel.Heading>

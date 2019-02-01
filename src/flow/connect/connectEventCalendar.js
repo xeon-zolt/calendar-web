@@ -1,12 +1,17 @@
 import { connect } from "react-redux";
-import EventCalendar from "../components/event-calendar/EventCalendar";
-import { showAllCalendars, hideInstructions } from "../store/event/eventAction";
+
+import { setCurrentEvent } from "../store/event/eventAction";
+import {
+  showAllCalendars,
+  hideInstructions
+} from "../store/event/eventActionLazy";
 
 export default connect(
   (state, redux) => {
     const { events, auth } = state;
     const { EventDetails } = state.lazy;
     const signedIn = !!auth.user;
+    console.log("[CALENDAR_REDUX]", events);
     const {
       inviteSuccess,
       currentEvent,
@@ -18,14 +23,24 @@ export default connect(
       showInstructions
     } = events || {};
 
+    let eventModal;
+    if (currentEvent) {
+      const eventType = currentEventType || "view"; // "add", "edit", "read-only"
+      const eventInfo = currentEvent;
+      eventModal = { eventType, eventInfo };
+    }
+
     const showGeneralInstructions = showInstructions
       ? showInstructions.general
       : true;
+
     return {
       events,
       signedIn,
-      inviteSuccess,
-      views: { EventDetails },
+      views: {
+        EventDetails
+      },
+      eventModal,
       currentEvent,
       currentEventType,
       myPublicCalendar,
@@ -43,7 +58,15 @@ export default connect(
       },
       hideInstructions: () => {
         dispatch(hideInstructions());
+      },
+      pickEventModal: eventModal => {
+        console.log("[pickEventModal]", eventModal);
+        const {
+          eventType: currentEventType,
+          eventInfo: currentEvent
+        } = eventModal;
+        dispatch(setCurrentEvent({ currentEvent, currentEventType }));
       }
     };
   }
-)(EventCalendar);
+);
