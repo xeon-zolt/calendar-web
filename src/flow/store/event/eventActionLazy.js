@@ -262,35 +262,23 @@ function viewPublicCalendar(name) {
 }
 
 function loadCalendarData(calendars) {
-  let calendarEvents = {};
-  let calendarPromises = Promise.resolve(calendarEvents);
-  for (let i in calendars) {
-    const calendar = calendars[i];
-    calendarPromises = calendarPromises.then(calendarEvents => {
-      return importCalendarEvents(calendar, defaultEvents).then(
-        events => {
-          calendarEvents[calendar.name] = {
-            name: calendar.name,
-            allEvents: events
-          };
-          return calendarEvents;
-        },
-        error => {
-          console.log(error);
-          return calendarEvents;
-        }
-      );
-    });
-  }
-  return calendarPromises.then(calendarEvents => {
-    var allCalendars = Object.values(calendarEvents);
-    console.log("allCalendars", allCalendars);
-    var allEvents = allCalendars
-      .map(c => c.allEvents)
-      .reduce((acc, cur, i) => {
-        return { ...acc, ...cur };
-      }, {});
-    return allEvents;
+  var promises = calendars.map(function(calendar) {
+    return importCalendarEvents(calendar, defaultEvents).then(
+      events => {
+        return { name: calendar.name, events };
+      },
+      error => {
+        console.log("[ERROR.loadCalendarData]", error);
+        return;
+      }
+    );
+  });
+
+  return Promise.all(promises).then(allCalendars => {
+    return allCalendars.reduce((acc, cur, i) => {
+      const events = cur.events;
+      return { ...acc, ...events };
+    }, {});
   });
 }
 
