@@ -21,7 +21,7 @@ export function initializeLazy(store) {
     type: SET_LAZY_VIEW,
     payload: {
       EventDetails: connectToStore(EventDetails, connectEventDetails, store),
-      GuestLists: connectToStore(GuestList, connectGuestList, store),
+      GuestList: connectToStore(GuestList, connectGuestList, store),
       UserProfile: connectToStore(UserProfile, connectUserProfile, store)
     }
   });

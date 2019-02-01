@@ -84,7 +84,14 @@ function asAction_invitesSentFail(error) {
 
 export function sendInvites(eventInfo, guests, type) {
   return async (dispatch, getState) => {
-    sendInvitesToGuests(getState(), eventInfo, guests).then(
+    const state = getState();
+    sendInvitesToGuests(
+      state.events.contacts,
+      state.auth.user,
+      eventInfo,
+      guests,
+      state.events.userSessionChat
+    ).then(
       ({ eventInfo, contacts }) => {
         let { allEvents } = getState();
         if (type === "add") {
@@ -111,24 +118,15 @@ function asAction_setGuests(profiles, eventInfo) {
 }
 
 export function loadGuestList(guests, contacts, asyncReturn) {
-  loadGuestProfiles(guests, contacts).then(asyncReturn, error => {
-    console.log("load guest list failed", error);
-  });
-}
-
-export function loadGuestListOld(guests, eventInfo) {
-  return async (dispatch, getState) => {
-    const contacts = getState().events.contacts;
-    loadGuestProfiles(guests, contacts).then(
-      ({ profiles, contacts }) => {
-        console.log("profiles", profiles);
-        dispatch(asAction_setGuests(profiles, eventInfo));
-      },
-      error => {
-        console.log("load guest list failed", error);
-      }
-    );
-  };
+  console.log("loadGuestList", guests, contacts);
+  loadGuestProfiles(guests, contacts).then(
+    ({ profiles, contacts }) => {
+      asyncReturn({ profiles, contacts });
+    },
+    error => {
+      console.log("load guest list failed", error);
+    }
+  );
 }
 
 // ################

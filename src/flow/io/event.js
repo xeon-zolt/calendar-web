@@ -59,11 +59,22 @@ function asInviteEvent(d, username) {
   d.pubKey = pubKey;
   d.uid = d.uid || uuid();
   d.owner = username;
+  return d;
 }
 
-export function sendInvitesToGuests(state, eventInfo, guests) {
-  const contacts = state.events.contacts;
-  eventInfo = asInviteEvent(eventInfo, state.auth.user.username);
+export function sendInvitesToGuests(
+  contacts,
+  user,
+  eventInfoRaw,
+  guests,
+  chatSession
+) {
+  const username = user.username;
+  const eventInfo = asInviteEvent(eventInfoRaw, username);
+  if (!eventInfo) {
+    console.log("[ERROR]", eventInfoRaw, eventInfo);
+    return;
+  }
   return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
@@ -76,7 +87,14 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
           return lookupProfile(guest).then(
             guestProfile => {
               console.log("found guest ", guestProfile.name);
-              return addGuest(guest, eventInfo, contacts, state);
+              return addGuest(
+                guest,
+                eventInfo,
+                contacts,
+                chatSession,
+                username,
+                user
+              );
             },
             error => {
               console.log("invalid guest " + guest, error);
@@ -100,7 +118,7 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
   });
 }
 
-function addGuest(guest, eventInfo, contacts, state) {
+function addGuest(guest, eventInfo, contacts, chatSession, username, user) {
   var roomPromise;
   if (contacts[guest] && contacts[guest].roomId) {
     console.log("reusing room");
@@ -110,8 +128,8 @@ function addGuest(guest, eventInfo, contacts, state) {
     if (!contacts[guest]) {
       contacts[guest] = {};
     }
-    roomPromise = state.events.userSessionChat.createNewRoom(
-      "Events with " + state.events.user.username,
+    roomPromise = chatSession.createNewRoom(
+      "Events with " + username,
       "Invitations, Updates,.."
     );
   }
@@ -123,11 +141,11 @@ function addGuest(guest, eventInfo, contacts, state) {
 
       return sendInviteMessage(
         guest,
-        state.events.userSessionChat,
+        chatSession,
         roomId,
         eventInfo,
-        state.auth.user.username,
-        getUserAppAccount(state.auth.user)
+        username,
+        getUserAppAccount(user)
       )
         .then(() => {
           return { contacts, eventInfo };

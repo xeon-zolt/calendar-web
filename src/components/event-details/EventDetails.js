@@ -23,6 +23,86 @@ function checkHasGuests(str) {
   return guests.filter(g => g.length > 0).length > 0;
 }
 
+class SendInvitesModal extends Component {
+  constructor(props) {
+    super(props);
+    console.log("SendInvitesModal");
+    this.state = { sending: true, profiles: undefined };
+
+    const { guests } = props;
+    if (typeof guests !== "string") {
+      guests = "";
+    }
+    const guestList = guests.toLowerCase().split(/[,\s]+/g);
+    console.log("dispatch load guest list", guestList);
+
+    props.loadGuestList(guestList, ({ profiles, contacts }) => {
+      console.log("profiles", profiles);
+      this.setState({ profiles });
+      // dispatch(setGuestList);
+      // dispatch(asAction_setGuests(profiles, eventInfo));
+    });
+  }
+
+  /*
+  const { showInvitesModal, sending } = this.state;
+  this.setState({
+    showInvitesModal:
+      showInvitesModal &&
+      !(!!nextProps.guests || !!nextProps.inviteError),
+    sending:
+      sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
+  });
+  */
+
+  // console.log("[ConnectedGuestList]", state);
+
+  /*
+  console.log("[popInvitesModal]", eventDetail);
+  const { loadGuestList, updateCurrentEvent } = this.props;
+
+  // updateCurrentEvent(eventDetail);
+  let { guests } = eventDetail;
+
+
+  */
+
+  render() {
+    const {
+      title,
+      showInvitesModal,
+      handleInvitesHide,
+      sending,
+      inviteError,
+      inviteErrorMsg,
+      sendInvites,
+      views,
+      GuestList
+    } = this.props;
+
+    const { profiles } = this.state;
+    return (
+      <Modal show={true} onHide={handleInvitesHide}>
+        <Modal.Header closeButton>
+          <Modal.Title id="contained-modal-title">{title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Send invites according to their Blockstack settings:
+          {GuestList && <GuestList guests={profiles} />}
+          {sending && !inviteError && <ProgressBar active now={50} />}
+          {inviteError && inviteErrorMsg}
+          <Modal.Footer>
+            <Button bsStyle="success" onClick={() => sendInvites(profiles)}>
+              Send
+            </Button>
+            <Button onClick={handleInvitesHide}>Close</Button>
+          </Modal.Footer>
+        </Modal.Body>
+      </Modal>
+    );
+  }
+}
+
 class EventDetails extends Component {
   constructor(props) {
     super(props);
@@ -127,11 +207,12 @@ class EventDetails extends Component {
     eventDetail.noInvites = true;
   }
 
-  sendInvites() {
+  sendInvites(profiles) {
     const { sendInvites, eventType, eventDetail } = this.props;
     this.setState({ sending: true });
     const guestsString = eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
+    console.log("[sendInvites]", eventDetail, profiles);
     sendInvites(eventDetail, guests, eventType);
   }
 
@@ -139,8 +220,15 @@ class EventDetails extends Component {
     console.log("[EVENDETAILS.render]", this.props);
     const { showInvitesModal, sending } = this.state;
     const { handleClose } = this.bound;
-    const { views, inviteError, eventType, eventDetail } = this.props;
+    const {
+      views,
+      inviteError,
+      eventType,
+      eventDetail,
+      loadGuestList
+    } = this.props;
     const { GuestList } = views;
+    console.log("VIEWS", views, GuestList);
     const {
       handleDataChange,
       handleInvitesHide,
@@ -151,7 +239,7 @@ class EventDetails extends Component {
       deleteEvent
     } = this.bound;
     const hasGuests = checkHasGuests(eventDetail.guests);
-    console.log("hasGuests", hasGuests);
+    // console.log("hasGuests", hasGuests);
     var inviteErrorMsg = [];
     if (inviteError) {
       const error = inviteError;
@@ -289,25 +377,20 @@ class EventDetails extends Component {
           <Button onClick={handleClose}>Close</Button>
         </Modal.Footer>
 
-        <Modal show={showInvitesModal} onHide={handleInvitesHide}>
-          <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title">
-              {eventDetail.title}
-            </Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Send invites according to their Blockstack settings:
-            {GuestList && <GuestList guests={eventDetail.guests} />}
-            {sending && !inviteError && <ProgressBar active now={50} />}
-            {inviteError && inviteErrorMsg}
-            <Modal.Footer>
-              <Button bsStyle="success" onClick={() => sendInvites()}>
-                Send
-              </Button>
-              <Button onClick={handleInvitesHide}>Close</Button>
-            </Modal.Footer>
-          </Modal.Body>
-        </Modal>
+        {showInvitesModal && (
+          <SendInvitesModal
+            guests={eventDetail.guests}
+            title={eventDetail.title}
+            showInvitesModal={showInvitesModal}
+            handleInvitesHide={handleInvitesHide}
+            sending={sending}
+            inviteError={inviteError}
+            inviteErrorMsg={inviteError}
+            GuestList={GuestList}
+            sendInvites={sendInvites}
+            loadGuestList={loadGuestList}
+          />
+        )}
       </Modal>
     );
   }

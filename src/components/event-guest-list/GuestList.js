@@ -38,6 +38,7 @@ export const Guest = ({ guest, username }) => {
 class GuestList extends Component {
   render() {
     const guests = this.props.guests;
+    // :Q: when is this supposed to be used. The webservice returns all guests "profiles" at once
     const numberOfGuests = this.props.guestsCount || 1;
     const numberOfGuestsLoaded = this.props.guestsLoaded || 0;
     let guestView;
@@ -45,10 +46,12 @@ class GuestList extends Component {
     if (guests) {
       guestView = renderGuestList(guests);
     } else if (numberOfGuests > 0) {
+      // :WARN: This branch is never called
       guestView = (
         <div>
           loading guests' details..
           <br />
+          {JSON.stringify(guests)}
           <ProgressBar
             active
             now={((numberOfGuestsLoaded + 1) * 100) / (numberOfGuests + 1)}
@@ -58,42 +61,8 @@ class GuestList extends Component {
     } else {
       guestView = <div>There is nobody on the guest list..</div>;
     }
+
     return <section>{guestView}</section>;
-  }
-
-  componentWillReceiveProps(nextProps) {
-    /*
-    const { showInvitesModal, sending } = this.state;
-    this.setState({
-      showInvitesModal:
-        showInvitesModal &&
-        !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
-      sending:
-        sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
-    });
-    */
-
-    console.log("GuestList.didMount");
-    // console.log("[ConnectedGuestList]", state);
-
-    /*
-    console.log("[popInvitesModal]", eventDetail);
-    const { loadGuestList, updateCurrentEvent } = this.props;
-
-    // updateCurrentEvent(eventDetail);
-    let { guests } = eventDetail;
-    if (typeof guests !== "string") {
-      guests = "";
-    }
-    const guestList = guests.toLowerCase().split(/[,\s]+/g);
-    console.log("dispatch load guest list", guestList, eventDetail);
-    loadGuestList(guestList, ({ profiles, contacts }) => {
-      console.log("profiles", profiles);
-      this.setState({ guestListLoaded: true });
-      // dispatch(setGuestList);
-      // dispatch(asAction_setGuests(profiles, eventInfo));
-    });
-    */
   }
 }
 
