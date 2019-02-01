@@ -303,7 +303,7 @@ export function deleteEvent(event) {
   };
 }
 
-export function addEvent(event, details) {
+export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState();
     let { allEvents } = state.events;
@@ -321,7 +321,7 @@ export function addEvent(event, details) {
   };
 }
 
-export function updateEvent(event, details) {
+export function updateEvent(event) {
   return async (dispatch, getState) => {
     let { allEvents } = getState().events;
     var eventInfo = event;
