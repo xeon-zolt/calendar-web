@@ -1,8 +1,3 @@
-const fn = x => {
-  return 3;
-};
-console.log(fn(3));
-/*
 var assert = require("assert");
 var storeManager = require("../src/flow/store/storeManager");
 var eventAction = require("../src/flow/store/event/eventAction");
@@ -25,5 +20,3 @@ describe("CRUD Events", () => {
     it("should remove the event", () => {});
   });
 });
-
-*/
