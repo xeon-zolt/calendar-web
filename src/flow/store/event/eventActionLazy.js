@@ -4,6 +4,7 @@ import {
   INVITES_SENT_FAIL,
   SET_CURRENT_GUESTS,
   USER,
+  SET_CURRENT_EVENT,
   SET_CONTACTS,
   SET_CALENDARS,
   SHOW_SETTINGS_ADD_CALENDAR,
@@ -71,22 +72,18 @@ export function initializeChat() {
 // INVITES
 // #########################
 
-function asAction_invitesSentOk(allEvents) {
+function asAction_invitesSentOk(eventInfo, type) {
   return {
     type: INVITES_SENT_OK,
-    payload: { allEvents }
+    payload: { eventInfo, type }
   };
 }
 
-function asAction_invitesSentFail(error, eventType, eventInfo) {
+function asAction_invitesSentFail(error) {
   return {
     type: INVITES_SENT_FAIL,
-    payload: { error, eventType, eventInfo }
+    payload: { error }
   };
-}
-
-export function unsetCurrentInvites() {
-  return { type: UNSET_CURRENT_INVITES };
 }
 
 export function sendInvites(eventInfo, guests, type) {
@@ -100,8 +97,8 @@ export function sendInvites(eventInfo, guests, type) {
       state.events.userSessionChat
     ).then(
       ({ eventInfo, contacts }) => {
-        let { allEvents } = getState().events;
-        if (type === "add" || type === "edit") {
+        let { allEvents } = getState();
+        if (type === "add") {
           allEvents[eventInfo.uid] = eventInfo;
           saveEvents("default", allEvents);
         }
@@ -150,6 +147,14 @@ function asAction_disconnected() {
 
 function asAction_user(userData) {
   return { type: USER, user: userData };
+}
+
+function asAction_viewEvent(eventInfo, eventType) {
+  let payload = { eventInfo };
+  if (eventType) {
+    payload.eventType = eventType;
+  }
+  return { type: SET_CURRENT_EVENT, payload };
 }
 
 function asAction_setEvents(allEvents) {
@@ -204,7 +209,7 @@ export function initializeLazyActions() {
             dispatch(asAction_setEvents(allEvents));
           })
         )
-      dispatch(initializeContactData());
+       dispatch(initializeContactData());
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
@@ -287,6 +292,17 @@ function loadCalendarData(calendars) {
       return Promise.reject(error);
     }
   );
+}
+
+// ################
+// Events
+// ################
+
+export function saveAllEvents(allEvents, type = "default") {
+  return (dispatch, getState) => {
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
 }
 
 // ################

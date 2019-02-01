@@ -9,8 +9,14 @@ import {
   addEvent,
   deleteEvent,
   updateEvent,
+  saveAllEvents,
   unsetCurrentInvites
 } from "../../flow/store/event/eventActionLazy";
+
+import {
+  sendInvites,
+  loadGuestList
+} from "../../flow/store/event/contactActionLazy";
 
 const eventDefaults = {
   start: moment(),
@@ -47,8 +53,14 @@ export default connect(
       updateCurrentEvent: eventDetail => {
         dispatch(setCurrentEvent(eventDetail));
       },
-      sendInvites: (details, guests, eventType) =>
-        dispatch(sendInvites(details, guests, eventType)),
+      sendInvites: (eventInfo, guests, actionType) =>
+        dispatch(sendInvites(eventInfo, guests)).then(() => {
+          let { allEvents } = redux.store.getState().events;
+          if (actionType === "add" || actionType === "edit") {
+            allEvents[eventInfo.uid] = eventInfo;
+          }
+          dispatch(saveAllEvents(allEvents));
+        }),
       unsetInviteError: () => {
         dispatch(unsetCurrentInvites());
       },
