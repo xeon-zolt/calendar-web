@@ -16,6 +16,7 @@ import {
   Component as iCalComponent,
   Event as iCalEvent
 } from "ical.js";
+
 import { BlockstackNetwork } from "blockstack/lib/network";
 import { getUserAppFileUrl } from "blockstack/lib/storage";
 
@@ -228,9 +229,6 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
       if (d && typeof d === "string") {
         d = JSON.parse(d);
       }
-      if (!d) {
-        d = {};
-      }
       return d;
     });
 }
@@ -404,6 +402,7 @@ export function loadPublicCalendar(calendarName, username) {
     return { allEvents, calendar };
   });
 }
+
 function publishCalendar(events, filepath, contentType) {
   putOnBlockstack(filepath, JSON.stringify(events), {
     encrypt: false,
@@ -417,7 +416,6 @@ function publishCalendar(events, filepath, contentType) {
     }
   );
 }
-
 export function publishEvents(param, updatePublicEvents) {
   const publicEventPath = "public/AllEvents";
   fetchFromBlockstack(publicEventPath, {

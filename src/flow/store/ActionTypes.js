@@ -1,5 +1,5 @@
 // Views
-export const SET_VIEW = "view.SET_VIEW";
+export const SET_LAZY_VIEW = "view.SET_LAZY_VIEW";
 // Auth
 export const AUTH_SIGN_IN = "auth.SIGN_IN";
 export const AUTH_SIGN_OUT = "auth.SIGN_OUT";
@@ -14,6 +14,8 @@ export const INITIALIZE_CHAT = "chat.INITIALIZE_CHAT";
 export const EVENTS_ENABLED = "events.EVENTS_ENABLED";
 export const SET_EVENTS = "events.SET_EVENTS";
 export const VIEW_EVENT = "events.VIEW_EVENT";
+export const SET_CURRENT_EVENT = "events.SET_CURRENT_EVENT";
+export const UNSET_CURRENT_EVENT = "events.UNSET_CURRENT_EVENT";
 
 // Contacts
 export const USER = "contacts.USER";

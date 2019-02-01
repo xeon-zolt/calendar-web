@@ -36,6 +36,7 @@ import {
   fetchPreferences,
   fetchIcsUrl
 } from "../../io/event";
+
 import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
 
@@ -109,7 +110,13 @@ function asAction_setGuests(profiles, eventInfo) {
   };
 }
 
-export function loadGuestList(guests, eventInfo) {
+export function loadGuestList(guests, contacts, asyncReturn) {
+  loadGuestProfiles(guests, contacts).then(asyncReturn, error => {
+    console.log("load guest list failed", error);
+  });
+}
+
+export function loadGuestListOld(guests, eventInfo) {
   return async (dispatch, getState) => {
     const contacts = getState().events.contacts;
     loadGuestProfiles(guests, contacts).then(
@@ -187,7 +194,7 @@ export function initializeEvents() {
       fetchPreferences().then(preferences => {
         dispatch(
           asAction_showInstructions(
-            preferences.showInstructions
+            preferences && preferences.showInstructions
               ? preferences.showInstructions.general
               : true
           )
@@ -369,6 +376,7 @@ export function showMyPublicCalendar(name) {
     });
   };
 }
+
 export function asAction_showAllCalendars() {
   return { type: SHOW_ALL_CALENDARS };
 }

@@ -23,13 +23,6 @@ function checkHasGuests(str) {
   return guests.filter(g => g.length > 0).length > 0;
 }
 
-const eventDefaults = {
-  start: moment(),
-  end: moment(),
-  allDay: false,
-  hexColor: "#265985"
-};
-
 class EventDetails extends Component {
   constructor(props) {
     super(props);
@@ -38,15 +31,15 @@ class EventDetails extends Component {
     this.state = {
       showModal: this.props.showModal,
       showInvitesModal: false,
-      eventDetail: Object.assign({}, eventDefaults, eventInfo),
       sending: false
     };
 
-    console.log(eventInfo);
+    // console.log(eventInfo);
 
     this.bound = [
       "handleDataChange",
       "handleInvitesHide",
+      "handleClose",
       "popInvitesModal",
       "sendInvites",
       "addEvent",
@@ -58,11 +51,14 @@ class EventDetails extends Component {
     }, {});
   }
 
+  handleClose() {
+    console.log("HANDLE_CLOSE");
+    const { unsetCurrentEvent } = this.props;
+    unsetCurrentEvent();
+  }
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state;
-
     this.setState({
-      eventDetail: Object.assign({}, eventDefaults, nextProps.eventInfo),
       showInvitesModal:
         showInvitesModal &&
         !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
@@ -72,7 +68,7 @@ class EventDetails extends Component {
   }
 
   handleDataChange(e, ref) {
-    var { eventDetail } = this.state;
+    var { eventDetail } = this.props;
     var val = "";
     if (ref !== "allDay" && ref !== "public") {
       if (ref === "start" || ref === "end") {
@@ -89,15 +85,15 @@ class EventDetails extends Component {
   }
 
   addEvent() {
-    const { eventDetail } = this.state;
-    const { addEvent, handleHide } = this.props;
+    const { addEvent, eventDetail } = this.props;
+    const { popInvitesModal, handleClose } = this.bound;
     const { guests, noInvites } = eventDetail;
     console.log("add event", eventDetail, checkHasGuests(guests));
     if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail);
-      handleHide();
+      handleClose();
     } else {
-      this.popInvitesModal(eventDetail);
+      popInvitesModal(eventDetail);
     }
   }
 
@@ -107,37 +103,32 @@ class EventDetails extends Component {
 
   deleteEvent(obj) {
     console.log("deleteEvent");
-    const { deleteEvent, handleHide } = this.props;
+    const { handleClose } = this.bound;
+    const { deleteEvent } = this.props;
     deleteEvent(obj);
-    handleHide();
+    handleClose();
   }
 
-  updateEvent(obj) {
-    const { updateEvent, handleHide } = this.props;
-    updateEvent(obj);
-    handleHide();
+  updateEvent(eventDetail) {
+    console.log("[updateEvent]", eventDetail);
+    const { handleClose } = this.bound;
+    const { updateEvent } = this.props;
+    updateEvent(eventDetail);
+    handleClose();
   }
 
   popInvitesModal(eventDetail) {
-    let { guests } = eventDetail;
-    const { loadGuestList } = this.props;
-    if (typeof guests !== "string") {
-      guests = "";
-    }
-    const guestList = guests.toLowerCase().split(/[,\s]+/g);
-    loadGuestList(guestList, eventDetail);
     this.setState({ showInvitesModal: true });
   }
 
   handleInvitesHide() {
-    const { eventDetail } = this.state;
+    const { eventDetail } = this.props;
     this.setState({ showInvitesModal: false });
     eventDetail.noInvites = true;
   }
 
   sendInvites() {
-    const { eventDetail } = this.state;
-    const { eventType, sendInvites } = this.props;
+    const { sendInvites, eventType, eventDetail } = this.props;
     this.setState({ sending: true });
     const guestsString = eventDetail.guests;
     const guests = guestsStringToArray(guestsString);
@@ -145,8 +136,10 @@ class EventDetails extends Component {
   }
 
   render() {
-    const { eventDetail, showInvitesModal, sending } = this.state;
-    const { views, handleHide, inviteError, eventType } = this.props;
+    console.log("[EVENDETAILS.render]", this.props);
+    const { showInvitesModal, sending } = this.state;
+    const { handleClose } = this.bound;
+    const { views, inviteError, eventType, eventDetail } = this.props;
     const { GuestList } = views;
     const {
       handleDataChange,
@@ -179,7 +172,7 @@ class EventDetails extends Component {
       }
     }
     return (
-      <Modal show={true} onHide={handleHide}>
+      <Modal show={true} onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
@@ -233,10 +226,10 @@ class EventDetails extends Component {
             onChange={e => handleDataChange(e, "notes")}
           />
 
-          <label> Guests (experimental)</label>
+          <label> Guests </label>
           <textarea
             className="form-control"
-            placeholder="bob.id, alice.id.blockstack,.."
+            placeholder="Event guests"
             ref="guests"
             value={eventDetail.guests || ""}
             onChange={e => handleDataChange(e, "guests")}
@@ -293,7 +286,7 @@ class EventDetails extends Component {
               </Button>
             </React.Fragment>
           )}
-          <Button onClick={handleHide}>Close</Button>
+          <Button onClick={handleClose}>Close</Button>
         </Modal.Footer>
 
         <Modal show={showInvitesModal} onHide={handleInvitesHide}>
@@ -304,7 +297,7 @@ class EventDetails extends Component {
           </Modal.Header>
           <Modal.Body>
             Send invites according to their Blockstack settings:
-            <GuestList guests={eventDetail.guests} />
+            {GuestList && <GuestList guests={eventDetail.guests} />}
             {sending && !inviteError && <ProgressBar active now={50} />}
             {inviteError && inviteErrorMsg}
             <Modal.Footer>

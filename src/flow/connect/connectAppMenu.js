@@ -2,8 +2,7 @@ import { connect } from "react-redux";
 import {
   asAction_showSettings,
   showMyPublicCalendar
-} from "../store/event/eventAction";
-import AppMenu from "../components/app-menu/AppMenu";
+} from "../store/event/eventActionLazy";
 
 export default connect(
   (state, redux) => {
@@ -23,4 +22,4 @@ export default connect(
       }
     };
   }
-)(AppMenu);
+);

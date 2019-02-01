@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ProgressBar, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { ProgressBar } from "react-bootstrap";
 
 const GUEST_BASE = "https://debutapp.social/";
 
@@ -15,6 +15,7 @@ function renderGuestList(guests) {
 }
 
 export const Guest = ({ guest, username }) => {
+  console.log("UI guest", guest);
   const guestUrl = GUEST_BASE + username;
   var avatarUrl;
   if (guest.image && guest.image.length > 0 && guest.image[0].contentUrl) {
@@ -26,24 +27,10 @@ export const Guest = ({ guest, username }) => {
   if (!name) {
     name = guest.username;
   }
-  const commMethodUrl = "/images/oichat.png";
   return (
     <div>
       <img src={avatarUrl} height="16px" alt="avatar" />
       <a href={guestUrl}>{name}</a>
-      <OverlayTrigger
-        placement="right"
-        overlay={
-          <Tooltip id={`tooltip`}>
-            OI Chat (chat.openintents.org) is a matrix service of Blockstack.
-          </Tooltip>
-        }
-      >
-        <span>
-          (via
-          <img src={commMethodUrl} height="16px" alt="avatar" />)
-        </span>
-      </OverlayTrigger>
     </div>
   );
 };
@@ -72,6 +59,41 @@ class GuestList extends Component {
       guestView = <div>There is nobody on the guest list..</div>;
     }
     return <section>{guestView}</section>;
+  }
+
+  componentWillReceiveProps(nextProps) {
+    /*
+    const { showInvitesModal, sending } = this.state;
+    this.setState({
+      showInvitesModal:
+        showInvitesModal &&
+        !(!!nextProps.inviteSuccess || !!nextProps.inviteError),
+      sending:
+        sending && !(!!nextProps.inviteSuccess || !!nextProps.inviteError)
+    });
+    */
+
+    console.log("GuestList.didMount");
+    // console.log("[ConnectedGuestList]", state);
+
+    /*
+    console.log("[popInvitesModal]", eventDetail);
+    const { loadGuestList, updateCurrentEvent } = this.props;
+
+    // updateCurrentEvent(eventDetail);
+    let { guests } = eventDetail;
+    if (typeof guests !== "string") {
+      guests = "";
+    }
+    const guestList = guests.toLowerCase().split(/[,\s]+/g);
+    console.log("dispatch load guest list", guestList, eventDetail);
+    loadGuestList(guestList, ({ profiles, contacts }) => {
+      console.log("profiles", profiles);
+      this.setState({ guestListLoaded: true });
+      // dispatch(setGuestList);
+      // dispatch(asAction_setGuests(profiles, eventInfo));
+    });
+    */
   }
 }
 
