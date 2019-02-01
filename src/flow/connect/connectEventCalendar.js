@@ -25,7 +25,7 @@ export default connect(
 
     let eventModal;
     if (currentEvent) {
-      const eventType = currentEventType || "view"; // "add", "edit", "read-only"
+      const eventType = currentEventType || "view"; // "add", "edit"
       const eventInfo = currentEvent;
       eventModal = { eventType, eventInfo };
     }

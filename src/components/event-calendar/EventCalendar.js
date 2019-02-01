@@ -40,7 +40,7 @@ class EventCalendar extends Component {
   handleEditEvent(event) {
     const { pickEventModal } = this.props;
     pickEventModal({
-      eventType: event.mode || "edit",
+      eventType: "edit",
       eventInfo: event
     });
   }
