@@ -34,10 +34,12 @@ export function loadGuestProfiles(guests, contacts) {
 
   for (var i in guests) {
     const guest = guests[i];
+    console.log("guest", guest);
     if (guest && guest.length > 0) {
       profilePromises = profilePromises.then(({ profiles, contacts }) => {
         return lookupProfile(guest).then(
           guestProfile => {
+            guestProfile.username = guest;
             profiles[guest] = guestProfile;
             return { profiles, contacts };
           },
@@ -59,9 +61,10 @@ function asInviteEvent(d, username) {
   d.pubKey = pubKey;
   d.uid = d.uid || uuid();
   d.owner = username;
+  return d;
 }
 
-export function sendInvitesToGuests(state, eventInfo, guests) {
+export function sendInvitesToGuests(state, eventInfo, guestProfiles) {
   const contacts = state.events.contacts;
   eventInfo = asInviteEvent(eventInfo, state.auth.user.username);
   return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
@@ -69,21 +72,16 @@ export function sendInvitesToGuests(state, eventInfo, guests) {
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
     var addGuestPromises = Promise.resolve({ contacts, eventInfo });
-    for (var i in guests) {
-      const guest = guests[i];
-      if (guest && guest.length > 0) {
+    for (var i in guestProfiles) {
+      const guestProfile = guestProfiles[i];
+      if (guestProfile) {
         addGuestPromises = addGuestPromises.then(({ contacts, eventInfo }) => {
-          return lookupProfile(guest).then(
-            guestProfile => {
-              console.log("found guest ", guestProfile.name);
-              return addGuest(guest, eventInfo, contacts, state);
-            },
-            error => {
-              console.log("invalid guest " + guest, error);
-              return Promise.resolve({ contacts, eventInfo });
-            }
-          );
+          console.log("found guest ", guestProfile.name);
+          return addGuest(guestProfile, eventInfo, contacts, state);
         });
+      } else {
+        console.log("invalid guest ", guestProfile);
+        return Promise.resolve({ contacts, eventInfo });
       }
     }
     return addGuestPromises.then(

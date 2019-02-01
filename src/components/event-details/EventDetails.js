@@ -4,6 +4,7 @@ import { Modal, Button, ProgressBar } from "react-bootstrap";
 import moment from "moment";
 
 import "../../css/datetime.css";
+import GuestList from "../event-guest-list/GuestList";
 
 var Datetime = require("react-datetime");
 
@@ -118,7 +119,13 @@ class EventDetails extends Component {
   }
 
   popInvitesModal(eventDetail) {
+    const { loadGuestList } = this.props;
     this.setState({ showInvitesModal: true });
+    const guestsString = eventDetail.guests;
+    const guests = guestsStringToArray(guestsString);
+    loadGuestList(guests, ({ profiles, contacts }) => {
+      this.setState({ guests: profiles });
+    });
   }
 
   handleInvitesHide() {
@@ -129,18 +136,16 @@ class EventDetails extends Component {
 
   sendInvites() {
     const { sendInvites, eventType, eventDetail } = this.props;
+    const { guests } = this.state;
     this.setState({ sending: true });
-    const guestsString = eventDetail.guests;
-    const guests = guestsStringToArray(guestsString);
     sendInvites(eventDetail, guests, eventType);
   }
 
   render() {
     console.log("[EVENDETAILS.render]", this.props);
-    const { showInvitesModal, sending } = this.state;
+    const { showInvitesModal, sending, guests } = this.state;
     const { handleClose } = this.bound;
-    const { views, inviteError, eventType, eventDetail } = this.props;
-    const { GuestList } = views;
+    const { inviteError, eventType, eventDetail } = this.props;
     const {
       handleDataChange,
       handleInvitesHide,
@@ -156,10 +161,7 @@ class EventDetails extends Component {
     if (inviteError) {
       const error = inviteError;
       if (error.errcode === "M_CONSENT_NOT_GIVEN") {
-        var linkUrl = error.message.substring(
-          error.message.indexOf("https://openintents.modular.im"),
-          error.message.length - 1
-        );
+        var linkUrl = error.consent_uri;
         inviteErrorMsg = (
           <div>
             Sending not possible. Please review{" "}
@@ -297,7 +299,7 @@ class EventDetails extends Component {
           </Modal.Header>
           <Modal.Body>
             Send invites according to their Blockstack settings:
-            {GuestList && <GuestList guests={eventDetail.guests} />}
+            <GuestList guests={guests} />
             {sending && !inviteError && <ProgressBar active now={50} />}
             {inviteError && inviteErrorMsg}
             <Modal.Footer>
