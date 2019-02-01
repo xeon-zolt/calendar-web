@@ -108,9 +108,7 @@ class EventCalendar extends Component {
     let events = Object.values(this.props.events.allEvents);
     let shareUrl = null;
     if (myPublicCalendar) {
-      events = events.filter(
-        e => e.public && e.calendarName === myPublicCalendar
-      );
+      events = events.filter(e => e.public && e.calendarName === "default");
       shareUrl =
         window.location.origin + "/?intent=view&name=" + myPublicCalendar;
     } else if (publicCalendarEvents) {

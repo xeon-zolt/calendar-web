@@ -370,13 +370,6 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
   );
 }
 
-/* This is here just to demonstrate how to load an event from a user */
-loadCalendarEventFromUser(
-  "friedger.id",
-  "307baf34-9ceb-492f-8dab-ab595f2a09df",
-  "e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6"
-);
-
 // END of import options
 
 export function addPublicEvent(eventInfo, publicEvents) {
