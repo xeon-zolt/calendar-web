@@ -64,7 +64,7 @@ export default connect(
           eventType: currentEventType,
           eventInfo: currentEvent
         } = eventModal;
-        dispatch(setCurrentEvent({ currentEvent, currentEventType }));
+        dispatch(setCurrentEvent(currentEvent, currentEventType));
       }
     };
   }

@@ -344,7 +344,7 @@ export function handleIntentsInQueryString(
     } else if (intent) {
       if (intent.toLowerCase() === "addevent") {
         const eventInfo = {};
-        eventInfo.title = title || "New Event";
+        eventInfo.title = decodeURI(title) || "New Event";
         eventInfo.start = start != null ? new Date(start) : new Date();
         eventInfo.end = end != null ? new Date(end) : null;
         eventInfo.owner = via != null ? via : username;

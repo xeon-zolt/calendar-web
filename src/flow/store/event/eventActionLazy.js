@@ -4,7 +4,6 @@ import {
   INVITES_SENT_FAIL,
   USER,
   SET_CONTACTS,
-  VIEW_EVENT,
   SET_CALENDARS,
   SHOW_SETTINGS_ADD_CALENDAR,
   INITIALIZE_CHAT,
@@ -40,7 +39,7 @@ import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
 
 import { uuid } from "../../io/eventFN";
-
+import { setCurrentEvent } from "./eventAction";
 import {
   isUserSignedIn,
   isSignInPending,
@@ -139,14 +138,6 @@ function asAction_user(userData) {
   return { type: USER, user: userData };
 }
 
-function asAction_viewEvent(eventInfo, eventType) {
-  let payload = { eventInfo };
-  if (eventType) {
-    payload.eventType = eventType;
-  }
-  return { type: VIEW_EVENT, payload };
-}
-
 function asAction_setEvents(allEvents) {
   return { type: SET_EVENTS, allEvents };
 }
@@ -176,9 +167,9 @@ export function initializeEvents() {
         query,
         userData.username,
         eventInfo => {
-          dispatch(asAction_viewEvent(eventInfo));
+          dispatch(setCurrentEvent(eventInfo, "add"));
         },
-        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
         url => dispatch(asAction_showSettingsAddCalendar(url)),
         name => dispatch(viewPublicCalendar(name))
       );
@@ -220,9 +211,9 @@ export function initializeEvents() {
         query,
         null,
         eventInfo => {
-          dispatch(asAction_viewEvent(eventInfo));
+          dispatch(setCurrentEvent(eventInfo, "view"));
         },
-        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
         url => dispatch(asAction_showSettingsAddCalendar(url)),
         name => dispatch(viewPublicCalendar(name))
       );
