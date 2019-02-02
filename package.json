@@ -5,6 +5,8 @@
   "private": true,
   "dependencies": {
     "blockstack": "18.2.1",
+    "ical.js": "^1.3.0",
+    "ics": "^2.10.0",
     "matrix-js-sdk": "^0.14.3",
     "moment": "^2.22.1",
     "react": "^16.3.2",
@@ -22,12 +24,22 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
+    "testflow": "mocha spec/*.spec.js --compilers js:babel-core/register --presets @babel/preset-stage-2",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
   "devDependencies": {
-    "gh-pages": "^1.1.0"
+    "@babel/cli": "7.2.3",
+    "@babel/core": "7.2.2",
+    "@babel/node": "7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "@babel/preset-stage-2": "7.0.0",
+    "@babel/register": "7.0.0",
+    "babel-polyfill": "6.26.0",
+    "babel-preset-es2015": "6.24.1",
+    "gh-pages": "^1.1.0",
+    "mocha": "5.2.0"
   },
   "browserslist": [
     ">0.2%",
