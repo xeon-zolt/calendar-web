@@ -15,7 +15,8 @@ import {
   SHOW_MY_PUBLIC_CALENDAR,
   SHOW_ALL_CALENDARS,
   SET_PUBLIC_CALENDAR_EVENTS,
-  SHOW_INSTRUCTIONS
+  SHOW_INSTRUCTIONS,
+  AUTH_SIGN_OUT
 } from "../ActionTypes";
 
 let initialState = {
@@ -147,6 +148,9 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         showInstructions: { general: action.payload.show }
       };
+      break;
+    case AUTH_SIGN_OUT:
+      newState = initialState;
       break;
     default:
       newState = state;

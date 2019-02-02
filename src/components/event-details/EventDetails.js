@@ -286,10 +286,10 @@ class EventDetails extends Component {
             onChange={e => handleDataChange(e, "notes")}
           />
 
-          <label> Guests </label>
+          <label> Guests (experimental)</label>
           <textarea
             className="form-control"
-            placeholder="Event guests"
+            placeholder="bob.id, alice.id.blockstack,.."
             ref="guests"
             value={eventDetail.guests || ""}
             onChange={e => handleDataChange(e, "guests")}

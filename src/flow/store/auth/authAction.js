@@ -24,14 +24,10 @@ export function signUserIn(store) {
   };
 }
 
-export function asAction_SignUserOut() {
-  return { type: AUTH_SIGN_OUT };
-}
-
 export function signUserOut() {
   try {
     signUserOutService();
-    return asAction_SignUserOut();
+    return { type: AUTH_SIGN_OUT };
   } catch (e) {
     // eslint-disable-next-line no-console
     console.log(e);

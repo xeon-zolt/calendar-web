@@ -4,7 +4,6 @@ import {
   INVITES_SENT_FAIL,
   USER,
   SET_CONTACTS,
-  VIEW_EVENT,
   SET_CALENDARS,
   SHOW_SETTINGS_ADD_CALENDAR,
   INITIALIZE_CHAT,
@@ -15,6 +14,7 @@ import {
   SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
+import queryString from "query-string";
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 
 import {
@@ -40,7 +40,7 @@ import { createSessionChat } from "../../io/chat";
 import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
 
 import { uuid } from "../../io/eventFN";
-
+import { setCurrentEvent } from "./eventAction";
 import {
   isUserSignedIn,
   isSignInPending,
@@ -139,14 +139,6 @@ function asAction_user(userData) {
   return { type: USER, user: userData };
 }
 
-function asAction_viewEvent(eventInfo, eventType) {
-  let payload = { eventInfo };
-  if (eventType) {
-    payload.eventType = eventType;
-  }
-  return { type: VIEW_EVENT, payload };
-}
-
 function asAction_setEvents(allEvents) {
   return { type: SET_EVENTS, allEvents };
 }
@@ -176,9 +168,9 @@ export function initializeEvents() {
         query,
         userData.username,
         eventInfo => {
-          dispatch(asAction_viewEvent(eventInfo));
+          dispatch(setCurrentEvent(eventInfo, "add"));
         },
-        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
         url => dispatch(asAction_showSettingsAddCalendar(url)),
         name => dispatch(viewPublicCalendar(name))
       );
@@ -209,8 +201,7 @@ export function initializeEvents() {
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
-        console.log("redirecting to " + window.location.origin);
-        window.location = window.location.origin;
+        window.location.search = removeAuthResponse(window.location.search);
         dispatch(asAction_authenticated(userData));
       });
     } else {
@@ -220,14 +211,24 @@ export function initializeEvents() {
         query,
         null,
         eventInfo => {
-          dispatch(asAction_viewEvent(eventInfo));
+          dispatch(setCurrentEvent(eventInfo, "view"));
         },
-        eventInfo => dispatch(asAction_viewEvent(eventInfo, "add")),
+        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
         url => dispatch(asAction_showSettingsAddCalendar(url)),
         name => dispatch(viewPublicCalendar(name))
       );
     }
   };
+}
+
+function removeAuthResponse(search) {
+  const parsed = queryString.parse(search);
+  if (parsed.authResponse) {
+    delete parsed.authResponse;
+    return queryString.stringify(parsed);
+  } else {
+    return search;
+  }
 }
 
 function asAction_setPublicCalendarEvents(allEvents, calendar) {
