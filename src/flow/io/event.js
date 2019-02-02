@@ -62,7 +62,12 @@ export function sendInvitesToGuests(
   guestProfiles,
   chatSession
 ) {
-  const eventInfo = asInviteEvent(eventInfoRaw, user.username);
+  const username = user.username;
+  const eventInfo = asInviteEvent(eventInfoRaw, username);
+  if (!eventInfo) {
+    console.log("[ERROR]", eventInfoRaw, eventInfo);
+    return;
+  }
   return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
@@ -95,8 +100,10 @@ export function sendInvitesToGuests(
     }
     return addGuestPromises.then(
       ({ contacts, eventInfo }) => {
-        publishContacts(contacts);
-        return { contacts, eventInfo };
+        console.log("contacts", contacts);
+        return publishContacts(contacts).then(() => {
+          return { contacts, eventInfo };
+        });
       },
       error => {
         return Promise.reject(error);
@@ -320,6 +327,7 @@ function fetchAndParseIcal(src) {
 
 export function handleIntentsInQueryString(
   query,
+  convertEvent,
   username,
   whenPrivateEvent,
   whenNewEvent,
@@ -342,15 +350,10 @@ export function handleIntentsInQueryString(
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
-      if (intent.toLowerCase() === "addevent") {
-        const eventInfo = {};
-        eventInfo.title = decodeURIComponent(title) || "New Event";
-        eventInfo.start =
-          start != null ? new Date(decodeURIComponent(start)) : new Date();
-        eventInfo.end = end != null ? new Date(decodeURIComponent(end)) : null;
-        eventInfo.owner = via != null ? via : username;
-        whenNewEvent(eventInfo);
-      } else if (intent.toLowerCase() === "addics") {
+      intent = intent.toLowerCase();
+      if (intent === "addevent") {
+        whenNewEvent(convertEvent(title, start, end, via));
+      } else if (intent === "addics") {
         whenICSUrl(url);
       } else if (intent.toLowerCase() === "view") {
         whenPublicCalendar(name);
@@ -369,6 +372,13 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
     { username, eventUid }
   );
 }
+
+/* This is here just to demonstrate how to load an event from a user */
+loadCalendarEventFromUser(
+  "friedger.id",
+  "307baf34-9ceb-492f-8dab-ab595f2a09df",
+  "e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6"
+);
 
 // END of import options
 
@@ -446,6 +456,7 @@ export function publishEvents(param, updatePublicEvents) {
 }
 
 export function saveEvents(calendarName, allEvents) {
+  console.log("save", { calendarName, allEvents });
   const calendarEvents = Object.keys(allEvents)
     .filter(key => allEvents[key].calendarName === calendarName)
     .reduce((res, key) => {
@@ -461,6 +472,7 @@ export function fetchPreferences() {
 }
 
 export function fetchIcsUrl(calendarName) {
+  console.log("calendarName", calendarName);
   const parts = calendarName.split("@");
   const path = parts[0] + "/AllEvents.ics";
   const username = parts[1];

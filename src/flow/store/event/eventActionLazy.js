@@ -68,71 +68,6 @@ export function initializeChat() {
   };
 }
 
-// #########################
-// INVITES
-// #########################
-
-function asAction_invitesSentOk(eventInfo, type) {
-  return {
-    type: INVITES_SENT_OK,
-    payload: { eventInfo, type }
-  };
-}
-
-function asAction_invitesSentFail(error) {
-  return {
-    type: INVITES_SENT_FAIL,
-    payload: { error }
-  };
-}
-
-export function sendInvites(eventInfo, guests, type) {
-  return async (dispatch, getState) => {
-    const state = getState();
-    sendInvitesToGuests(
-      state.events.contacts,
-      state.auth.user,
-      eventInfo,
-      guests,
-      state.events.userSessionChat
-    ).then(
-      ({ eventInfo, contacts }) => {
-        let { allEvents } = getState();
-        if (type === "add") {
-          allEvents[eventInfo.uid] = eventInfo;
-          saveEvents("default", allEvents);
-        }
-        dispatch(asAction_invitesSentOk(allEvents));
-      },
-      error => {
-        dispatch(asAction_invitesSentFail(error));
-      }
-    );
-  };
-}
-
-// #########################
-// GUESTS
-// #########################
-function asAction_setGuests(profiles, eventInfo) {
-  return {
-    type: SET_CURRENT_GUESTS,
-    payload: { profiles, eventInfo }
-  };
-}
-
-export function loadGuestList(guests, contacts, asyncReturn) {
-  console.log("loadGuestList", guests, contacts);
-  loadGuestProfiles(guests, contacts).then(
-    ({ profiles, contacts }) => {
-      asyncReturn({ profiles, contacts });
-    },
-    error => {
-      console.log("load guest list failed", error);
-    }
-  );
-}
-
 // ################
 // LOAD USER DATA
 // ################
@@ -181,28 +116,8 @@ export function initializeLazyActions() {
       const userData = loadUserData();
       dispatch(asAction_authenticated(userData));
       dispatch(asAction_user(userData));
-
-      handleIntentsInQueryString(
-        query,
-        userData.username,
-        eventInfo => {
-          dispatch(setCurrentEvent(eventInfo, "add"));
-        },
-        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
-        url => dispatch(showSettingsAddCalendar(url)),
-        name => dispatch(viewPublicCalendar(name))
-      );
-
-      fetchPreferences().then(preferences => {
-        dispatch(
-          asAction_showInstructions(
-            preferences && preferences.showInstructions
-              ? preferences.showInstructions.general
-              : true
-          )
-        );
-      });
-
+      dispatch(initializeQueryString(query, userData.username));
+      dispatch(initializePreferences());
       dispatch(initializeCalendars())
         .then(calendars =>
           loadCalendarData(calendars).then(allEvents => {
@@ -218,17 +133,7 @@ export function initializeLazyActions() {
       });
     } else {
       dispatch(asAction_disconnected());
-
-      handleIntentsInQueryString(
-        query,
-        null,
-        eventInfo => {
-          dispatch(setCurrentEvent(eventInfo, "view"));
-        },
-        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
-        url => dispatch(showSettingsAddCalendar(url)),
-        name => dispatch(viewPublicCalendar(name))
-      );
+      dispatch(initializeQueryString(query));
     }
   };
 }
@@ -292,6 +197,38 @@ function loadCalendarData(calendars) {
       return Promise.reject(error);
     }
   );
+}
+
+// ################
+// Preferences
+// ################
+
+export function asAction_showInstructions(show) {
+  return { type: SHOW_INSTRUCTIONS, payload: { show } };
+}
+
+export function initializePreferences() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(preferences => {
+      dispatch(
+        asAction_showInstructions(
+          preferences && preferences.showInstructions
+            ? preferences.showInstructions.general
+            : true
+        )
+      );
+    });
+  };
+}
+
+export function hideInstructions() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(prefs => {
+      prefs.showInstructions = { general: false };
+      savePreferences(prefs);
+      dispatch(asAction_showInstructions(false));
+    });
+  };
 }
 
 // ################
