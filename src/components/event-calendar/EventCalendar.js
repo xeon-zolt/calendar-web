@@ -183,7 +183,7 @@ class EventCalendar extends Component {
                       <input
                         style={{ width: "100%" }}
                         type="text"
-                        placeholder="https://calendar.google..../basic.ics"
+                        placeholder="Paste url like https://calendar.google..../basic.ics"
                       />
                     </Col>
                   </Row>
