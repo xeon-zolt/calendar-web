@@ -11,7 +11,8 @@ import {
   SHOW_ALL_CALENDARS,
   SHOW_SETTINGS,
   SET_PUBLIC_CALENDAR_EVENTS,
-  SHOW_INSTRUCTIONS
+  SHOW_INSTRUCTIONS,
+  UNSET_CURRENT_INVITES
 } from "../ActionTypes";
 
 import queryString from "query-string";
@@ -74,11 +75,15 @@ function asAction_invitesSentOk(allEvents) {
   };
 }
 
-function asAction_invitesSentFail(error) {
+function asAction_invitesSentFail(error, eventType, eventInfo) {
   return {
     type: INVITES_SENT_FAIL,
-    payload: { error }
+    payload: { error, eventType, eventInfo }
   };
+}
+
+export function unsetCurrentInvites() {
+  return { type: UNSET_CURRENT_INVITES };
 }
 
 export function sendInvites(eventInfo, guests, type) {
@@ -97,11 +102,11 @@ export function sendInvites(eventInfo, guests, type) {
           allEvents[eventInfo.uid] = eventInfo;
           saveEvents("default", allEvents);
         }
-        dispatch(asAction_invitesSentOk(allEvents, eventInfo, type));
+        dispatch(asAction_invitesSentOk(allEvents));
       },
       error => {
         console.log(error);
-        dispatch(asAction_invitesSentFail(error));
+        dispatch(asAction_invitesSentFail(error, type, eventInfo));
       }
     );
   };
@@ -195,7 +200,7 @@ export function initializeEvents() {
           dispatch(asAction_setEvents(allEvents));
         });
         fetchContactData().then(contacts => {
-          dispatch(asAction_setContacts(contacts));
+          dispatch(asAction_setContacts(contacts || {}));
         });
       });
     } else if (isSignInPending()) {

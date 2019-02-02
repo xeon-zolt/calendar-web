@@ -10,10 +10,6 @@ let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
 class EventCalendar extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      eventModal: undefined
-    };
-
     this.bound = [
       "handleHideInstructions",
       "handleAddEvent",

@@ -25,6 +25,7 @@ export const SET_CURRENT_GUESTS = "contacts.SET_CURRENT_GUESTS";
 export const SEND_INVITES_REQUEST = "contacts.SEND_INVITES_REQUEST";
 export const INVITES_SENT_OK = "contacts.INVITES_SENT";
 export const INVITES_SENT_FAIL = "contacts.INVITES_SENT_FAIL";
+export const UNSET_CURRENT_INVITES = "contacts.UNSET_CURRENT_INVITES";
 
 //Calendar
 export const SET_CALENDARS = "calendar.SET_CALENDARS";

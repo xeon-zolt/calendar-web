@@ -16,7 +16,8 @@ import {
   SHOW_ALL_CALENDARS,
   SET_PUBLIC_CALENDAR_EVENTS,
   SHOW_INSTRUCTIONS,
-  AUTH_SIGN_OUT
+  AUTH_SIGN_OUT,
+  UNSET_CURRENT_INVITES
 } from "../ActionTypes";
 
 let initialState = {
@@ -86,6 +87,13 @@ export default function reduce(state = initialState, action = {}) {
         currentEventType: payload.eventType,
         inviteSuccess: false,
         inviteError: payload.error
+      };
+      break;
+    case UNSET_CURRENT_INVITES:
+      newState = {
+        ...state,
+        inviteSuccess: undefined,
+        inviteError: undefined
       };
       break;
 

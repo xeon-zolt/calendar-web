@@ -81,11 +81,11 @@ class EventDetails extends Component {
     super(props);
     this.state = {
       showModal: this.props.showModal,
-      showInvitesModal: false,
+      showInvitesModal:
+        (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
+        !!this.props.inviteError,
       sending: false
     };
-
-    // console.log(eventInfo);
 
     this.bound = [
       "handleDataChange",
@@ -110,9 +110,10 @@ class EventDetails extends Component {
   }
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state;
-    const notProcessedYet = !(
-      !!nextProps.inviteSuccess || !!nextProps.inviteError
-    );
+    console.log("nextProp", nextProps);
+    const notProcessedYet =
+      (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
+      !!this.props.inviteError;
     this.setState({
       showInvitesModal: showInvitesModal && notProcessedYet,
       sending: sending && notProcessedYet
@@ -180,9 +181,10 @@ class EventDetails extends Component {
   }
 
   handleInvitesHide() {
-    const { eventDetail } = this.props;
+    const { eventDetail, inviteError, unsetInviteError } = this.props;
     this.setState({ showInvitesModal: false });
-    eventDetail.noInvites = true;
+    unsetInviteError();
+    eventDetail.noInvites = !inviteError;
   }
 
   sendInvites() {
@@ -222,7 +224,7 @@ class EventDetails extends Component {
         var linkUrl = error.consent_uri;
         inviteErrorMsg = (
           <div>
-            Sending not possible. Please review{" "}
+            Sending not possible. Please review and accept{" "}
             <a target="_blank" rel="noopener noreferrer" href={linkUrl}>
               the T&amp;C of your chat provider
             </a>{" "}

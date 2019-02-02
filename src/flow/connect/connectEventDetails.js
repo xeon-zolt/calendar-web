@@ -8,7 +8,8 @@ import {
   sendInvites,
   addEvent,
   deleteEvent,
-  updateEvent
+  updateEvent,
+  unsetCurrentInvites
 } from "../../flow/store/event/eventActionLazy";
 
 const eventDefaults = {
@@ -48,6 +49,9 @@ export default connect(
       },
       sendInvites: (details, guests, eventType) =>
         dispatch(sendInvites(details, guests, eventType)),
+      unsetInviteError: () => {
+        dispatch(unsetCurrentInvites());
+      },
       deleteEvent: obj => dispatch(deleteEvent(obj)),
       addEvent: obj => {
         dispatch(addEvent(obj));
