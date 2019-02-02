@@ -8,7 +8,7 @@ export const defaultEvents = [
     allDay: true,
     start: new Date(moment()), // :Q: is moment really required here?
     end: new Date(moment()),
-    hexColor: "#265985",
+    hexColor: "#001F3F",
     notes: "Have a great day!"
   }
 ];
@@ -23,14 +23,16 @@ defaultCalendars[uuids[0]] = {
   uid: uuids[0],
   type: "private",
   name: "default",
-  data: { src: "default/AllEvents", events: defaultEvents }
+  data: { src: "default/AllEvents", events: defaultEvents },
+  hexColor: "#001F3F"
 };
 defaultCalendars[uuids[1]] = {
   uid: uuids[1],
   type: "blockstack-user",
   name: "public@friedger.id",
   mode: "read-only",
-  data: { user: "friedger.id", src: "public/AllEvents" }
+  data: { user: "friedger.id", src: "public/AllEvents" },
+  hexColor: "#2ECC40"
 };
 defaultCalendars[uuids[2]] = {
   uid: uuids[2],
@@ -39,7 +41,7 @@ defaultCalendars[uuids[2]] = {
   mode: "read-only",
   data: {
     src:
-      "https://calendar.google.com/calendar/ical/de.be%23holiday%40group.v.calendar.google.com/public/basic.ics"
+      "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics"
   },
-  hexColor: "#b8004f"
+  hexColor: "#FF851B"
 };

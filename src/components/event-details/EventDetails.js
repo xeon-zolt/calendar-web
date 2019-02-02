@@ -29,7 +29,7 @@ class SendInvitesModal extends Component {
     console.log("SendInvitesModal");
     this.state = { sending: true, profiles: undefined };
 
-    const { guests } = props;
+    var { guests } = props;
     if (typeof guests !== "string") {
       guests = "";
     }
@@ -39,21 +39,17 @@ class SendInvitesModal extends Component {
     props.loadGuestList(guestList, ({ profiles, contacts }) => {
       console.log("profiles", profiles);
       this.setState({ profiles });
-      // dispatch(setGuestList);
-      // dispatch(asAction_setGuests(profiles, eventInfo));
     });
   }
 
   render() {
     const {
       title,
-      showInvitesModal,
       handleInvitesHide,
       sending,
       inviteError,
       inviteErrorMsg,
       sendInvites,
-      views,
       GuestList
     } = this.props;
 
@@ -83,8 +79,6 @@ class SendInvitesModal extends Component {
 class EventDetails extends Component {
   constructor(props) {
     super(props);
-    const { eventInfo } = props;
-
     this.state = {
       showModal: this.props.showModal,
       showInvitesModal: false,
@@ -200,7 +194,7 @@ class EventDetails extends Component {
 
   render() {
     console.log("[EVENDETAILS.render]", this.props);
-    const { showInvitesModal, sending, guests } = this.state;
+    const { showInvitesModal, sending } = this.state;
     const { handleClose } = this.bound;
     const {
       views,
@@ -363,7 +357,7 @@ class EventDetails extends Component {
             handleInvitesHide={handleInvitesHide}
             sending={sending}
             inviteError={inviteError}
-            inviteErrorMsg={inviteError}
+            inviteErrorMsg={inviteErrorMsg}
             GuestList={GuestList}
             sendInvites={sendInvites}
             loadGuestList={loadGuestList}

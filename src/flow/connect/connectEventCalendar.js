@@ -13,7 +13,6 @@ export default connect(
     const signedIn = !!auth.user;
     console.log("[CALENDAR_REDUX]", events);
     const {
-      inviteSuccess,
       currentEvent,
       currentEventType,
       myPublicCalendar,

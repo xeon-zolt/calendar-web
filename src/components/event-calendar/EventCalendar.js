@@ -96,7 +96,6 @@ class EventCalendar extends Component {
       eventModal,
       inviteSuccess
     } = this.props;
-    const { showInstructions } = this.state;
     const { EventDetails } = views;
     const {
       handleHideInstructions,
@@ -136,8 +135,6 @@ class EventCalendar extends Component {
 
     return (
       <div className="bodyContainer">
-        {/* :Q: would you like anything to appear on the screen after a user opted to hide the instructions?
-        :A: No*/}
         {signedIn &&
           showGeneralInstructions &&
           !myPublicCalendar &&
@@ -237,7 +234,7 @@ class EventCalendar extends Component {
                 )}
               </Panel.Body>
             )}
-            {myPublicCalendar && events.length == 0 && (
+            {myPublicCalendar && events.length === 0 && (
               <Panel.Body>
                 No public events yet. Start publishing your events!
               </Panel.Body>

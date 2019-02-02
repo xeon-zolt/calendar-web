@@ -11,13 +11,6 @@ import {
 import { iCalParseEvents, icsFromEvents } from "./ical";
 import { parseQueryString, encodeQueryString } from "./queryString";
 
-import {
-  parse as iCalParse,
-  Component as iCalComponent,
-  Event as iCalEvent
-} from "ical.js";
-
-import { BlockstackNetwork } from "blockstack/lib/network";
 import { getUserAppFileUrl } from "blockstack/lib/storage";
 
 export function fetchContactData() {
@@ -74,21 +67,27 @@ export function sendInvitesToGuests(
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
     eventInfo.readUrl = readUrl;
+    const addGuestResultHandler = guestProfile => {
+      return ({ contacts, eventInfo }) => {
+        console.log("found guest ", guestProfile.name);
+        return addGuest(
+          guestUsername,
+          guestProfile,
+          eventInfo,
+          contacts,
+          chatSession,
+          user
+        );
+      };
+    };
+
     var addGuestPromises = Promise.resolve({ contacts, eventInfo });
     for (var guestUsername in guestProfiles) {
       const guestProfile = guestProfiles[guestUsername];
       if (guestProfile) {
-        addGuestPromises = addGuestPromises.then(({ contacts, eventInfo }) => {
-          console.log("found guest ", guestProfile.name);
-          return addGuest(
-            guestUsername,
-            guestProfile,
-            eventInfo,
-            contacts,
-            chatSession,
-            user
-          );
-        });
+        addGuestPromises = addGuestPromises.then(
+          addGuestResultHandler(guestProfile)
+        );
       } else {
         console.log("invalid guest ", guestProfile);
         return Promise.resolve({ contacts, eventInfo });

@@ -8,7 +8,7 @@ import {
 import AppMenu from "../components/app-menu/AppMenu";
 import Calendar from "../components/event-calendar/EventCalendar";
 import Settings from "../components/settings/Settings";
-import { connectToStore, PlaceHolder } from "./_FN";
+import { connectToStore } from "./_FN";
 // style
 import "./etc/App.css";
 // flow
@@ -28,7 +28,7 @@ class DynamicApp extends Component {
     const ConnectedSettings = connectToStore(Settings, connectSettings, store);
     const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store);
     const { views } = this.props;
-    const { EventCalendar, UserProfile } = views;
+    const { UserProfile } = views;
     return (
       <div className="App">
         <header className="App-header">

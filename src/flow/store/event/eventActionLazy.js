@@ -2,7 +2,6 @@ import {
   SET_EVENTS,
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
-  SET_CURRENT_GUESTS,
   USER,
   SET_CONTACTS,
   VIEW_EVENT,
@@ -111,12 +110,6 @@ export function sendInvites(eventInfo, guests, type) {
 // #########################
 // GUESTS
 // #########################
-function asAction_setGuests(profiles, eventInfo) {
-  return {
-    type: SET_CURRENT_GUESTS,
-    payload: { profiles, eventInfo }
-  };
-}
 
 export function loadGuestList(guests, contacts, asyncReturn) {
   console.log("loadGuestList", guests, contacts);
