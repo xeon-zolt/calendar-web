@@ -176,8 +176,8 @@ class EventCalendar extends Component {
                       />
                     </Col>
                     <Col md={10}>
-                      <strong>Move from Google Calendar</strong>: Done in a few
-                      minutes! Follow the{" "}
+                      <strong>Move from Google Calendar</strong>: Done in a
+                      minute! Follow the{" "}
                       <a href="https://github.com/friedger/oi-calendar">
                         2-steps tutorial
                       </a>
