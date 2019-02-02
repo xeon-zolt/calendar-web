@@ -344,9 +344,10 @@ export function handleIntentsInQueryString(
     } else if (intent) {
       if (intent.toLowerCase() === "addevent") {
         const eventInfo = {};
-        eventInfo.title = decodeURI(title) || "New Event";
-        eventInfo.start = start != null ? new Date(start) : new Date();
-        eventInfo.end = end != null ? new Date(end) : null;
+        eventInfo.title = decodeURIComponent(title) || "New Event";
+        eventInfo.start =
+          start != null ? new Date(decodeURIComponent(start)) : new Date();
+        eventInfo.end = end != null ? new Date(decodeURIComponent(end)) : null;
         eventInfo.owner = via != null ? via : username;
         whenNewEvent(eventInfo);
       } else if (intent.toLowerCase() === "addics") {

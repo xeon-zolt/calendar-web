@@ -14,6 +14,7 @@ import {
   SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
+import queryString from "query-string";
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 
 import {
@@ -200,8 +201,7 @@ export function initializeEvents() {
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
-        console.log("redirecting to " + window.location.origin);
-        window.location = window.location.origin;
+        window.location.search = removeAuthResponse(window.location.search);
         dispatch(asAction_authenticated(userData));
       });
     } else {
@@ -219,6 +219,16 @@ export function initializeEvents() {
       );
     }
   };
+}
+
+function removeAuthResponse(search) {
+  const parsed = queryString.parse(search);
+  if (parsed.authResponse) {
+    delete parsed.authResponse;
+    return queryString.stringify(parsed);
+  } else {
+    return search;
+  }
 }
 
 function asAction_setPublicCalendarEvents(allEvents, calendar) {
