@@ -9,10 +9,14 @@ Private, encrypted calendar in the cloud using Blockstack
 * export/import in ical format
 ## Move from Google Calendar
 1. Copy your private Google calendar url
-    * Login to Google Calendar and goto settings: https://calendar.google.com/calendar/r/settings
+    * Login to Google Calendar and goto settings: https://calendar.google.com/calendar/r/settings    
     * Select your calendar on the left side
+    ![Select](resources/Screenshot from 2019-02-02 02-10-33.png)
+    ![Select2](resources/Screenshot from 2019-02-02 02-10-52.png)
+    ![Select3](resources/Screenshot from 2019-02-02 02-11-05.png)
     * Scroll to the bottom
     * Copy the private address of your calendar containing your email address and ends with `basic.ics`
+    ![Select3](resources/Screenshot from 2019-02-02 02-11-27.png)
 1. Paste url into OI Calendar
     * Open OI Calendar https://cal.openintents.org/
     * Paste the private address into the `Paste url ...` field and press enter
