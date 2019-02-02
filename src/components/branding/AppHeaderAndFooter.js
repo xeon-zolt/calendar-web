@@ -24,7 +24,8 @@ export const AppFooter = props => {
         <a href="https://github.com/yasnaraj/react-calendar-events-example">
           Yasna R.
         </a>{" "}
-        | {new Date().getFullYear().toString()}
+        | {new Date().getFullYear().toString()} | v
+        {process.env.REACT_APP_VERSION}
       </h5>
       <h5>
         Love OI apps? You can now donate to our open collective:
