@@ -25,9 +25,9 @@ export default class AppMenu extends Component {
   }
   render() {
     const { onSelect } = this.bound;
-    const { username } = this.props;
+    const { username, signedIn } = this.props;
     return (
-      username && (
+      signedIn && (
         <div style={{ margin: "4px" }}>
           <DropdownButton
             drop="down"
@@ -38,7 +38,11 @@ export default class AppMenu extends Component {
             onSelect={onSelect}
           >
             <MenuItem eventKey="settings">Settings</MenuItem>
-            <MenuItem eventKey="publicCalendar">View public calendar</MenuItem>
+            {username && (
+              <MenuItem eventKey="publicCalendar">
+                View public calendar
+              </MenuItem>
+            )}
           </DropdownButton>
         </div>
       )

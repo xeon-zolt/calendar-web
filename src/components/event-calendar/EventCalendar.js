@@ -18,7 +18,8 @@ class EventCalendar extends Component {
       "handleHideInstructions",
       "handleAddEvent",
       "handleEditEvent",
-      "handleViewAllCalendars"
+      "handleViewAllCalendars",
+      "handleAddCalendarByUrl"
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this);
       return acc;
@@ -58,6 +59,13 @@ class EventCalendar extends Component {
       eventType: "add",
       eventInfo: slotInfo
     });
+  }
+
+  handleAddCalendarByUrl(event) {
+    if (event.key === "Enter") {
+      const { showSettingsAddCalendar } = this.props;
+      showSettingsAddCalendar(event.target.value);
+    }
   }
 
   eventStyle(event, start, end, isSelected) {
@@ -101,7 +109,8 @@ class EventCalendar extends Component {
       handleHideInstructions,
       handleEditEvent,
       handleAddEvent,
-      handleViewAllCalendars
+      handleViewAllCalendars,
+      handleAddCalendarByUrl
     } = this.bound;
 
     let events = Object.values(this.props.events.allEvents);
@@ -165,7 +174,7 @@ class EventCalendar extends Component {
                     </Col>
                   </Row>
                   <Row style={{ textAlign: "left" }}>
-                    <Col md={2}>
+                    <Col xs={12} sm={2} style={{ textAlign: "center" }}>
                       <img
                         src="/images/gcalendar.png"
                         width="48px"
@@ -173,7 +182,7 @@ class EventCalendar extends Component {
                         alt="Google Calendar"
                       />
                     </Col>
-                    <Col md={10}>
+                    <Col xs={12} sm={10} center>
                       <strong>Move from Google Calendar</strong>: Done in a
                       minute! Follow the{" "}
                       <a href="https://github.com/friedger/oi-calendar">
@@ -185,6 +194,7 @@ class EventCalendar extends Component {
                         style={{ width: "100%" }}
                         type="text"
                         placeholder="Paste url like https://calendar.google..../basic.ics"
+                        onKeyPress={handleAddCalendarByUrl}
                       />
                     </Col>
                   </Row>

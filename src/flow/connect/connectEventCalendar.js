@@ -3,7 +3,8 @@ import { connect } from "react-redux";
 import { setCurrentEvent } from "../store/event/eventAction";
 import {
   showAllCalendars,
-  hideInstructions
+  hideInstructions,
+  showSettingsAddCalendar
 } from "../store/event/eventActionLazy";
 
 export default connect(
@@ -57,6 +58,9 @@ export default connect(
       },
       hideInstructions: () => {
         dispatch(hideInstructions());
+      },
+      showSettingsAddCalendar: url => {
+        dispatch(showSettingsAddCalendar(url));
       },
       pickEventModal: eventModal => {
         console.log("[pickEventModal]", eventModal);

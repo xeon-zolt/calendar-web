@@ -7,10 +7,12 @@ import {
 export default connect(
   (state, redux) => {
     var username = null;
+    var signedIn = false;
     if (state.auth && state.auth.user) {
       username = state.auth.user.username;
+      signedIn = true;
     }
-    return { username };
+    return { username, signedIn };
   },
   dispatch => {
     return {

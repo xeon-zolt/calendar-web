@@ -6,7 +6,7 @@ export const AppHeader = props => {
       <img
         src="/android-chrome-192x192.png"
         alt="logo"
-        style={{ marginRight: "10px", height: "40px" }}
+        style={{ marginRight: "10px", height: "40px", width: "40px" }}
       />
       OI Calendar{" "}
     </h1>

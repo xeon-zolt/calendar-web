@@ -18,30 +18,31 @@ const uuids = [uuid(), uuid(), uuid()];
 // :NOTE: in js, objects can be declared as const but their content changed,
 // I prefer to use let when declaring objects or arrays to make it clear that
 // content mutations will happen.
-export let defaultCalendars = {};
-defaultCalendars[uuids[0]] = {
-  uid: uuids[0],
-  type: "private",
-  name: "default",
-  data: { src: "default/AllEvents", events: defaultEvents },
-  hexColor: "#001F3F"
-};
-defaultCalendars[uuids[1]] = {
-  uid: uuids[1],
-  type: "blockstack-user",
-  name: "public@friedger.id",
-  mode: "read-only",
-  data: { user: "friedger.id", src: "public/AllEvents" },
-  hexColor: "#2ECC40"
-};
-defaultCalendars[uuids[2]] = {
-  uid: uuids[2],
-  type: "ics",
-  name: "holidays",
-  mode: "read-only",
-  data: {
-    src:
-      "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics"
+export let defaultCalendars = [
+  {
+    uid: uuids[0],
+    type: "private",
+    name: "default",
+    data: { src: "default/AllEvents", events: defaultEvents },
+    hexColor: "#001F3F"
   },
-  hexColor: "#FF851B"
-};
+  {
+    uid: uuids[1],
+    type: "blockstack-user",
+    name: "public@friedger.id",
+    mode: "read-only",
+    data: { user: "friedger.id", src: "public/AllEvents" },
+    hexColor: "#2ECC40"
+  },
+  {
+    uid: uuids[2],
+    type: "ics",
+    name: "holidays",
+    mode: "read-only",
+    data: {
+      src:
+        "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics"
+    },
+    hexColor: "#FF851B"
+  }
+];

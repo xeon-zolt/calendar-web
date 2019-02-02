@@ -151,7 +151,7 @@ function asAction_setCalendars(calendars) {
   return { type: SET_CALENDARS, payload: { calendars } };
 }
 
-function asAction_showSettingsAddCalendar(url) {
+export function showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
@@ -171,7 +171,7 @@ export function initializeEvents() {
           dispatch(setCurrentEvent(eventInfo, "add"));
         },
         eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
-        url => dispatch(asAction_showSettingsAddCalendar(url)),
+        url => dispatch(showSettingsAddCalendar(url)),
         name => dispatch(viewPublicCalendar(name))
       );
 
@@ -214,7 +214,7 @@ export function initializeEvents() {
           dispatch(setCurrentEvent(eventInfo, "view"));
         },
         eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
-        url => dispatch(asAction_showSettingsAddCalendar(url)),
+        url => dispatch(showSettingsAddCalendar(url)),
         name => dispatch(viewPublicCalendar(name))
       );
     }
