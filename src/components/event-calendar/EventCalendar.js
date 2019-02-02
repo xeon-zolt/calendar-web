@@ -169,6 +169,7 @@ class EventCalendar extends Component {
                       <img
                         src="/images/gcalendar.png"
                         width="48px"
+                        height="48px"
                         alt="Google Calendar"
                       />
                     </Col>

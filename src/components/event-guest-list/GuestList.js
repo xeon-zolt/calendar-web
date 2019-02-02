@@ -30,7 +30,7 @@ export const Guest = ({ guest, username }) => {
   const commMethodUrl = "/images/oichat.png";
   return (
     <div>
-      <img src={avatarUrl} height="16px" alt="avatar" />
+      <img src={avatarUrl} height="16px" width="16px" alt="avatar" />
       <a href={guestUrl}>{name}</a>
       <OverlayTrigger
         placement="right"
@@ -42,7 +42,7 @@ export const Guest = ({ guest, username }) => {
       >
         <span>
           (via
-          <img src={commMethodUrl} height="16px" alt="avatar" />)
+          <img src={commMethodUrl} height="16px" width="16px" alt="avatar" />)
         </span>
       </OverlayTrigger>
     </div>
