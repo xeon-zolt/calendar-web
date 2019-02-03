@@ -23,9 +23,27 @@ Private, encrypted calendar in the cloud using Blockstack
 
 ## App Developers
 ### Add event via web intent
-Create a link like https://cal.openintents.org/?intent=addEvent&title=Blockstack%20Event&start=2018-12-31T23:00:00.000Z&end=2018-12-31T24:00:00.000Z
-https://cal.openintents.org/?intent=addics&url=https://fosdem.org/2019/schedule/track/decentralized_internet_and_privacy.ics
-### Add calendar (read-only)
+Example: https://cal.openintents.org/?intent=addEvent&title=Blockstack%20Event&start=2018-12-31T23:00:00.000Z&end=2018-12-31T24:00:00.000Z
+
+The following parameters are supported:
+
+| name   | description |
+|--------|-------------|
+| intent | "addEvent" | 
+| title  | the name of the event | 
+| start  | date string in zulu format |
+| end    | date string in zulu format |
+| via    | the organizer |
+
+### Add calendar (read-only) via web intent
+Example: https://cal.openintents.org/?intent=addics&url=https://fosdem.org/2019/schedule/track/decentralized_internet_and_privacy.ics
+
+The following parameters are supported:
+
+| name   | description |
+|--------|-------------|
+| intent | "addics" |
+| url | the location of the calendar file in iCal format |
 
 ## Development
 This application utilizes <a href="https://github.com/intljusticemission/react-big-calendar"> react-big-calendar </a> and 
