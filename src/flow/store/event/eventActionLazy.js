@@ -1,7 +1,5 @@
 import {
   SET_EVENTS,
-  INVITES_SENT_OK,
-  INVITES_SENT_FAIL,
   USER,
   SET_CONTACTS,
   SET_CALENDARS,
@@ -11,8 +9,7 @@ import {
   SHOW_ALL_CALENDARS,
   SHOW_SETTINGS,
   SET_PUBLIC_CALENDAR_EVENTS,
-  SHOW_INSTRUCTIONS,
-  UNSET_CURRENT_INVITES
+  SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 import queryString from "query-string";
@@ -25,8 +22,6 @@ import {
   importCalendarEvents,
   fetchCalendars,
   publishCalendars,
-  sendInvitesToGuests,
-  loadGuestProfiles,
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
@@ -36,9 +31,11 @@ import {
   fetchPreferences,
   fetchIcsUrl
 } from "../../io/event";
+import { initializeContactData } from "./contactActionLazy";
+import { initializeCalendars } from "./calendarActionLazy";
 
 import { createSessionChat } from "../../io/chat";
-import { defaultEvents, defaultCalendars } from "../../io/eventDefaults";
+import { defaultEvents } from "../../io/eventDefaults";
 
 import { uuid } from "../../io/eventFN";
 import { setCurrentEvent } from "./eventAction";
@@ -62,70 +59,6 @@ export function initializeChat() {
     let chat = createSessionChat();
     dispatch(asAction_initializeChat(chat));
   };
-}
-
-// #########################
-// INVITES
-// #########################
-
-function asAction_invitesSentOk(allEvents) {
-  return {
-    type: INVITES_SENT_OK,
-    payload: { allEvents }
-  };
-}
-
-function asAction_invitesSentFail(error, eventType, eventInfo) {
-  return {
-    type: INVITES_SENT_FAIL,
-    payload: { error, eventType, eventInfo }
-  };
-}
-
-export function unsetCurrentInvites() {
-  return { type: UNSET_CURRENT_INVITES };
-}
-
-export function sendInvites(eventInfo, guests, type) {
-  return async (dispatch, getState) => {
-    const state = getState();
-    sendInvitesToGuests(
-      state.events.contacts,
-      state.auth.user,
-      eventInfo,
-      guests,
-      state.events.userSessionChat
-    ).then(
-      ({ eventInfo, contacts }) => {
-        let { allEvents } = getState().events;
-        if (type === "add" || type === "edit") {
-          allEvents[eventInfo.uid] = eventInfo;
-          saveEvents("default", allEvents);
-        }
-        dispatch(asAction_invitesSentOk(allEvents));
-      },
-      error => {
-        console.log(error);
-        dispatch(asAction_invitesSentFail(error, type, eventInfo));
-      }
-    );
-  };
-}
-
-// #########################
-// GUESTS
-// #########################
-
-export function loadGuestList(guests, contacts, asyncReturn) {
-  console.log("loadGuestList", guests, contacts);
-  loadGuestProfiles(guests, contacts).then(
-    ({ profiles, contacts }) => {
-      asyncReturn({ profiles, contacts });
-    },
-    error => {
-      console.log("load guest list failed", error);
-    }
-  );
 }
 
 // ################
@@ -160,7 +93,32 @@ export function showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
-export function initializeEvents() {
+function initializeQueryString(query, username) {
+  function eventFromIntent(username) {
+    return (title, start, end, via) => {
+      const eventInfo = {};
+      eventInfo.title = title || "New Event";
+      eventInfo.start = start != null ? new Date(start) : new Date();
+      eventInfo.end = end != null ? new Date(end) : null;
+      eventInfo.owner = via != null ? via : username;
+      return eventInfo;
+    };
+  }
+  return (dispatch, getState) => {
+    handleIntentsInQueryString(
+      query,
+      eventFromIntent(username),
+      eventInfo => {
+        dispatch(setCurrentEvent(eventInfo, username ? "add" : "view"));
+      },
+      eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
+      url => dispatch(showSettingsAddCalendar(url)),
+      name => dispatch(viewPublicCalendar(name))
+    );
+  };
+}
+
+export function initializeLazyActions() {
   const query = window.location.search;
   return async (dispatch, getState) => {
     if (isUserSignedIn()) {
@@ -168,41 +126,14 @@ export function initializeEvents() {
       const userData = loadUserData();
       dispatch(asAction_authenticated(userData));
       dispatch(asAction_user(userData));
-
-      handleIntentsInQueryString(
-        query,
-        userData.username,
-        eventInfo => {
-          dispatch(setCurrentEvent(eventInfo, "add"));
-        },
-        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
-        url => dispatch(showSettingsAddCalendar(url)),
-        name => dispatch(viewPublicCalendar(name))
-      );
-
-      fetchPreferences().then(preferences => {
-        dispatch(
-          asAction_showInstructions(
-            preferences && preferences.showInstructions
-              ? preferences.showInstructions.general
-              : true
-          )
-        );
-      });
-      fetchCalendars().then(calendars => {
-        if (!calendars) {
-          calendars = defaultCalendars;
-          // :Q: why save the default instead of waiting for a change?
-          publishCalendars(calendars);
-        }
-        dispatch(asAction_setCalendars(calendars));
+      dispatch(initializeQueryString(query, userData.username));
+      dispatch(initializePreferences());
+      dispatch(initializeCalendars()).then(calendars =>
         loadCalendarData(calendars).then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
-        });
-        fetchContactData().then(contacts => {
-          dispatch(asAction_setContacts(contacts || {}));
-        });
-      });
+        })
+      );
+      dispatch(initializeContactData());
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
@@ -211,17 +142,7 @@ export function initializeEvents() {
       });
     } else {
       dispatch(asAction_disconnected());
-
-      handleIntentsInQueryString(
-        query,
-        null,
-        eventInfo => {
-          dispatch(setCurrentEvent(eventInfo, "view"));
-        },
-        eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
-        url => dispatch(showSettingsAddCalendar(url)),
-        name => dispatch(viewPublicCalendar(name))
-      );
+      dispatch(initializeQueryString(query, null));
     }
   };
 }
@@ -242,6 +163,7 @@ function asAction_setPublicCalendarEvents(allEvents, calendar) {
 
 function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
+    console.log("viewpubliccalendar", name);
     if (name) {
       const parts = name.split("@");
       if (parts.length === 2) {
@@ -284,6 +206,49 @@ function loadCalendarData(calendars) {
       return Promise.reject(error);
     }
   );
+}
+
+// ################
+// Preferences
+// ################
+
+export function asAction_showInstructions(show) {
+  return { type: SHOW_INSTRUCTIONS, payload: { show } };
+}
+
+export function initializePreferences() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(preferences => {
+      dispatch(
+        asAction_showInstructions(
+          preferences && preferences.showInstructions
+            ? preferences.showInstructions.general
+            : true
+        )
+      );
+    });
+  };
+}
+
+export function hideInstructions() {
+  return async (dispatch, getState) => {
+    fetchPreferences().then(prefs => {
+      prefs.showInstructions = { general: false };
+      savePreferences(prefs);
+      dispatch(asAction_showInstructions(false));
+    });
+  };
+}
+
+// ################
+// Events
+// ################
+
+export function saveAllEvents(allEvents) {
+  return (dispatch, getState) => {
+    saveEvents("default", allEvents);
+    dispatch(asAction_setEvents(allEvents));
+  };
 }
 
 // ################
@@ -375,20 +340,6 @@ export function showAllCalendars() {
   return async (dispatch, getState) => {
     window.history.pushState({}, "OI Calendar", "/");
     dispatch(asAction_showAllCalendars());
-  };
-}
-
-export function asAction_showInstructions(show) {
-  return { type: SHOW_INSTRUCTIONS, payload: { show } };
-}
-
-export function hideInstructions() {
-  return async (dispatch, getState) => {
-    fetchPreferences().then(prefs => {
-      prefs.showInstructions = { general: false };
-      savePreferences(prefs);
-      dispatch(asAction_showInstructions(false));
-    });
   };
 }
 

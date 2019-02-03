@@ -12,6 +12,7 @@ export default class Settings extends Component {
       addCalendarUrl,
       contacts,
       addCalendar,
+      deleteCalendars,
       lookupContacts,
       addContact,
       deleteContacts
@@ -26,6 +27,7 @@ export default class Settings extends Component {
           <Calendars
             calendars={calendars}
             addCalendar={addCalendar}
+            deleteCalendars={deleteCalendars}
             addCalendarUrl={addCalendarUrl}
           />
         </Modal.Body>

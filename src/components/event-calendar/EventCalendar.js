@@ -23,7 +23,7 @@ class EventCalendar extends Component {
   }
 
   componentWillMount() {
-    this.props.initializeEvents();
+    this.props.initializeLazyActions();
   }
 
   handleHideInstructions() {
@@ -178,7 +178,7 @@ class EventCalendar extends Component {
                         alt="Google Calendar"
                       />
                     </Col>
-                    <Col xs={12} sm={10} center>
+                    <Col xs={12} sm={10}>
                       <strong>Move from Google Calendar</strong>: Done in a
                       minute! Follow the{" "}
                       <a href="https://github.com/friedger/oi-calendar">

@@ -71,7 +71,6 @@ export default function reduce(state = initialState, action = {}) {
       console.log("INVITES_SENT_OK");
       newState = {
         ...state,
-        allEvents: payload.allEvents,
         currentEvent: undefined,
         currentEventType: undefined,
         inviteSuccess: true,
