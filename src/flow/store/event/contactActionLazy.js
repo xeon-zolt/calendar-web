@@ -2,7 +2,7 @@ import {
   SET_CONTACTS,
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
-  SET_CURRENT_GUESTS
+  UNSET_CURRENT_INVITES
 } from "../ActionTypes";
 
 import {
@@ -73,6 +73,9 @@ function asAction_invitesSentFail(error) {
     payload: { error }
   };
 }
+export function unsetCurrentInvites() {
+  return { type: UNSET_CURRENT_INVITES };
+}
 
 export function sendInvites(eventInfo, guests) {
   return async (dispatch, getState) => {
@@ -99,12 +102,6 @@ export function sendInvites(eventInfo, guests) {
 // #########################
 // GUESTS
 // #########################
-function asAction_setGuests(profiles, eventInfo) {
-  return {
-    type: SET_CURRENT_GUESTS,
-    payload: { profiles, eventInfo }
-  };
-}
 
 export function loadGuestList(guests, contacts, asyncReturn) {
   console.log("loadGuestList", guests, contacts);

@@ -1,10 +1,6 @@
 import {
   SET_EVENTS,
-  INVITES_SENT_OK,
-  INVITES_SENT_FAIL,
-  SET_CURRENT_GUESTS,
   USER,
-  SET_CURRENT_EVENT,
   SET_CONTACTS,
   SET_CALENDARS,
   SHOW_SETTINGS_ADD_CALENDAR,
@@ -13,8 +9,7 @@ import {
   SHOW_ALL_CALENDARS,
   SHOW_SETTINGS,
   SET_PUBLIC_CALENDAR_EVENTS,
-  SHOW_INSTRUCTIONS,
-  UNSET_CURRENT_INVITES
+  SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 import queryString from "query-string";
@@ -27,8 +22,6 @@ import {
   importCalendarEvents,
   fetchCalendars,
   publishCalendars,
-  sendInvitesToGuests,
-  loadGuestProfiles,
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
@@ -84,14 +77,6 @@ function asAction_user(userData) {
   return { type: USER, user: userData };
 }
 
-function asAction_viewEvent(eventInfo, eventType) {
-  let payload = { eventInfo };
-  if (eventType) {
-    payload.eventType = eventType;
-  }
-  return { type: SET_CURRENT_EVENT, payload };
-}
-
 function asAction_setEvents(allEvents) {
   return { type: SET_EVENTS, allEvents };
 }
@@ -108,6 +93,31 @@ export function showSettingsAddCalendar(url) {
   return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
+function initializeQueryString(query, username) {
+  function eventFromIntent(username) {
+    return (title, start, end, via) => {
+      const eventInfo = {};
+      eventInfo.title = title || "New Event";
+      eventInfo.start = start != null ? new Date(start) : new Date();
+      eventInfo.end = end != null ? new Date(end) : null;
+      eventInfo.owner = via != null ? via : username;
+      return eventInfo;
+    };
+  }
+  return (dispatch, getState) => {
+    handleIntentsInQueryString(
+      query,
+      eventFromIntent(username),
+      eventInfo => {
+        dispatch(setCurrentEvent(eventInfo, "view"));
+      },
+      eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
+      url => dispatch(showSettingsAddCalendar(url)),
+      name => dispatch(viewPublicCalendar(name))
+    );
+  };
+}
+
 export function initializeLazyActions() {
   const query = window.location.search;
   return async (dispatch, getState) => {
@@ -118,13 +128,12 @@ export function initializeLazyActions() {
       dispatch(asAction_user(userData));
       dispatch(initializeQueryString(query, userData.username));
       dispatch(initializePreferences());
-      dispatch(initializeCalendars())
-        .then(calendars =>
-          loadCalendarData(calendars).then(allEvents => {
-            dispatch(asAction_setEvents(allEvents));
-          })
-        )
-       dispatch(initializeContactData());
+      dispatch(initializeCalendars()).then(calendars =>
+        loadCalendarData(calendars).then(allEvents => {
+          dispatch(asAction_setEvents(allEvents));
+        })
+      );
+      dispatch(initializeContactData());
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
       handlePendingSignIn().then(userData => {
@@ -331,20 +340,6 @@ export function showAllCalendars() {
   return async (dispatch, getState) => {
     window.history.pushState({}, "OI Calendar", "/");
     dispatch(asAction_showAllCalendars());
-  };
-}
-
-export function asAction_showInstructions(show) {
-  return { type: SHOW_INSTRUCTIONS, payload: { show } };
-}
-
-export function hideInstructions() {
-  return async (dispatch, getState) => {
-    fetchPreferences().then(prefs => {
-      prefs.showInstructions = { general: false };
-      savePreferences(prefs);
-      dispatch(asAction_showInstructions(false));
-    });
   };
 }
 

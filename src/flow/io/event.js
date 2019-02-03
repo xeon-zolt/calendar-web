@@ -350,15 +350,15 @@ export function handleIntentsInQueryString(
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
-      intent = intent.toLowerCase();
-      if (intent === "addevent") {
+      const intentAction = intent.toLowerCase();
+      if (intentAction === "addevent") {
         whenNewEvent(convertEvent(title, start, end, via));
-      } else if (intent === "addics") {
+      } else if (intentAction === "addics") {
         whenICSUrl(url);
-      } else if (intent.toLowerCase() === "view") {
+      } else if (intentAction === "view") {
         whenPublicCalendar(name);
       } else {
-        console.log("unsupported intent " + intent);
+        console.log("unsupported intent " + intentAction);
       }
     }
   }

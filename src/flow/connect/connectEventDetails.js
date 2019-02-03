@@ -4,17 +4,15 @@ import moment from "moment";
 import { setCurrentEvent, unsetCurrentEvent } from "../store/event/eventAction";
 
 import {
-  loadGuestList,
-  sendInvites,
   addEvent,
   deleteEvent,
   updateEvent,
-  saveAllEvents,
-  unsetCurrentInvites
+  saveAllEvents
 } from "../../flow/store/event/eventActionLazy";
 
 import {
   sendInvites,
+  unsetCurrentInvites,
   loadGuestList
 } from "../../flow/store/event/contactActionLazy";
 
