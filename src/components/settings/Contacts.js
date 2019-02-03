@@ -4,7 +4,7 @@ import { Button } from "react-bootstrap";
 const LINK_URL_BASE = "https://debutapp.social/";
 
 const Contact = props => {
-  const { contact } = props;
+  const { contact, handleDataChange } = props;
   const linkUrl = LINK_URL_BASE + contact.username;
   var avatarUrl;
   if (
@@ -20,8 +20,15 @@ const Contact = props => {
   }
   return (
     <div>
-      <input type="checkbox" />
-      {avatarUrl && <img src={avatarUrl} height="16px" alt="avatar" />}
+      <input
+        type="checkbox"
+        checked={contact.selected}
+        value={contact.selected}
+        onChange={e => handleDataChange(e, "delete")}
+      />
+      {avatarUrl && (
+        <img src={avatarUrl} height="16px" width="16px" alt="avatar" />
+      )}
       {!avatarUrl && <span className="glyphicon glyphicon-user" />}
       <a href={linkUrl}>{name}</a>
     </div>
@@ -31,14 +38,29 @@ const Contact = props => {
 export default class Contacts extends Component {
   constructor(props) {
     super(props);
-    this.state = { nameToAdd: "", lookingUpContacts: false };
-    this.bound = ["lookupContacts", "addContact", "deleteContacts"].reduce(
-      (acc, d) => {
-        acc[d] = this[d].bind(this);
-        return acc;
-      },
-      {}
-    );
+    this.state = {
+      nameToAdd: "",
+      lookingUpContacts: false,
+      selectedContacts: {}
+    };
+    this.bound = [
+      "lookupContacts",
+      "addContact",
+      "deleteContacts",
+      "handleContactChange"
+    ].reduce((acc, d) => {
+      acc[d] = this[d].bind(this);
+      return acc;
+    }, {});
+  }
+  handleContactChange(contact) {
+    return (event, ref) => {
+      const { selectedContacts } = this.state;
+      if (ref === "delete") {
+        selectedContacts[contact.username] = event.target.checked;
+        this.setState({ selectedContacts });
+      }
+    };
   }
   renderContacts(contacts) {
     const list = [];
@@ -46,7 +68,13 @@ export default class Contacts extends Component {
       if (contacts.hasOwnProperty(property)) {
         var contact = contacts[property];
         contact.username = property;
-        list.push(<Contact key={property} contact={contact} />);
+        list.push(
+          <Contact
+            key={property}
+            contact={contact}
+            handleDataChange={this.handleContactChange(contact)}
+          />
+        );
       }
     }
     return list;
@@ -73,18 +101,25 @@ export default class Contacts extends Component {
   addContact() {
     const { addContact } = this.props;
     const { nameToAdd } = this.state;
-    addContact(nameToAdd);
+    addContact(nameToAdd, { nameToAdd });
+    this.setState({ nameToAdd: "" });
   }
 
   deleteContacts() {
-    const { deleteContacts } = this.props;
-    const selectedContacts = []; // TODO
-    deleteContacts(selectedContacts);
+    const { deleteContacts, contacts } = this.props;
+    const { selectedContacts } = this.state;
+    const contactList = Object.values(contacts);
+    const contactsToDelete = contactList.filter(
+      c => selectedContacts[c.username]
+    );
+    deleteContacts(contactsToDelete);
+    this.setState({ selectedContacts: {} });
   }
 
   render() {
     const { contacts } = this.props;
     const { lookupContacts, addContact, deleteContacts } = this.bound;
+    const { selectedContacts, nameToAdd } = this.state;
     const contactsView = this.renderContacts(contacts);
     return (
       <div className="settings">
@@ -93,9 +128,23 @@ export default class Contacts extends Component {
           placeholder="e.g. alice.id or bob.id.blockstack"
           onChange={lookupContacts}
         />
-        <Button onClick={addContact}>Add</Button>
+        <Button
+          onClick={addContact}
+          disabled={!nameToAdd || nameToAdd.length === 0}
+        >
+          Add
+        </Button>
         {contactsView}
-        <Button bsStyle="danger" bsSize="small" onClick={deleteContacts}>
+        <Button
+          bsStyle="danger"
+          bsSize="small"
+          onClick={deleteContacts}
+          disabled={
+            !selectedContacts ||
+            Object.keys(selectedContacts).filter(u => selectedContacts[u])
+              .length === 0
+          }
+        >
           Delete
         </Button>
       </div>

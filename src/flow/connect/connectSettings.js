@@ -22,8 +22,8 @@ export default connect(
       lookupContacts: contactQuery => {
         return Promise.reject("not yet implemented");
       },
-      addContact: contact => {
-        dispatch(addContact(contact));
+      addContact: (username, contact) => {
+        dispatch(addContact(username, contact));
       },
       deleteContacts: contacts => {
         dispatch(deleteContacts(contacts));

@@ -84,6 +84,7 @@ export default class Calendars extends Component {
           mode: "read-only",
           data: { src: calendarToAdd }
         });
+        this.setState({ calendarToAdd: "" });
       } else {
         const parts = calendarToAdd.split("@");
         if (parts.length === 2) {
@@ -96,6 +97,7 @@ export default class Calendars extends Component {
             type: "blockstack-user",
             data: { user, src }
           });
+          this.setState({ calendarToAdd: "" });
         } else {
           this.setState({
             error: "Invalid calendar "
@@ -110,6 +112,7 @@ export default class Calendars extends Component {
     const { selectedCalendars } = this.state;
     const calendarsToDelete = calendars.filter(c => selectedCalendars[c.name]);
     deleteCalendars(calendarsToDelete);
+    this.setState({ selectedCalendars: {} });
   }
 
   handleDataChange(e, ref) {
@@ -122,6 +125,7 @@ export default class Calendars extends Component {
   render() {
     const { calendars, addCalendarUrl } = this.props;
     const { addCalendar, deleteCalendars, handleDataChange } = this.bound;
+    const { selectedCalendars, calendarToAdd } = this.state;
     const view = this.renderCalendars(calendars);
     return (
       <div className="settings">
@@ -131,9 +135,23 @@ export default class Calendars extends Component {
           value={addCalendarUrl}
           onChange={e => handleDataChange(e, "calendarToAdd")}
         />
-        <Button onClick={() => addCalendar()}>Add</Button>
+        <Button
+          onClick={() => addCalendar()}
+          disabled={!calendarToAdd || calendarToAdd.length === 0}
+        >
+          Add
+        </Button>
         {view}
-        <Button bsStyle="danger" bsSize="small" onClick={deleteCalendars}>
+        <Button
+          bsStyle="danger"
+          bsSize="small"
+          onClick={deleteCalendars}
+          disabled={
+            !selectedCalendars ||
+            Object.keys(selectedCalendars).filter(n => selectedCalendars[n])
+              .length === 0
+          }
+        >
           Delete
         </Button>
       </div>

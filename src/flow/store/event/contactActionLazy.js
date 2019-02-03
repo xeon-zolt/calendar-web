@@ -31,11 +31,10 @@ export function initializeContactData() {
 // ################
 // In Settings
 // ################
-export function addContact(contact) {
+export function addContact(username, contact) {
   return async (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      // TODO check for duplicates
-      contacts.push(contact);
+      contacts[username] = contact;
       publishContacts(contacts);
       dispatch(asAction_setContacts(contacts));
     });
@@ -45,11 +44,9 @@ export function addContact(contact) {
 export function deleteContacts(deleteList) {
   return async (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      const uids = deleteList.map(d => d.uid);
-
-      contacts = contacts.filter(d => {
-        return !uids.includes(d.uid);
-      });
+      for (var i in deleteList) {
+        delete contacts[deleteList[i].username];
+      }
       publishContacts(contacts);
       dispatch(asAction_setContacts(contacts));
     });
