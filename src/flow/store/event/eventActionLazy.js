@@ -109,7 +109,7 @@ function initializeQueryString(query, username) {
       query,
       eventFromIntent(username),
       eventInfo => {
-        dispatch(setCurrentEvent(eventInfo, "view"));
+        dispatch(setCurrentEvent(eventInfo, username ? "add" : "view"));
       },
       eventInfo => dispatch(setCurrentEvent(eventInfo, "add")),
       url => dispatch(showSettingsAddCalendar(url)),
@@ -142,7 +142,7 @@ export function initializeLazyActions() {
       });
     } else {
       dispatch(asAction_disconnected());
-      dispatch(initializeQueryString(query));
+      dispatch(initializeQueryString(query, null));
     }
   };
 }
@@ -244,7 +244,7 @@ export function hideInstructions() {
 // Events
 // ################
 
-export function saveAllEvents(allEvents, type = "default") {
+export function saveAllEvents(allEvents) {
   return (dispatch, getState) => {
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));

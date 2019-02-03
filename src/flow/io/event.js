@@ -100,10 +100,8 @@ export function sendInvitesToGuests(
     }
     return addGuestPromises.then(
       ({ contacts, eventInfo }) => {
-        console.log("contacts", contacts);
-        return publishContacts(contacts).then(() => {
-          return { contacts, eventInfo };
-        });
+        publishContacts(contacts);
+        return { contacts, eventInfo };
       },
       error => {
         return Promise.reject(error);
@@ -372,13 +370,6 @@ function loadCalendarEventFromUser(username, eventUid, privateKey) {
     { username, eventUid }
   );
 }
-
-/* This is here just to demonstrate how to load an event from a user */
-loadCalendarEventFromUser(
-  "friedger.id",
-  "307baf34-9ceb-492f-8dab-ab595f2a09df",
-  "e5f33c486af118a2c04f2d26fb1c4f698b22693e539600bb590510e24617dbc6"
-);
 
 // END of import options
 

@@ -60,17 +60,16 @@ export function deleteContacts(deleteList) {
 // INVITES
 // #########################
 
-function asAction_invitesSentOk(eventInfo, type) {
+function asAction_invitesSentOk() {
   return {
-    type: INVITES_SENT_OK,
-    payload: { eventInfo, type }
+    type: INVITES_SENT_OK
   };
 }
 
-function asAction_invitesSentFail(error) {
+function asAction_invitesSentFail(error, eventType, eventInfo) {
   return {
     type: INVITES_SENT_FAIL,
-    payload: { error }
+    payload: { error, eventType, eventInfo }
   };
 }
 export function unsetCurrentInvites() {
@@ -87,7 +86,7 @@ export function sendInvites(eventInfo, guests) {
       guests,
       state.events.userSessionChat
     ).then(
-      ({ eventInfo, contacts }) => {
+      () => {
         dispatch(asAction_invitesSentOk());
         return Promise.resolve();
       },
