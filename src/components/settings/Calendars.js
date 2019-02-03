@@ -9,14 +9,17 @@ const Calendar = props => {
         type="checkbox"
         checked={calendar.selected}
         value={calendar.selected}
+        disabled={calendar.type === "private" && calendar.name === "default"}
         onChange={e => handleDataChange(e, "delete")}
       />
       <input
         type="color"
+        disabled
         value={calendar.hexColor || ""}
         onChange={e => handleDataChange(e, "hexColor")}
         style={{ marginRight: "20px", marginLeft: "5px" }}
       />
+
       <label>{calendar.name}</label>
       {/* TODO implement editCalendar
       {privateCalendar && (
@@ -70,6 +73,9 @@ export default class Calendars extends Component {
         />
       );
     }
+    if (list.length === 0) {
+      list.push(<p key={0} />);
+    }
     return list;
   }
 
@@ -79,7 +85,7 @@ export default class Calendars extends Component {
     if (calendarToAdd) {
       if (calendarToAdd.startsWith("http")) {
         addCalendar({
-          name: "",
+          name: calendarToAdd,
           type: "ics",
           mode: "read-only",
           data: { src: calendarToAdd }

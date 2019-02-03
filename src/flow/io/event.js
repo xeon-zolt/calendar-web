@@ -231,7 +231,7 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
   return getFile(src, config)
     .then(
       str => {
-        if (privateKey) {
+        if (str && privateKey) {
           str = decryptContent(str, { privateKey });
         }
         return str;
@@ -326,7 +326,6 @@ function fetchAndParseIcal(src) {
 export function handleIntentsInQueryString(
   query,
   convertEvent,
-  username,
   whenPrivateEvent,
   whenNewEvent,
   whenICSUrl,

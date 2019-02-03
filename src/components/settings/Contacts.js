@@ -77,6 +77,9 @@ export default class Contacts extends Component {
         );
       }
     }
+    if (list.length === 0) {
+      list.push(<p key={0} />);
+    }
     return list;
   }
 
@@ -85,9 +88,13 @@ export default class Contacts extends Component {
     const contactQuery = event.target.value;
 
     this.setState({ lookingUpContacts: true, nameToAdd: contactQuery });
-    const proposedContacts = (contacts || []).filter(c =>
-      c.contains(contactQuery)
-    );
+    const proposedContacts = [];
+    for (var n in contacts) {
+      const c = contacts[n];
+      if (c && n.indexOf(contactQuery) >= 0) {
+        proposedContacts.push(c);
+      }
+    }
     this.setState({ proposedContacts, lookingUpContacts: false });
     lookupContacts(contactQuery).then(
       proposedContacts =>
@@ -101,7 +108,7 @@ export default class Contacts extends Component {
   addContact() {
     const { addContact } = this.props;
     const { nameToAdd } = this.state;
-    addContact(nameToAdd, { nameToAdd });
+    addContact(nameToAdd, { username: nameToAdd });
     this.setState({ nameToAdd: "" });
   }
 

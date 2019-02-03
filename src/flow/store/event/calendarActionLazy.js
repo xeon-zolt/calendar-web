@@ -16,7 +16,12 @@ export function initializeCalendars() {
     return fetchCalendars().then(calendars => {
       if (!calendars) {
         calendars = defaultCalendars;
-        // :Q: why save the default instead of waiting for a change?
+        // publish now as other devices fetch before storing
+        publishCalendars(calendars);
+      }
+      if (calendars.length === 0) {
+        calendars.push(defaultCalendars[0]);
+        // publish now as other devices fetch before storing
         publishCalendars(calendars);
       }
       dispatch(asAction_setCalendars(calendars));

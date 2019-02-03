@@ -15,9 +15,6 @@ export const defaultEvents = [
 
 const uuids = [uuid(), uuid(), uuid()];
 
-// :NOTE: in js, objects can be declared as const but their content changed,
-// I prefer to use let when declaring objects or arrays to make it clear that
-// content mutations will happen.
 export let defaultCalendars = [
   {
     uid: uuids[0],
