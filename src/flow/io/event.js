@@ -62,7 +62,12 @@ export function sendInvitesToGuests(
   guestProfiles,
   chatSession
 ) {
-  const eventInfo = asInviteEvent(eventInfoRaw, user.username);
+  const username = user.username;
+  const eventInfo = asInviteEvent(eventInfoRaw, username);
+  if (!eventInfo) {
+    console.log("[ERROR]", eventInfoRaw, eventInfo);
+    return;
+  }
   return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey
   }).then(readUrl => {
@@ -226,7 +231,7 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
   return getFile(src, config)
     .then(
       str => {
-        if (privateKey) {
+        if (str && privateKey) {
           str = decryptContent(str, { privateKey });
         }
         return str;
@@ -320,7 +325,7 @@ function fetchAndParseIcal(src) {
 
 export function handleIntentsInQueryString(
   query,
-  username,
+  convertEvent,
   whenPrivateEvent,
   whenNewEvent,
   whenICSUrl,
@@ -342,20 +347,15 @@ export function handleIntentsInQueryString(
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent);
     } else if (intent) {
-      if (intent.toLowerCase() === "addevent") {
-        const eventInfo = {};
-        eventInfo.title = decodeURIComponent(title) || "New Event";
-        eventInfo.start =
-          start != null ? new Date(decodeURIComponent(start)) : new Date();
-        eventInfo.end = end != null ? new Date(decodeURIComponent(end)) : null;
-        eventInfo.owner = via != null ? via : username;
-        whenNewEvent(eventInfo);
-      } else if (intent.toLowerCase() === "addics") {
+      const intentAction = intent.toLowerCase();
+      if (intentAction === "addevent") {
+        whenNewEvent(convertEvent(title, start, end, via));
+      } else if (intentAction === "addics") {
         whenICSUrl(url);
-      } else if (intent.toLowerCase() === "view") {
+      } else if (intentAction === "view") {
         whenPublicCalendar(name);
       } else {
-        console.log("unsupported intent " + intent);
+        console.log("unsupported intent " + intentAction);
       }
     }
   }
@@ -446,6 +446,7 @@ export function publishEvents(param, updatePublicEvents) {
 }
 
 export function saveEvents(calendarName, allEvents) {
+  console.log("save", { calendarName, allEvents });
   const calendarEvents = Object.keys(allEvents)
     .filter(key => allEvents[key].calendarName === calendarName)
     .reduce((res, key) => {
@@ -461,6 +462,7 @@ export function fetchPreferences() {
 }
 
 export function fetchIcsUrl(calendarName) {
+  console.log("calendarName", calendarName);
   const parts = calendarName.split("@");
   const path = parts[0] + "/AllEvents.ics";
   const username = parts[1];

@@ -2,7 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const imageDefaultStyle = {
-  height: 20
+  height: 20,
+  width: 20
 };
 const textDefaultStyle = {
   fontSize: 12,
