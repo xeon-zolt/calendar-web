@@ -19,9 +19,9 @@ Unfortunately, Google does not let you easily use these events, you need either 
     * Copy the private address of your calendar containing your email address and ends with `basic.ics`
     ![Select3](resources/Screenshot%20from%202019-02-02%2002-11-27.png)
 1. Add to OI Calendar
-    1. Open OI Calendar https://cal.openintents.org/
-    1. Enable your CORS browser plugin
-    1. Paste the private address into the `Paste url ...` field and press enter
+    * Open OI Calendar https://cal.openintents.org/
+    * Enable your CORS browser plugin
+    * Paste the private address into the `Paste url ...` field and press enter
 1. Enjoy YOUR calendar!
 
 ## App Developers
