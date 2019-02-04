@@ -1,36 +1,49 @@
 import React, { Component } from "react";
 import { Button } from "react-bootstrap";
-const Calendar = props => {
-  const { calendar, handleDataChange } = props;
-  //const privateCalendar = calendar.type === "private";
-  return (
-    <div>
-      <input
-        type="checkbox"
-        checked={calendar.selected}
-        value={calendar.selected}
-        disabled={calendar.type === "private" && calendar.name === "default"}
-        onChange={e => handleDataChange(e, "delete")}
-      />
-      <input
-        type="color"
-        disabled
-        value={calendar.hexColor || ""}
-        onChange={e => handleDataChange(e, "hexColor")}
-        style={{ marginRight: "20px", marginLeft: "5px" }}
-      />
+import { guaranteeHexColor } from "../../flow/io/eventFN";
+class Calendar extends Component {
+  constructor(props) {
+    super(props);
+    const { calendar } = props;
+    this.state = {
+      hexColor: calendar.hexColor || "",
+      name: calendar.name
+    };
+  }
+  render() {
+    const { calendar, handleDataChange } = this.props;
+    const { hexColor, name } = this.state;
+    return (
+      <div>
+        <input
+          type="checkbox"
+          checked={calendar.selected}
+          value={calendar.selected}
+          disabled={calendar.type === "private" && calendar.name === "default"}
+          onChange={e => handleDataChange(e, "delete")}
+        />
+        <input
+          type="color"
+          value={hexColor}
+          onChange={e => {
+            this.setState({ hexColor: e.target.value });
+            handleDataChange(e, "hexColor");
+          }}
+          style={{ marginRight: "20px", marginLeft: "5px" }}
+        />
 
-      <label>{calendar.name}</label>
-      {/* TODO implement editCalendar
+        <label>{calendar.name}</label>
+        {/* TODO implement editCalendar
       {privateCalendar && (
         <Button variant="light">
           <span className="glyphicon glyphicon-pencil" />
         </Button>
       )}
       */}
-    </div>
-  );
-};
+      </div>
+    );
+  }
+}
 
 export default class Calendars extends Component {
   constructor(props) {
@@ -88,6 +101,7 @@ export default class Calendars extends Component {
           name: calendarToAdd,
           type: "ics",
           mode: "read-only",
+          hexColor: guaranteeHexColor(),
           data: { src: calendarToAdd }
         });
         this.setState({ calendarToAdd: "" });
@@ -101,6 +115,7 @@ export default class Calendars extends Component {
             name: calendarToAdd,
             mode: "read-only",
             type: "blockstack-user",
+            hexColor: guaranteeHexColor(),
             data: { user, src }
           });
           this.setState({ calendarToAdd: "" });
