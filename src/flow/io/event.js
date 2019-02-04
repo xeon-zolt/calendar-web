@@ -291,7 +291,6 @@ export function importCalendarEvents(calendar, defaultEvents) {
     .then(objectToArray)
     .then(events => {
       if (!events && type === "private" && name === "default") {
-        // :Q: why save the default instead of waiting for a change?
         putOnBlockstack(data.src, defaultEvents);
         events = Object.values(defaultEvents);
       }
@@ -307,13 +306,15 @@ export function importCalendarEvents(calendar, defaultEvents) {
 function applyCalendarDefaults(calendar) {
   const { type, hexColor, mode, name: calendarName } = calendar;
   const eventDefaults = {
-    hexColor: guaranteeHexColor(hexColor),
     mode: mode,
     calendarName: type === "private" ? calendarName : null
   };
-
+  const eventOverrides = {
+    hexColor: guaranteeHexColor(hexColor)
+  };
   return d => {
-    return { ...eventDefaults, uid: uuid(), ...d };
+    const d2 = { ...eventDefaults, uid: uuid(), ...d, ...eventOverrides };
+    return d2;
   };
 }
 
