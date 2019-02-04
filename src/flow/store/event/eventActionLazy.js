@@ -7,21 +7,18 @@ import {
   INITIALIZE_CHAT,
   SHOW_MY_PUBLIC_CALENDAR,
   SHOW_ALL_CALENDARS,
-  SHOW_SETTINGS,
   SET_PUBLIC_CALENDAR_EVENTS,
   SHOW_INSTRUCTIONS
 } from "../ActionTypes";
 
 import queryString from "query-string";
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
+import { defaultEvents } from "../../io/eventDefaults";
 
 import {
   saveEvents,
   publishEvents,
   handleIntentsInQueryString,
-  importCalendarEvents,
-  fetchCalendars,
-  publishCalendars,
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
@@ -29,13 +26,13 @@ import {
   loadPublicCalendar,
   savePreferences,
   fetchPreferences,
-  fetchIcsUrl
+  fetchIcsUrl,
+  importCalendarEvents
 } from "../../io/event";
 import { initializeContactData } from "./contactActionLazy";
 import { initializeCalendars } from "./calendarActionLazy";
 
 import { createSessionChat } from "../../io/chat";
-import { defaultEvents } from "../../io/eventDefaults";
 
 import { uuid } from "../../io/eventFN";
 import { setCurrentEvent } from "./eventAction";
@@ -128,11 +125,11 @@ export function initializeLazyActions() {
       dispatch(asAction_user(userData));
       dispatch(initializeQueryString(query, userData.username));
       dispatch(initializePreferences());
-      dispatch(initializeCalendars()).then(calendars =>
-        loadCalendarData(calendars).then(allEvents => {
+      dispatch(initializeCalendars())
+        .then(calendars => loadCalendarEvents(calendars))
+        .then(allEvents => {
           dispatch(asAction_setEvents(allEvents));
-        })
-      );
+        });
       dispatch(initializeContactData());
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
@@ -182,32 +179,6 @@ function viewPublicCalendar(name) {
   };
 }
 
-function loadCalendarData(calendars) {
-  var promises = calendars.map(function(calendar) {
-    return importCalendarEvents(calendar, defaultEvents).then(
-      events => {
-        return { name: calendar.name, events };
-      },
-      error => {
-        console.log("[ERROR.loadCalendarData]", error, calendar);
-        return { name: calendar.name, events: {} };
-      }
-    );
-  });
-
-  return Promise.all(promises).then(
-    allCalendars => {
-      return allCalendars.reduce((acc, cur, i) => {
-        const events = cur.events;
-        return { ...acc, ...events };
-      }, {});
-    },
-    error => {
-      return Promise.reject(error);
-    }
-  );
-}
-
 // ################
 // Preferences
 // ################
@@ -249,6 +220,32 @@ export function saveAllEvents(allEvents) {
     saveEvents("default", allEvents);
     dispatch(asAction_setEvents(allEvents));
   };
+}
+
+function loadCalendarEvents(calendars) {
+  var promises = calendars.map(function(calendar) {
+    return importCalendarEvents(calendar, defaultEvents).then(
+      events => {
+        return { name: calendar.name, events };
+      },
+      error => {
+        console.log("[ERROR.loadCalendarEvents]", error, calendar);
+        return { name: calendar.name, events: {} };
+      }
+    );
+  });
+
+  return Promise.all(promises).then(
+    allCalendars => {
+      return allCalendars.reduce((acc, cur, i) => {
+        const events = cur.events;
+        return { ...acc, ...events };
+      }, {});
+    },
+    error => {
+      return Promise.reject(error);
+    }
+  );
 }
 
 // ################
@@ -302,22 +299,6 @@ export function updateEvent(event) {
 // ################
 // Calendars
 // ################
-export function addCalendar(calendar) {
-  return async (dispatch, getState) => {
-    fetchCalendars().then(calendars => {
-      // TODO check for duplicates
-      calendars.push(calendar);
-      publishCalendars(calendars);
-      dispatch(asAction_setCalendars(calendars));
-    });
-  };
-}
-
-export function asAction_showSettings() {
-  return {
-    type: SHOW_SETTINGS
-  };
-}
 
 export function asAction_showMyPublicCalendar(name, icsUrl) {
   return { type: SHOW_MY_PUBLIC_CALENDAR, payload: { name, icsUrl } };

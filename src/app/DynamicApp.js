@@ -27,8 +27,10 @@ class DynamicApp extends Component {
     const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store);
     const ConnectedSettings = connectToStore(Settings, connectSettings, store);
     const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store);
-    const { views } = this.props;
+    const { views, showSettings } = this.props;
     const { UserProfile } = views;
+
+    //
     return (
       <div className="App">
         <header className="App-header">
@@ -46,9 +48,7 @@ class DynamicApp extends Component {
             </Row>
           </Grid>
         </header>
-
-        <ConnectedSettings />
-        <ConnectedCalendar />
+        {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
         <footer>
           <AppFooter />
         </footer>
