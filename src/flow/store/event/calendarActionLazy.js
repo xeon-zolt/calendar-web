@@ -87,6 +87,7 @@ export function setCalendarData(calendar, newData) {
         }
         return d;
       });
+      console.log(newCalendars);
       dispatch(resetCalendars(newCalendars));
     });
   };

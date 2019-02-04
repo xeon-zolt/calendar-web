@@ -100,6 +100,16 @@ function initializeQueryString(query, username) {
   };
 }
 
+export function initializeEvents() {
+  return (dispatch, getState) => {
+    dispatch(initializeCalendars())
+      .then(calendars => loadCalendarEvents(calendars))
+      .then(allEvents => {
+        dispatch(asAction_setEvents(allEvents));
+      });
+  };
+}
+
 export function initializeLazyActions() {
   const query = window.location.search;
   return async (dispatch, getState) => {
@@ -110,11 +120,7 @@ export function initializeLazyActions() {
       dispatch(asAction_user(userData));
       dispatch(initializeQueryString(query, userData.username));
       dispatch(initializePreferences());
-      dispatch(initializeCalendars())
-        .then(calendars => loadCalendarEvents(calendars))
-        .then(allEvents => {
-          dispatch(asAction_setEvents(allEvents));
-        });
+      dispatch(initializeEvents());
       dispatch(initializeContactData());
     } else if (isSignInPending()) {
       console.log("handling pending sign in");
