@@ -44,6 +44,7 @@ export default class Settings extends Component {
       contacts,
       addCalendar,
       deleteCalendars,
+      setCalendarData,
       lookupContacts,
       addContact,
       deleteContacts
@@ -52,10 +53,11 @@ export default class Settings extends Component {
       <div>
         <label>Calendars</label>
         <Calendars
-          calendars={calendars}
-          addCalendar={addCalendar}
-          deleteCalendars={deleteCalendars}
-          addCalendarUrl={addCalendarUrl}
+          items={calendars}
+          addItem={addCalendar}
+          deleteItems={deleteCalendars}
+          setItemData={setCalendarData}
+          valueOfAdd={addCalendarUrl}
         />
       </div>
     );
@@ -66,8 +68,8 @@ export default class Settings extends Component {
         <Contacts
           contacts={contacts}
           lookupContacts={lookupContacts}
-          addContact={addContact}
-          deleteContacts={deleteContacts}
+          addItem={addContact}
+          deleteItems={deleteContacts}
         />
       </div>
     );

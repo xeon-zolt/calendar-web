@@ -302,16 +302,6 @@ export function updateEvent(event) {
 // ################
 // Calendars
 // ################
-export function addCalendar(calendar) {
-  return async (dispatch, getState) => {
-    fetchCalendars().then(calendars => {
-      // TODO check for duplicates
-      calendars.push(calendar);
-      publishCalendars(calendars);
-      dispatch(asAction_setCalendars(calendars));
-    });
-  };
-}
 
 export function asAction_showSettings() {
   return {

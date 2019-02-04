@@ -56,3 +56,18 @@ export function deleteCalendars(deleteList) {
     });
   };
 }
+
+export function setCalendarData(calendar, newData) {
+  return async (dispatch, getState) => {
+    fetchCalendars().then(calendars => {
+      const newCalendars = calendars.map(d => {
+        if (d.uid === calendar.uid) {
+          d = Object.assign({}, d, newData);
+        }
+        return d;
+      });
+      publishCalendars(newCalendars);
+      dispatch(asAction_setCalendars(newCalendars));
+    });
+  };
+}

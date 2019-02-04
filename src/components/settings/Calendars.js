@@ -1,166 +1,93 @@
 import React, { Component } from "react";
-import { Button } from "react-bootstrap";
-const Calendar = props => {
-  const { calendar, handleDataChange } = props;
-  //const privateCalendar = calendar.type === "private";
-  return (
-    <div>
-      <input
-        type="checkbox"
-        checked={calendar.selected}
-        value={calendar.selected}
-        disabled={calendar.type === "private" && calendar.name === "default"}
-        onChange={e => handleDataChange(e, "delete")}
-      />
-      <input
-        type="color"
-        disabled
-        value={calendar.hexColor || ""}
-        onChange={e => handleDataChange(e, "hexColor")}
-        style={{ marginRight: "20px", marginLeft: "5px" }}
-      />
+import { Button, Glyphicon } from "react-bootstrap";
+import AddDeleteSetting from "./AddDeleteSetting";
 
-      <label>{calendar.name}</label>
-      {/* TODO implement editCalendar
-      {privateCalendar && (
-        <Button variant="light">
-          <span className="glyphicon glyphicon-pencil" />
-        </Button>
-      )}
-      */}
-    </div>
-  );
-};
-
-export default class Calendars extends Component {
+class CalendarItem extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      calendarToAdd: props.addCalendarUrl,
-      selectedCalendars: {}
-    };
-    this.bound = [
-      "handleDataChange",
-      "addCalendar",
-      "deleteCalendars",
-      "handleCalendarChange",
-      "renderCalendars"
-    ].reduce((acc, d) => {
-      acc[d] = this[d].bind(this);
-      return acc;
-    }, {});
-  }
-
-  handleCalendarChange(calendar) {
-    return (event, ref) => {
-      const { selectedCalendars } = this.state;
-      if (ref === "delete") {
-        selectedCalendars[calendar.name] = event.target.checked;
-        this.setState({ selectedCalendars });
-      }
+    this.state = { checked: props.item.visible || false };
+    this.bound = {
+      onColorChange: this.onColorChange.bind(this),
+      onVisibilityChange: this.onVisibilityChange.bind(this)
     };
   }
 
-  renderCalendars(calendars) {
-    const list = [];
-    for (var i in calendars) {
-      var calendar = calendars[i];
-      list.push(
-        <Calendar
-          key={i}
-          calendar={calendar}
-          handleDataChange={this.handleCalendarChange(calendar)}
-        />
-      );
-    }
-    if (list.length === 0) {
-      list.push(<p key={0} />);
-    }
-    return list;
+  onVisibilityChange(event) {
+    const { item: calendar, idx, onChangeItem } = this.props;
+    calendar.selected = !calendar.selected;
+    onChangeItem(calendar, { visible: calendar.selected }, idx);
   }
 
-  addCalendar() {
-    const { calendarToAdd } = this.state;
-    const { addCalendar } = this.props;
-    if (calendarToAdd) {
-      if (calendarToAdd.startsWith("http")) {
-        addCalendar({
-          name: calendarToAdd,
-          type: "ics",
-          mode: "read-only",
-          data: { src: calendarToAdd }
-        });
-        this.setState({ calendarToAdd: "" });
-      } else {
-        const parts = calendarToAdd.split("@");
-        if (parts.length === 2) {
-          const parts = calendarToAdd.split("@");
-          const user = parts[1];
-          const src = parts[0] + "/AllEvents";
-          addCalendar({
-            name: calendarToAdd,
-            mode: "read-only",
-            type: "blockstack-user",
-            data: { user, src }
-          });
-          this.setState({ calendarToAdd: "" });
-        } else {
-          this.setState({
-            error: "Invalid calendar "
-          });
-        }
-      }
-    }
-  }
-
-  deleteCalendars() {
-    const { deleteCalendars, calendars } = this.props;
-    const { selectedCalendars } = this.state;
-    const calendarsToDelete = calendars.filter(c => selectedCalendars[c.name]);
-    deleteCalendars(calendarsToDelete);
-    this.setState({ selectedCalendars: {} });
-  }
-
-  handleDataChange(e, ref) {
-    const val = e.target.value;
-    const stateUpdates = {};
-    stateUpdates[ref] = val;
-    this.setState(stateUpdates);
+  onColorChange(event) {
+    const { item: calendar, idx, onChangeItem } = this.props;
+    const color = event.target.value;
+    onChangeItem(calendar, { hexColor: color }, idx);
   }
 
   render() {
-    const { calendars, addCalendarUrl } = this.props;
-    const { addCalendar, deleteCalendars, handleDataChange } = this.bound;
-    const { selectedCalendars, calendarToAdd } = this.state;
-    const view = this.renderCalendars(calendars);
+    const { item: calendar, idx } = this.props;
+    const { onColorChange, onVisibilityChange } = this.bound;
+    const isPrivateDefault =
+      calendar.type === "private" && calendar.name === "default";
+    //const privateCalendar = calendar.type === "private";
     return (
-      <div className="settings">
+      <div>
         <input
-          placeholder="e.g. public@user.id or https://calendar.google..../basic.ics"
-          type="text"
-          value={addCalendarUrl}
-          onChange={e => handleDataChange(e, "calendarToAdd")}
+          type="checkbox"
+          checked={isPrivateDefault ? true : calendar.selected}
+          data-x={idx}
+          disabled={isPrivateDefault}
+          onChange={onVisibilityChange}
         />
-        <Button
-          onClick={() => addCalendar()}
-          disabled={!calendarToAdd || calendarToAdd.length === 0}
-        >
-          Add
-        </Button>
-        {view}
-        <Button
-          bsStyle="danger"
-          bsSize="small"
-          onClick={deleteCalendars}
-          disabled={
-            !selectedCalendars ||
-            Object.keys(selectedCalendars).filter(n => selectedCalendars[n])
-              .length === 0
-          }
-        >
-          Delete
-        </Button>
+        <input
+          type="color"
+          value={calendar.hexColor || ""}
+          onChange={onColorChange}
+          style={{ marginRight: "20px", marginLeft: "5px" }}
+        />
+
+        <label>{calendar.name}</label>
+        {/* TODO implement editCalendar
+        {privateCalendar && (
+          <Button variant="light">
+            <span className="glyphicon glyphicon-pencil" />
+          </Button>
+        )}
+        */}
       </div>
     );
+  }
+}
+
+export default class Calendars extends AddDeleteSetting {
+  constructor(props) {
+    super(props);
+    this.state.addPlaceholder =
+      "e.g. public@user.id or https://calendar.google..../basic.ics";
+
+    this.state.ItemRenderer = CalendarItem;
+
+    this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
+      let newItem, errors;
+      if (valueOfAdd) {
+        if (valueOfAdd.startsWith("http")) {
+          newItem = {
+            type: "ics",
+            data: { src: valueOfAdd }
+          };
+        } else {
+          const [src, user, more] = valueOfAdd.split("@");
+          if (src && user && !more) {
+            newItem = {
+              type: "blockstack-user",
+              data: { user, src: src + "/AllEvents" }
+            };
+          } else {
+            errors.push("Invalid calendar ");
+          }
+        }
+      }
+      asyncReturn({ result: newItem, error: errors.join(" ") });
+    };
   }
 }
