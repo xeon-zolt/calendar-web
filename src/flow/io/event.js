@@ -304,17 +304,16 @@ export function importCalendarEvents(calendar, defaultEvents) {
 }
 
 function applyCalendarDefaults(calendar) {
-  const { type, hexColor, mode, name: calendarName } = calendar;
+  const { hexColor, mode, name: calendarName } = calendar;
   const eventDefaults = {
     mode: mode,
-    calendarName: type === "private" ? calendarName : null
+    calendarName
   };
   const eventOverrides = {
     hexColor: guaranteeHexColor(hexColor)
   };
   return d => {
-    const d2 = { ...eventDefaults, uid: uuid(), ...d, ...eventOverrides };
-    return d2;
+    return { ...eventDefaults, uid: uuid(), ...d, ...eventOverrides };
   };
 }
 
