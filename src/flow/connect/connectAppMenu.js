@@ -1,5 +1,5 @@
 import { connect } from "react-redux";
-import { showSettings } from "../store/event/calendarActionLazy";
+import { showSettings, hideSettings } from "../store/event/calendarActionLazy";
 import { showMyPublicCalendar } from "../store/event/eventActionLazy";
 
 export default connect(
@@ -18,6 +18,7 @@ export default connect(
         dispatch(showSettings());
       },
       viewMyPublicCalendar: name => {
+        dispatch(hideSettings());
         dispatch(showMyPublicCalendar(name));
       }
     };
