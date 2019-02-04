@@ -1,11 +1,17 @@
 import React, { Component } from "react";
-import { Button, Glyphicon } from "react-bootstrap";
 import AddDeleteSetting from "./AddDeleteSetting";
+import { uuid } from "../../flow/io/eventFN";
 
 class CalendarItem extends Component {
   constructor(props) {
     super(props);
-    this.state = { checked: props.item.visible || false };
+    const { type, name, disabled, hexColor } = props.item || {};
+    const isPrivateDefault = type === "private" && name === "default";
+    this.state = {
+      disabled: isPrivateDefault ? false : disabled || false,
+      hexColor: hexColor || "#000000",
+      isPrivateDefault
+    };
     this.bound = {
       onColorChange: this.onColorChange.bind(this),
       onVisibilityChange: this.onVisibilityChange.bind(this)
@@ -13,40 +19,42 @@ class CalendarItem extends Component {
   }
 
   onVisibilityChange(event) {
+    const checked = event.target.checked;
     const { item: calendar, idx, onChangeItem } = this.props;
-    calendar.selected = !calendar.selected;
-    onChangeItem(calendar, { visible: calendar.selected }, idx);
+    onChangeItem(calendar, { disabled: !checked }, idx);
+    this.setState({ disabled: !checked });
   }
 
   onColorChange(event) {
+    const hexColor = event.target.value;
+    console.log("onColorChange", event.target.value);
     const { item: calendar, idx, onChangeItem } = this.props;
-    const color = event.target.value;
-    onChangeItem(calendar, { hexColor: color }, idx);
+    onChangeItem(calendar, { hexColor }, idx);
+    this.setState({ hexColor });
   }
 
   render() {
-    const { item: calendar, idx } = this.props;
+    const { item: calendar } = this.props || {};
+    const { hexColor, disabled, isPrivateDefault } = this.state;
     const { onColorChange, onVisibilityChange } = this.bound;
-    const isPrivateDefault =
-      calendar.type === "private" && calendar.name === "default";
+
     //const privateCalendar = calendar.type === "private";
     return (
       <div>
         <input
           type="checkbox"
-          checked={isPrivateDefault ? true : calendar.selected}
-          data-x={idx}
+          checked={!disabled}
           disabled={isPrivateDefault}
           onChange={onVisibilityChange}
         />
         <input
           type="color"
-          value={calendar.hexColor || ""}
+          value={hexColor}
           onChange={onColorChange}
           style={{ marginRight: "20px", marginLeft: "5px" }}
         />
 
-        <label>{calendar.name}</label>
+        <label>{(calendar || {}).name}</label>
         {/* TODO implement editCalendar
         {privateCalendar && (
           <Button variant="light">
@@ -64,11 +72,19 @@ export default class Calendars extends AddDeleteSetting {
     super(props);
     this.state.addPlaceholder =
       "e.g. public@user.id or https://calendar.google..../basic.ics";
-
     this.state.ItemRenderer = CalendarItem;
-
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
-      let newItem, errors;
+      let newItem,
+        errors = [];
+
+      const { items } = this.props;
+      const names = items.map(d => {
+        return d.name;
+      });
+      if (names.includes(valueOfAdd)) {
+        errors.push("Calendar already included");
+      }
+
       if (valueOfAdd) {
         if (valueOfAdd.startsWith("http")) {
           newItem = {
@@ -87,7 +103,21 @@ export default class Calendars extends AddDeleteSetting {
           }
         }
       }
-      asyncReturn({ result: newItem, error: errors.join(" ") });
+      if (newItem) {
+        const { type, data } = newItem;
+        newItem = {
+          uid: uuid(),
+          type,
+          name: valueOfAdd,
+          mode: "read-only",
+          data
+        };
+      }
+
+      asyncReturn({
+        item: newItem,
+        error: (errors || []).join(" ")
+      });
     };
   }
 }

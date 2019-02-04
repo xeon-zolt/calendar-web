@@ -1,9 +1,9 @@
 import { connect } from "react-redux";
-import { HIDE_SETTINGS } from "../store/ActionTypes";
 import {
   addCalendar,
   deleteCalendars,
-  setCalendarData
+  setCalendarData,
+  hideSettings
 } from "../store/event/calendarActionLazy";
 import { addContact, deleteContacts } from "../store/event/contactActionLazy";
 
@@ -18,7 +18,7 @@ export default connect(
   dispatch => {
     return {
       handleHide: () => {
-        dispatch({ type: HIDE_SETTINGS });
+        dispatch(hideSettings());
       },
       lookupContacts: contactQuery => {
         return Promise.reject("not yet implemented");

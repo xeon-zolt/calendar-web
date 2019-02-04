@@ -48,7 +48,7 @@ class DynamicApp extends Component {
             </Row>
           </Grid>
         </header>
-        {showSettings || 4 == 4 ? <ConnectedSettings /> : <ConnectedCalendar />}
+        {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
         <footer>
           <AppFooter />
         </footer>

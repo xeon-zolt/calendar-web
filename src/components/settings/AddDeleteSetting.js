@@ -5,7 +5,7 @@ class AddDeleteSetting extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      valueOfAdd: props.valueOfAdd
+      valueOfAdd: props.valueOfAdd || ""
     };
     this.bound = [
       "renderItem",
@@ -27,27 +27,21 @@ class AddDeleteSetting extends Component {
   onAddItem(event) {
     const { valueOfAdd, addValueToItem } = this.state;
     const { addItem } = this.props;
-    addValueToItem(valueOfAdd, ({ result, error }) => {
+    addValueToItem(valueOfAdd, ({ item, error }) => {
       if (error) {
         this.setState({
           valueOfAdd,
           errorOfAdd: error
         });
       } else {
-        addItem(
-          Object.assign({}, result, {
-            name: valueOfAdd,
-            mode: "read-only"
-          })
-        );
-        this.setState({ valueOfAdd: undefined, errorOfAdd: undefined });
+        addItem(item);
+        this.setState({ valueOfAdd: "", errorOfAdd: "" });
       }
     });
   }
 
   onDeleteItem(event) {
     const { items: itemList, deleteItems } = this.props;
-    const target = event.target;
     const { idx } = event.target.dataset;
     const item = itemList[idx];
     deleteItems([item]);
@@ -63,7 +57,7 @@ class AddDeleteSetting extends Component {
     const { onChangeItem, onDeleteItem } = this.bound;
     return (
       <div key={i} className="d-inline-block">
-        <div style={{ display: "inline-block", width: 240 }}>
+        <div style={{ display: "inline-block", width: 320 }}>
           {ItemRenderer && (
             <ItemRenderer item={d} idx={i} onChangeItem={onChangeItem} />
           )}
@@ -91,11 +85,14 @@ class AddDeleteSetting extends Component {
         <Button onClick={onAddItem} disabled={!valueOfAdd}>
           Add
         </Button>
-        {errorOfAdd && <span>{errorOfAdd}</span>}
+        <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
         <div>{(itemList || []).map(renderItem)}</div>
       </div>
     );
   }
 }
+
+/*
+ */
 
 export default AddDeleteSetting;

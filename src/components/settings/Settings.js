@@ -23,12 +23,13 @@ class SettingsPanel extends Component {
 
 class SettingsPage extends Component {
   render() {
-    const { show, handleHide, CalendarsContent, ContactsContent } = this.props;
+    const { CalendarsContent, ContactsContent, handleHide } = this.props;
     return (
       <div className="text-left" style={{ marginLeft: 100 }}>
         <h4>Settings</h4>
         {CalendarsContent}
         {ContactsContent}
+        <Button onClick={handleHide}>Done</Button>
       </div>
     );
   }
@@ -66,10 +67,11 @@ export default class Settings extends Component {
       <div>
         <label>Contacts</label>
         <Contacts
-          contacts={contacts}
+          items={Object.values(contacts || {})}
           lookupContacts={lookupContacts}
           addItem={addContact}
           deleteItems={deleteContacts}
+          setItemData={setCalendarData}
         />
       </div>
     );
@@ -78,6 +80,7 @@ export default class Settings extends Component {
       <SettingsPage
         CalendarsContent={CalendarsContent}
         ContactsContent={ContactsContent}
+        handleHide={handleHide}
       />
     );
   }
