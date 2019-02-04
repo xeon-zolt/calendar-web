@@ -12,8 +12,11 @@ import {
   loadGuestProfiles
 } from "../../io/event";
 
-function asAction_setContacts(contacts) {
-  return { type: SET_CONTACTS, payload: { contacts } };
+function resetContacts(contacts) {
+  return (dispatch, getState) => {
+    publishContacts(contacts);
+    dispatch({ type: SET_CONTACTS, payload: contacts });
+  };
 }
 
 // ################
@@ -23,7 +26,8 @@ function asAction_setContacts(contacts) {
 export function initializeContactData() {
   return async (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      dispatch(asAction_setContacts(contacts));
+      console.log("");
+      dispatch(resetContacts(contacts));
     });
   };
 }
@@ -31,24 +35,30 @@ export function initializeContactData() {
 // ################
 // In Settings
 // ################
-export function addContact(username, contact) {
-  return async (dispatch, getState) => {
+
+export function lookupContacts() {
+  return (dispatch, getState) => {
+    return Promise.reject("not yet implemented");
+  };
+}
+
+export function addContact(contact) {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      contacts[username] = contact;
-      publishContacts(contacts);
-      dispatch(asAction_setContacts(contacts));
+      // TODO check for duplicates
+      contacts.push(contact);
+      resetContacts(contacts);
     });
   };
 }
 
 export function deleteContacts(deleteList) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
       for (var i in deleteList) {
         delete contacts[deleteList[i].username];
       }
-      publishContacts(contacts);
-      dispatch(asAction_setContacts(contacts));
+      resetContacts(contacts);
     });
   };
 }

@@ -1,9 +1,6 @@
 import {
   SET_EVENTS,
   USER,
-  SET_CONTACTS,
-  SET_CALENDARS,
-  SHOW_SETTINGS_ADD_CALENDAR,
   INITIALIZE_CHAT,
   SHOW_MY_PUBLIC_CALENDAR,
   SHOW_ALL_CALENDARS,
@@ -14,6 +11,7 @@ import {
 import queryString from "query-string";
 import { AUTH_CONNECTED, AUTH_DISCONNECTED } from "../ActionTypes";
 import { defaultEvents } from "../../io/eventDefaults";
+import { showSettingsAddCalendar } from "./calendarActionLazy";
 
 import {
   saveEvents,
@@ -22,7 +20,6 @@ import {
   fetchContactData,
   updatePublicEvent,
   removePublicEvent,
-  publishContacts,
   loadPublicCalendar,
   savePreferences,
   fetchPreferences,
@@ -76,18 +73,6 @@ function asAction_user(userData) {
 
 function asAction_setEvents(allEvents) {
   return { type: SET_EVENTS, allEvents };
-}
-
-function asAction_setContacts(contacts) {
-  return { type: SET_CONTACTS, payload: { contacts } };
-}
-
-function asAction_setCalendars(calendars) {
-  return { type: SET_CALENDARS, payload: { calendars } };
-}
-
-export function showSettingsAddCalendar(url) {
-  return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
 function initializeQueryString(query, username) {
@@ -321,19 +306,5 @@ export function showAllCalendars() {
   return async (dispatch, getState) => {
     window.history.pushState({}, "OI Calendar", "/");
     dispatch(asAction_showAllCalendars());
-  };
-}
-
-// ################
-// Contacts
-// ################
-export function addContact(contact) {
-  return async (dispatch, getState) => {
-    fetchContactData().then(contacts => {
-      // TODO check for duplicates
-      contacts.push(contact);
-      publishContacts(contacts);
-      dispatch(asAction_setContacts(contacts));
-    });
   };
 }

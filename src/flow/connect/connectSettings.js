@@ -5,7 +5,11 @@ import {
   setCalendarData,
   hideSettings
 } from "../store/event/calendarActionLazy";
-import { addContact, deleteContacts } from "../store/event/contactActionLazy";
+import {
+  addContact,
+  deleteContacts,
+  lookupContacts
+} from "../store/event/contactActionLazy";
 
 export default connect(
   (state, redux) => {
@@ -21,7 +25,7 @@ export default connect(
         dispatch(hideSettings());
       },
       lookupContacts: contactQuery => {
-        return Promise.reject("not yet implemented");
+        return dispatch(lookupContacts(contactQuery));
       },
       addContact: (username, contact) => {
         dispatch(addContact(username, contact));

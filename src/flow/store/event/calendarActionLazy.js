@@ -1,4 +1,9 @@
-import { SET_CALENDARS, SHOW_SETTINGS, HIDE_SETTINGS } from "../ActionTypes";
+import {
+  SET_CALENDARS,
+  SHOW_SETTINGS,
+  HIDE_SETTINGS,
+  SHOW_SETTINGS_ADD_CALENDAR
+} from "../ActionTypes";
 import { fetchCalendars, publishCalendars } from "../../io/event";
 import { defaultCalendars } from "../../io/eventDefaults";
 
@@ -6,14 +11,10 @@ import { defaultCalendars } from "../../io/eventDefaults";
 // When initializing app
 // ################
 
-function asAction_resetCalendars(calendars) {
-  return { type: SET_CALENDARS, payload: { calendars } };
-}
-
 function resetCalendars(calendars) {
   return (dispatch, getState) => {
     publishCalendars(calendars);
-    dispatch(asAction_resetCalendars(calendars));
+    dispatch({ type: SET_CALENDARS, payload: calendars });
   };
 }
 
@@ -49,6 +50,10 @@ export function hideSettings() {
   return {
     type: HIDE_SETTINGS
   };
+}
+
+export function showSettingsAddCalendar(url) {
+  return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
 }
 
 export function addCalendar(calendar) {

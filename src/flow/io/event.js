@@ -13,6 +13,9 @@ import { parseQueryString, encodeQueryString } from "./queryString";
 
 import { getUserAppFileUrl } from "blockstack/lib/storage";
 
+// ################
+// Contacts
+// ################
 export function fetchContactData() {
   return fetchFromBlockstack("Contacts");
 }
