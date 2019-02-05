@@ -3,9 +3,10 @@ import { connect } from "react-redux";
 import { setCurrentEvent } from "../store/event/eventAction";
 import {
   showAllCalendars,
-  hideInstructions,
-  showSettingsAddCalendar
+  hideInstructions
 } from "../store/event/eventActionLazy";
+
+import { showSettingsAddCalendar } from "../store/event/calendarActionLazy";
 
 export default connect(
   (state, redux) => {

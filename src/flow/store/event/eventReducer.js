@@ -22,7 +22,8 @@ import {
 
 let initialState = {
   allEvents: [],
-  contacts: {},
+  calendars: [],
+  contacts: [],
   user: ""
 };
 
@@ -41,7 +42,7 @@ export default function reduce(state = initialState, action = {}) {
 
     case SET_CONTACTS:
       // console.log('all contacts', payload.contacts);
-      newState = { ...state, contacts: payload.contacts };
+      newState = { ...state, contacts: payload };
       break;
 
     case SET_EVENTS:
@@ -113,7 +114,7 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         showSettings: true,
-        showSettingsAddCalendarUrl: action.payload.url
+        showSettingsAddCalendarUrl: payload.url
       };
       break;
 
@@ -121,13 +122,13 @@ export default function reduce(state = initialState, action = {}) {
       newState = { ...state, showSettings: false };
       break;
     case SET_CALENDARS:
-      newState = { ...state, calendars: action.payload.calendars };
+      newState = { ...state, calendars: payload };
       break;
     case SHOW_MY_PUBLIC_CALENDAR:
       newState = {
         ...state,
-        myPublicCalendar: action.payload.name,
-        myPublicCalendarIcsUrl: action.payload.icsUrl,
+        myPublicCalendar: payload.name,
+        myPublicCalendarIcsUrl: payload.icsUrl,
         publicCalendar: undefined,
         publicCalendarEvents: undefined
       };
@@ -146,14 +147,14 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         myPublicCalendar: undefined,
         myPublicCalendarIcsUrl: undefined,
-        publicCalendarEvents: action.payload.allEvents,
-        publicCalendar: action.payload.calendar.name
+        publicCalendarEvents: payload.allEvents,
+        publicCalendar: payload.calendar.name
       };
       break;
     case SHOW_INSTRUCTIONS:
       newState = {
         ...state,
-        showInstructions: { general: action.payload.show }
+        showInstructions: { general: payload.show }
       };
       break;
     case AUTH_SIGN_OUT:

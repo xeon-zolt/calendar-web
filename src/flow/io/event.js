@@ -13,6 +13,9 @@ import { parseQueryString, encodeQueryString } from "./queryString";
 
 import { getUserAppFileUrl } from "blockstack/lib/storage";
 
+// ################
+// Contacts
+// ################
 export function fetchContactData() {
   return fetchFromBlockstack("Contacts");
 }
@@ -263,10 +266,19 @@ function putOnBlockstack(src, text, config) {
 // List of calendars
 // ###########################################################################
 export function fetchCalendars() {
-  return fetchFromBlockstack("Calendars").then(objectToArray);
+  return fetchFromBlockstack("Calendars").then(calendars => {
+    if (!Array.isArray(calendars)) {
+      calendars = objectToArray(calendars);
+    }
+
+    return calendars;
+  });
 }
 
 export function publishCalendars(calendars) {
+  if (!Array.isArray(calendars)) {
+    calendars = Object.values(calendars || {});
+  }
   putOnBlockstack("Calendars", calendars);
 }
 
@@ -276,7 +288,7 @@ export function publishCalendars(calendars) {
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
 export function importCalendarEvents(calendar, defaultEvents) {
-  const { type, data, name } = calendar;
+  const { type, data, name } = calendar || {};
   let fn = () => {};
   let config;
   if (type === "ics") {
@@ -287,6 +299,7 @@ export function importCalendarEvents(calendar, defaultEvents) {
   } else if (type === "private") {
     fn = fetchFromBlockstack;
   }
+
   return fn(data.src, config)
     .then(objectToArray)
     .then(events => {
