@@ -12,7 +12,7 @@ class Calendar extends Component {
   }
   render() {
     const { calendar, handleDataChange } = this.props;
-    const { hexColor, name } = this.state;
+    const { hexColor } = this.state;
     return (
       <div>
         <input

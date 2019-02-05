@@ -18,6 +18,9 @@ export default class AppMenu extends Component {
       case "publicCalendar":
         this.props.viewMyPublicCalendar("public@" + this.props.username);
         break;
+      case "showFiles":
+        this.props.showFiles();
+        break;
       default:
         console.warn("invalid menu item ", eventKey);
         break;
@@ -42,6 +45,9 @@ export default class AppMenu extends Component {
               <MenuItem eventKey="publicCalendar">
                 View public calendar
               </MenuItem>
+            )}
+            {username && (
+              <MenuItem eventKey="showFiles">View your data</MenuItem>
             )}
           </DropdownButton>
         </div>

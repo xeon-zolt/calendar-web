@@ -17,7 +17,8 @@ import {
   SET_PUBLIC_CALENDAR_EVENTS,
   SHOW_INSTRUCTIONS,
   AUTH_SIGN_OUT,
-  UNSET_CURRENT_INVITES
+  UNSET_CURRENT_INVITES,
+  SHOW_FILES
 } from "../ActionTypes";
 
 let initialState = {
@@ -154,6 +155,12 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         showInstructions: { general: action.payload.show }
+      };
+      break;
+    case SHOW_FILES:
+      newState = {
+        ...state,
+        showFiles: { all: action.payload.show }
       };
       break;
     case AUTH_SIGN_OUT:

@@ -3,6 +3,7 @@ import {
   asAction_showSettings,
   showMyPublicCalendar
 } from "../store/event/eventActionLazy";
+import { showFiles } from "../store/gaia/filesAction";
 
 export default connect(
   (state, redux) => {
@@ -21,6 +22,9 @@ export default connect(
       },
       viewMyPublicCalendar: name => {
         dispatch(showMyPublicCalendar(name));
+      },
+      showFiles: () => {
+        dispatch(showFiles());
       }
     };
   }
