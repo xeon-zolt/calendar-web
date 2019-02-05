@@ -1,34 +1,31 @@
 // view
-import React, { Component } from "react";
-import { Grid, Row, Col } from "react-bootstrap";
-import {
-  AppHeader,
-  AppFooter
-} from "../components/branding/AppHeaderAndFooter";
-import AppMenu from "../components/app-menu/AppMenu";
-import Calendar from "../components/event-calendar/EventCalendar";
-import Settings from "../components/settings/Settings";
-import { connectToStore } from "./_FN";
+import React, { Component } from 'react'
+import { Grid, Row, Col } from 'react-bootstrap'
+import { AppHeader, AppFooter } from '../components/branding/AppHeaderAndFooter'
+import AppMenu from '../components/app-menu/AppMenu'
+import Calendar from '../components/event-calendar/EventCalendar'
+import Settings from '../components/settings/Settings'
+import { connectToStore } from './_FN'
 // style
-import "./etc/App.css";
+import './etc/App.css'
 // flow
-import registerServiceWorker from "../flow/io/registerServiceWorker";
-import connectCalendar from "../flow/connect/connectEventCalendar";
-import connectAppMenu from "../flow/connect/connectAppMenu";
-import connectSettings from "../flow/connect/connectSettings";
-import connectApp from "../flow/connect/connectApp";
-import { createInitialStore } from "../flow/store/storeManager";
+import registerServiceWorker from '../flow/io/registerServiceWorker'
+import connectCalendar from '../flow/connect/connectEventCalendar'
+import connectAppMenu from '../flow/connect/connectAppMenu'
+import connectSettings from '../flow/connect/connectSettings'
+import connectApp from '../flow/connect/connectApp'
+import { createInitialStore } from '../flow/store/storeManager'
 
-let store = createInitialStore();
-registerServiceWorker();
+let store = createInitialStore()
+registerServiceWorker()
 
 class DynamicApp extends Component {
   render() {
-    const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store);
-    const ConnectedSettings = connectToStore(Settings, connectSettings, store);
-    const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store);
-    const { views, showSettings } = this.props;
-    const { UserProfile } = views;
+    const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store)
+    const ConnectedSettings = connectToStore(Settings, connectSettings, store)
+    const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store)
+    const { views, showSettings } = this.props
+    const { UserProfile } = views
 
     //
     return (
@@ -53,15 +50,15 @@ class DynamicApp extends Component {
           <AppFooter />
         </footer>
       </div>
-    );
+    )
   }
   componentDidMount() {
-    import("./LazyLoaded").then(({ initializeLazy }) => {
-      initializeLazy(store);
+    import('./LazyLoaded').then(({ initializeLazy }) => {
+      initializeLazy(store)
       // this.forceUpdate();
-    });
+    })
   }
 }
 
-const ConnectedDynamicApp = connectToStore(DynamicApp, connectApp, store);
-export default <ConnectedDynamicApp />;
+const ConnectedDynamicApp = connectToStore(DynamicApp, connectApp, store)
+export default <ConnectedDynamicApp />

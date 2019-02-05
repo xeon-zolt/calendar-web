@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
 
-import App from "../App";
+import App from '../DynamicApp'
 // import ReudxApp from "../redux-app";
 // import ConnectedEventCalendar from "../redux-event-calendar";
 // import ConnectedEventDetails from "../redux-event-details";
@@ -15,19 +15,18 @@ import App from "../App";
 // import * as ics from "ics";
 // import * as ICAL from "ical.js";
 
-let loaded = false;
-const doNothing = () => {};
+const doNothing = () => {}
 
 let EventCalendar = props => {
-  return <div>EventCalendar</div>;
-};
+  return <div>EventCalendar</div>
+}
 let UserProfile = props => {
-  return <div>UserProfile</div>;
-};
+  return <div>UserProfile</div>
+}
 
 let whenAppLoaded = forceUpdate => {
-  console.log("whenAppLoaded");
-  import("../../components/event-calendar/EventCalendar").then(
+  console.log('whenAppLoaded')
+  import('../../components/event-calendar/EventCalendar').then(
     ({ default: EventCalendarBase }) => {
       EventCalendar = props => {
         return (
@@ -36,49 +35,49 @@ let whenAppLoaded = forceUpdate => {
             views={{ EventDetails: doNothing }}
             events={{ allEvents: {} }}
           />
-        );
-      };
-      console.log("EventCalendarLoaded");
-      forceUpdate();
+        )
+      }
+      console.log('EventCalendarLoaded')
+      forceUpdate()
     }
-  );
+  )
 
-  import("../../components/auth-user-profile/UserProfile").then(
+  import('../../components/auth-user-profile/UserProfile').then(
     ({ default: UserProfileBase }) => {
       UserProfile = props => {
         return (
           <UserProfileBase
-            isSignedIn={true}
-            isConnecting={true}
+            isSignedIn
+            isConnecting
             userSignOut={doNothing}
             userSignIn={doNothing}
           />
-        );
-      };
-      console.log("EventCalendarLoaded");
+        )
+      }
+      console.log('EventCalendarLoaded')
       // forceUpdate();
     }
-  );
-};
+  )
+}
 
-let dynamicApp;
+let dynamicApp
 
 class DynamicApp extends Component {
   render() {
-    return <App views={{ EventCalendar, UserProfile }} />;
+    return <App views={{ EventCalendar, UserProfile }} />
   }
   doSomething() {}
   componentDidMount() {
     whenAppLoaded(() => {
-      console.log("DONE");
-      this.forceUpdate();
-    });
+      console.log('DONE')
+      this.forceUpdate()
+    })
   }
 }
 
 const Scenario = () => {
-  dynamicApp = <DynamicApp />;
-  return dynamicApp;
-};
+  dynamicApp = <DynamicApp />
+  return dynamicApp
+}
 
-export default Scenario;
+export default Scenario

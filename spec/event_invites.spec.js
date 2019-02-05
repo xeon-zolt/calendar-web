@@ -1,6 +1,6 @@
-var assert = require("assert");
+// var assert = require('assert')
 
-describe("Invitations", () => {
-  describe("new event with guests", () => {});
-  describe("existing event with guests", () => {});
-});
+describe('Invitations', () => {
+  describe('new event with guests', () => {})
+  describe('existing event with guests', () => {})
+})

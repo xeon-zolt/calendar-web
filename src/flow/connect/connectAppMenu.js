@@ -1,26 +1,26 @@
-import { connect } from "react-redux";
-import { showSettings, hideSettings } from "../store/event/calendarActionLazy";
-import { showMyPublicCalendar } from "../store/event/eventActionLazy";
+import { connect } from 'react-redux'
+import { showSettings, hideSettings } from '../store/event/calendarActionLazy'
+import { showMyPublicCalendar } from '../store/event/eventActionLazy'
 
 export default connect(
   (state, redux) => {
-    var username = null;
-    var signedIn = false;
+    var username = null
+    var signedIn = false
     if (state.auth && state.auth.user) {
-      username = state.auth.user.username;
-      signedIn = true;
+      username = state.auth.user.username
+      signedIn = true
     }
-    return { username, signedIn };
+    return { username, signedIn }
   },
   dispatch => {
     return {
       showSettings: () => {
-        dispatch(showSettings());
+        dispatch(showSettings())
       },
       viewMyPublicCalendar: name => {
-        dispatch(hideSettings());
-        dispatch(showMyPublicCalendar(name));
-      }
-    };
+        dispatch(hideSettings())
+        dispatch(showMyPublicCalendar(name))
+      },
+    }
   }
-);
+)

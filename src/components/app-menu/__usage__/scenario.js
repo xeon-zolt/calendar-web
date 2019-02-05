@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, { Component } from 'react'
 
-import { AppMenu } from "../AppMenu";
+import { AppMenu } from '../AppMenu'
 
 class Scenario extends Component {
   render() {
@@ -8,8 +8,8 @@ class Scenario extends Component {
       <div>
         <AppMenu />
       </div>
-    );
+    )
   }
 }
 
-export default Scenario;
+export default Scenario

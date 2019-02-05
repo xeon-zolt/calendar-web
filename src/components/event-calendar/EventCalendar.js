@@ -1,94 +1,94 @@
-import React, { Component } from "react";
-import moment from "moment";
-import { Panel, Grid, Row, Col } from "react-bootstrap";
-import BigCalendar from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { uuid } from "../../flow/io/eventFN";
-let localizer = BigCalendar.momentLocalizer(moment);
-let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k]);
+import React, { Component } from 'react'
+import moment from 'moment'
+import { Panel, Grid, Row, Col } from 'react-bootstrap'
+import BigCalendar from 'react-big-calendar'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import { uuid } from '../../flow/io/eventFN'
+let localizer = BigCalendar.momentLocalizer(moment)
+let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
 
 class EventCalendar extends Component {
   constructor(props) {
-    super(props);
+    super(props)
     this.bound = [
-      "handleHideInstructions",
-      "handleAddEvent",
-      "handleEditEvent",
-      "handleViewAllCalendars",
-      "handleAddCalendarByUrl"
+      'handleHideInstructions',
+      'handleAddEvent',
+      'handleEditEvent',
+      'handleViewAllCalendars',
+      'handleAddCalendarByUrl',
     ].reduce((acc, d) => {
-      acc[d] = this[d].bind(this);
-      return acc;
-    }, {});
+      acc[d] = this[d].bind(this)
+      return acc
+    }, {})
   }
 
   componentWillMount() {
-    this.props.initializeLazyActions();
+    this.props.initializeLazyActions()
   }
 
   handleHideInstructions() {
-    this.props.hideInstructions();
+    this.props.hideInstructions()
   }
 
   handleViewAllCalendars() {
-    this.props.showAllCalendars();
+    this.props.showAllCalendars()
   }
 
   handleEditEvent(event) {
-    const { pickEventModal } = this.props;
-    var eventType;
-    if (event.mode === "read-only") {
-      eventType = "view";
+    const { pickEventModal } = this.props
+    var eventType
+    if (event.mode === 'read-only') {
+      eventType = 'view'
     } else {
-      eventType = "edit";
+      eventType = 'edit'
     }
     pickEventModal({
       eventType,
-      eventInfo: event
-    });
+      eventInfo: event,
+    })
   }
 
   handleAddEvent(slotInfo) {
-    const { pickEventModal } = this.props;
-    slotInfo.uid = uuid();
+    const { pickEventModal } = this.props
+    slotInfo.uid = uuid()
     pickEventModal({
-      eventType: "add",
-      eventInfo: slotInfo
-    });
+      eventType: 'add',
+      eventInfo: slotInfo,
+    })
   }
 
   handleAddCalendarByUrl(event) {
-    if (event.key === "Enter") {
-      const { showSettingsAddCalendar } = this.props;
-      showSettingsAddCalendar(event.target.value);
+    if (event.key === 'Enter') {
+      const { showSettingsAddCalendar } = this.props
+      showSettingsAddCalendar(event.target.value)
     }
   }
 
   eventStyle(event, start, end, isSelected) {
-    var bgColor = event && event.hexColor ? event.hexColor : "#265985";
+    var bgColor = event && event.hexColor ? event.hexColor : '#265985'
     var style = {
       backgroundColor: bgColor,
-      borderRadius: "5px",
+      borderRadius: '5px',
       opacity: 1,
-      color: "white",
-      border: "0px",
-      display: "block"
-    };
+      color: 'white',
+      border: '0px',
+      display: 'block',
+    }
     return {
-      style: style
-    };
+      style: style,
+    }
   }
 
   getEventStart(eventInfo) {
-    return eventInfo ? new Date(eventInfo.start) : new Date();
+    return eventInfo ? new Date(eventInfo.start) : new Date()
   }
 
   getEventEnd(eventInfo) {
-    return eventInfo ? new Date(eventInfo.end) : new Date();
+    return eventInfo ? new Date(eventInfo.end) : new Date()
   }
 
   render() {
-    console.log("[EventCalendar.render]", this.props);
+    console.log('[EventCalendar.render]', this.props)
     const {
       signedIn,
       views,
@@ -98,27 +98,27 @@ class EventCalendar extends Component {
       publicCalendarEvents,
       showGeneralInstructions,
       eventModal,
-      inviteSuccess
-    } = this.props;
-    const { EventDetails } = views;
+      inviteSuccess,
+    } = this.props
+    const { EventDetails } = views
     const {
       handleHideInstructions,
       handleEditEvent,
       handleAddEvent,
       handleViewAllCalendars,
-      handleAddCalendarByUrl
-    } = this.bound;
+      handleAddCalendarByUrl,
+    } = this.bound
 
-    let events = Object.values(this.props.events.allEvents);
-    let shareUrl = null;
+    let events = Object.values(this.props.events.allEvents)
+    let shareUrl = null
     if (myPublicCalendar) {
-      events = events.filter(e => e.public && e.calendarName === "default");
+      events = events.filter(e => e.public && e.calendarName === 'default')
       shareUrl =
-        window.location.origin + "/?intent=view&name=" + myPublicCalendar;
+        window.location.origin + '/?intent=view&name=' + myPublicCalendar
     } else if (publicCalendarEvents) {
-      events = publicCalendarEvents;
+      events = publicCalendarEvents
       shareUrl =
-        window.location.origin + "/?intent=addics&url=" + publicCalendar;
+        window.location.origin + '/?intent=addics&url=' + publicCalendar
     }
     const calendarView = (
       <BigCalendar
@@ -131,12 +131,12 @@ class EventCalendar extends Component {
         defaultDate={new Date(moment())}
         onSelectEvent={event => handleEditEvent(event)}
         onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
-        style={{ minHeight: "500px" }}
+        style={{ minHeight: '500px' }}
         eventPropGetter={this.eventStyle}
         startAccessor={this.getEventStart}
         endAccessor={this.getEventEnd}
       />
-    );
+    )
 
     return (
       <div className="bodyContainer">
@@ -157,8 +157,8 @@ class EventCalendar extends Component {
                 </button>
               </Panel.Heading>
               <Panel.Body>
-                <Grid style={{ width: "100%" }}>
-                  <Row style={{ textAlign: "left" }}>
+                <Grid style={{ width: '100%' }}>
+                  <Row style={{ textAlign: 'left' }}>
                     <Col md={6}>
                       <strong>To add an event: </strong> Click or long-press on
                       the day you want to add an event or drag up to the day you
@@ -169,8 +169,8 @@ class EventCalendar extends Component {
                       the event you wish to update or delete!
                     </Col>
                   </Row>
-                  <Row style={{ textAlign: "left" }}>
-                    <Col xs={12} sm={2} style={{ textAlign: "center" }}>
+                  <Row style={{ textAlign: 'left' }}>
+                    <Col xs={12} sm={2} style={{ textAlign: 'center' }}>
                       <img
                         src="/images/gcalendar.png"
                         width="48px"
@@ -180,14 +180,14 @@ class EventCalendar extends Component {
                     </Col>
                     <Col xs={12} sm={10}>
                       <strong>Move from Google Calendar</strong>: Done in a
-                      minute! Follow the{" "}
+                      minute! Follow the{' '}
                       <a href="https://github.com/friedger/oi-calendar">
                         2-steps tutorial
                       </a>
                       .
                       <br />
                       <input
-                        style={{ width: "100%" }}
+                        style={{ width: '100%' }}
                         type="text"
                         placeholder="Paste url like https://calendar.google..../basic.ics"
                         onKeyPress={handleAddCalendarByUrl}
@@ -205,7 +205,7 @@ class EventCalendar extends Component {
             </Panel.Heading>
             <Panel.Body>
               <strong>To learn about Blockstack: </strong> A good starting point
-              is{" "}
+              is{' '}
               <a href="https://docs.blockstack.org">
                 Blockstack's documentation
               </a>
@@ -235,7 +235,7 @@ class EventCalendar extends Component {
                 Share this url: <a href={shareUrl}>{shareUrl}</a>
                 {myPublicCalendarIcsUrl && (
                   <span>
-                    {" "}
+                    {' '}
                     or <a href={myPublicCalendarIcsUrl}> as .ics file</a>
                   </span>
                 )}
@@ -256,8 +256,8 @@ class EventCalendar extends Component {
         )}
         {!myPublicCalendar && !publicCalendar && calendarView}
       </div>
-    );
+    )
   }
 }
 
-export default EventCalendar;
+export default EventCalendar
