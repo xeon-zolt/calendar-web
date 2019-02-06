@@ -31,7 +31,7 @@ class AddDeleteSetting extends Component {
       if (error) {
         this.setState({
           valueOfAdd,
-          errorOfAdd: error,
+          errorOfAdd: (error || '').toString(),
         })
       } else {
         addItem(item)
