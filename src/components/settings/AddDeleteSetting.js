@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Glyphicon } from 'react-bootstrap'
+import { Button, Glyphicon, Panel } from 'react-bootstrap'
 
 class AddDeleteSetting extends Component {
   constructor(props) {
@@ -75,18 +75,29 @@ class AddDeleteSetting extends Component {
     const { addPlaceholder, valueOfAdd, errorOfAdd } = this.state
     return (
       <div className="settings">
-        <input
-          placeholder={addPlaceholder}
-          type="text"
-          value={valueOfAdd}
-          onChange={onAddValueChange}
-          style={{ width: 300 }}
-        />
-        <Button onClick={onAddItem} disabled={!valueOfAdd}>
-          Add
-        </Button>
-        <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
-        <div>{(itemList || []).map(renderItem)}</div>
+        <Panel style={{ width: '80%' }}>
+          <Panel.Heading>New</Panel.Heading>
+          <Panel.Body>
+            <input
+              placeholder={addPlaceholder}
+              type="text"
+              value={valueOfAdd}
+              onChange={onAddValueChange}
+              style={{ width: '80%' }}
+            />
+            <Button onClick={onAddItem} disabled={!valueOfAdd}>
+              Add
+            </Button>
+            <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
+          </Panel.Body>
+        </Panel>
+
+        <Panel style={{ width: '80%' }}>
+          <Panel.Heading>Yours</Panel.Heading>
+          <Panel.Body>
+            <div>{(itemList || []).map(renderItem)}</div>
+          </Panel.Body>
+        </Panel>
       </div>
     )
   }

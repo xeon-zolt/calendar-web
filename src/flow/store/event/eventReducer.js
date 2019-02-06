@@ -41,7 +41,6 @@ export default function reduce(state = initialState, action = {}) {
       break
 
     case SET_CONTACTS:
-      // console.log('all contacts', payload.contacts);
       newState = { ...state, contacts: payload }
       break
 

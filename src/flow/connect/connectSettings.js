@@ -30,7 +30,9 @@ export default connect(
       lookupContacts: contactQuery => {
         return dispatch(lookupContacts(contactQuery))
       },
-      addContact: (username, contact) => {
+      addContact: contactFormData => {
+        const username = contactFormData.username
+        const contact = { username }
         dispatch(addContact(username, contact))
       },
       deleteContacts: contacts => {

@@ -72,7 +72,6 @@ export default class Settings extends Component {
           lookupContacts={lookupContacts}
           addItem={addContact}
           deleteItems={deleteContacts}
-          setItemData={setCalendarData}
         />
       </div>
     )

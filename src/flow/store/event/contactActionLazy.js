@@ -42,12 +42,11 @@ export function lookupContacts() {
   }
 }
 
-export function addContact(contact) {
+export function addContact(username, contact) {
   return (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      // TODO check for duplicates
-      contacts.push(contact)
-      resetContacts(contacts)
+      contacts[username] = { ...contacts[username], ...contact }
+      dispatch(resetContacts(contacts))
     })
   }
 }
@@ -58,7 +57,7 @@ export function deleteContacts(deleteList) {
       for (var i in deleteList) {
         delete contacts[deleteList[i].username]
       }
-      resetContacts(contacts)
+      dispatch(resetContacts(contacts))
     })
   }
 }

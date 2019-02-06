@@ -13,12 +13,6 @@ const ContactItem = props => {
   }
   return (
     <div>
-      <input
-        type="checkbox"
-        checked={item.selected}
-        value={item.selected}
-        onChange={e => onItemChanged(e, 'delete')}
-      />
       {avatarUrl && (
         <img src={avatarUrl} height="16px" width="16px" alt="avatar" />
       )}
@@ -36,26 +30,16 @@ export default class Contacts extends AddDeleteSetting {
     this.state.ItemRenderer = ContactItem
 
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
-      const { lookupContacts, items: contacts } = this.props
+      const { items: contacts } = this.props
       const contactQuery = valueOfAdd
       console.log('contactQuery', contactQuery)
 
       // check if contact already in
-      const uids = (contacts || []).map(d => d.uid)
-      if (uids.includes(contactQuery)) {
+      const usernames = Object.keys(contacts || {})
+      if (usernames.includes(contactQuery)) {
         asyncReturn({ error: 'already in' })
       } else {
-        console.log('lookupContacts', contactQuery)
-        lookupContacts(contactQuery).then(
-          proposedContacts => {
-            console.log('proposedContacts', proposedContacts)
-            asyncReturn({ result: proposedContacts })
-          },
-          error => {
-            console.log('error', error)
-            asyncReturn({ error })
-          }
-        )
+        asyncReturn({ item: { username: contactQuery } })
       }
     }
   }

@@ -141,7 +141,10 @@ function addGuest(
   return roomPromise.then(
     roomResult => {
       var roomId = roomResult.room_id
-      Object.assign(contacts[guestUsername], { roomId })
+      Object.assign(contacts[guestUsername], {
+        username: guestUsername,
+        roomId,
+      })
 
       return sendInviteMessage(
         guestUsername,
