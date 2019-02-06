@@ -4,33 +4,26 @@ import AddDeleteSetting from "./AddDeleteSetting";
 const LINK_URL_BASE = "https://debutapp.social/";
 
 const ContactItem = props => {
-  const { contact, handleDataChange } = props;
-  const linkUrl = LINK_URL_BASE + contact.username;
+  const { item, onItemChanged } = props;
+  const { image, username, name } = item.image;
+  const linkUrl = LINK_URL_BASE + username;
   var avatarUrl;
-  if (
-    contact.image &&
-    contact.image.length > 0 &&
-    contact.image[0].contentUrl
-  ) {
-    avatarUrl = contact.image[0].contentUrl;
-  }
-  var name = contact.name;
-  if (!name) {
-    name = contact.username;
+  if (image && image.length > 0 && image[0].contentUrl) {
+    avatarUrl = image[0].contentUrl;
   }
   return (
     <div>
       <input
         type="checkbox"
-        checked={contact.selected}
-        value={contact.selected}
-        onChange={e => handleDataChange(e, "delete")}
+        checked={item.selected}
+        value={item.selected}
+        onChange={e => onItemChanged(e, "delete")}
       />
       {avatarUrl && (
         <img src={avatarUrl} height="16px" width="16px" alt="avatar" />
       )}
       {!avatarUrl && <span className="glyphicon glyphicon-user" />}
-      <a href={linkUrl}>{name}</a>
+      <a href={linkUrl}>{name || username}</a>
     </div>
   );
 };
