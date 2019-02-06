@@ -5,7 +5,7 @@ const LINK_URL_BASE = 'https://debutapp.social/'
 
 const ContactItem = props => {
   const { item, onItemChanged } = props
-  const { image, username, name } = item.image
+  const { image, username, name } = item
   const linkUrl = LINK_URL_BASE + username
   var avatarUrl
   if (image && image.length > 0 && image[0].contentUrl) {
