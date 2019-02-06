@@ -1,4 +1,4 @@
-// view
+// views
 import EventDetails from '../components/event-details/EventDetails'
 import GuestList from '../components/event-guest-list/GuestList'
 import UserProfile from '../components/auth-user-profile/UserProfile'
