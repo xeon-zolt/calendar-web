@@ -1,12 +1,12 @@
-var assert = require("assert");
+// var assert = require('assert')
 
-describe("index test", () => {
-  describe("sayHello function", () => {
-    it("should say Hello guys!", () => {
-      console.log("hello");
-    });
-  });
-});
+describe('index test', () => {
+  describe('sayHello function', () => {
+    it('should say Hello guys!', () => {
+      console.log('hello')
+    })
+  })
+})
 
 /*
  assert.fail(actual, expected, message, operator)

@@ -1,34 +1,34 @@
-import React, { Component } from "react";
-import { DropdownButton, MenuItem } from "react-bootstrap";
+import React, { Component } from 'react'
+import { DropdownButton, MenuItem } from 'react-bootstrap'
 
 export default class AppMenu extends Component {
   constructor(props) {
-    super(props);
-    this.bound = ["onSelect"].reduce((acc, d) => {
-      acc[d] = this[d].bind(this);
-      return acc;
-    }, {});
+    super(props)
+    this.bound = ['onSelect'].reduce((acc, d) => {
+      acc[d] = this[d].bind(this)
+      return acc
+    }, {})
   }
 
   onSelect(eventKey) {
     switch (eventKey) {
-      case "settings":
-        this.props.showSettings();
-        break;
-      case "publicCalendar":
-        this.props.viewMyPublicCalendar("public@" + this.props.username);
-        break;
+      case 'settings':
+        this.props.showSettings()
+        break
+      case 'publicCalendar':
+        this.props.viewMyPublicCalendar('public@' + this.props.username)
+        break
       default:
-        console.warn("invalid menu item ", eventKey);
-        break;
+        console.warn('invalid menu item ', eventKey)
+        break
     }
   }
   render() {
-    const { onSelect } = this.bound;
-    const { username, signedIn } = this.props;
+    const { onSelect } = this.bound
+    const { username, signedIn } = this.props
     return (
       signedIn && (
-        <div style={{ margin: "4px" }}>
+        <div style={{ margin: '4px' }}>
           <DropdownButton
             drop="down"
             bsStyle="default"
@@ -46,6 +46,6 @@ export default class AppMenu extends Component {
           </DropdownButton>
         </div>
       )
-    );
+    )
   }
 }

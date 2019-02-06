@@ -2,10 +2,10 @@ import {
   SET_CALENDARS,
   SHOW_SETTINGS,
   HIDE_SETTINGS,
-  SHOW_SETTINGS_ADD_CALENDAR
-} from "../ActionTypes";
-import { fetchCalendars, publishCalendars } from "../../io/event";
-import { defaultCalendars } from "../../io/eventDefaults";
+  SHOW_SETTINGS_ADD_CALENDAR,
+} from '../ActionTypes'
+import { fetchCalendars, publishCalendars } from '../../io/event'
+import { defaultCalendars } from '../../io/eventDefaults'
 
 // ################
 // When initializing app
@@ -13,26 +13,26 @@ import { defaultCalendars } from "../../io/eventDefaults";
 
 function resetCalendars(calendars) {
   return (dispatch, getState) => {
-    publishCalendars(calendars);
-    dispatch({ type: SET_CALENDARS, payload: calendars });
-  };
+    publishCalendars(calendars)
+    dispatch({ type: SET_CALENDARS, payload: calendars })
+  }
 }
 
 export function initializeCalendars() {
   return (dispatch, getState) => {
     return fetchCalendars().then(calendars => {
       if (!calendars) {
-        calendars = defaultCalendars;
+        calendars = defaultCalendars
       } else if (calendars.length === 0) {
-        calendars.push(defaultCalendars[0]);
+        calendars.push(defaultCalendars[0])
       } else {
-        calendars = calendars.filter(d => d);
+        calendars = calendars.filter(d => d)
       }
       // publish now as other devices fetch before storing
-      dispatch(resetCalendars(calendars));
-      return calendars;
-    });
-  };
+      dispatch(resetCalendars(calendars))
+      return calendars
+    })
+  }
 }
 
 // ################
@@ -41,19 +41,19 @@ export function initializeCalendars() {
 
 export function showSettings() {
   return {
-    type: SHOW_SETTINGS
-  };
+    type: SHOW_SETTINGS,
+  }
 }
 
 export function hideSettings() {
-  console.log("hideSettings");
+  console.log('hideSettings')
   return {
-    type: HIDE_SETTINGS
-  };
+    type: HIDE_SETTINGS,
+  }
 }
 
 export function showSettingsAddCalendar(url) {
-  return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } };
+  return { type: SHOW_SETTINGS_ADD_CALENDAR, payload: { url } }
 }
 
 export function addCalendar(calendar) {
@@ -61,21 +61,21 @@ export function addCalendar(calendar) {
     fetchCalendars().then(calendars => {
       // TODO check for duplicates
       // :TODO: We need to actually import calendars, add uid etc.
-      dispatch(resetCalendars([...calendars, calendar]));
-    });
-  };
+      dispatch(resetCalendars([...calendars, calendar]))
+    })
+  }
 }
 
 export function deleteCalendars(deleteList) {
   return (dispatch, getState) => {
     fetchCalendars().then(calendars => {
-      const uids = deleteList.map(d => d.uid);
+      const uids = deleteList.map(d => d.uid)
       const newCalendars = calendars.filter(d => {
-        return !uids.includes(d.uid);
-      });
-      dispatch(resetCalendars(newCalendars));
-    });
-  };
+        return !uids.includes(d.uid)
+      })
+      dispatch(resetCalendars(newCalendars))
+    })
+  }
 }
 
 export function setCalendarData(calendar, newData) {
@@ -83,12 +83,12 @@ export function setCalendarData(calendar, newData) {
     fetchCalendars().then(calendars => {
       const newCalendars = calendars.map(d => {
         if (d.uid === calendar.uid) {
-          d = Object.assign({}, d, newData);
+          d = Object.assign({}, d, newData)
         }
-        return d;
-      });
-      console.log(newCalendars);
-      dispatch(resetCalendars(newCalendars));
-    });
-  };
+        return d
+      })
+      console.log(newCalendars)
+      dispatch(resetCalendars(newCalendars))
+    })
+  }
 }
