@@ -217,20 +217,24 @@ export function saveAllEvents(allEvents) {
 
 function loadCalendarEvents(calendars) {
   var promises = calendars.map(function(calendar) {
-    return importCalendarEvents(calendar, defaultEvents).then(
-      events => {
-        return { name: calendar.name, events }
-      },
-      error => {
-        console.log('[ERROR.loadCalendarEvents]', error, calendar)
-        return { name: calendar.name, events: {} }
-      }
-    )
+    if (calendar.disabled) {
+      return {}
+    } else {
+      return importCalendarEvents(calendar, defaultEvents).then(
+        events => {
+          return { name: calendar.name, events }
+        },
+        error => {
+          console.log('[ERROR.loadCalendarEvents]', error, calendar)
+          return { name: calendar.name, events: {} }
+        }
+      )
+    }
   })
 
   return Promise.all(promises).then(
     allCalendars => {
-      return allCalendars.reduce((acc, cur, i) => {
+      return allCalendars.reduce((acc, cur) => {
         const events = cur.events
         return { ...acc, ...events }
       }, {})
