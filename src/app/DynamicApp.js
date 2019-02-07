@@ -54,7 +54,10 @@ class DynamicApp extends Component {
   }
   componentDidMount() {
     import('./LazyLoaded').then(({ initializeLazy }) => {
-      initializeLazy(store)
+      import('olm').then(Olm => {
+        global.Olm = Olm
+        initializeLazy(store)
+      })
       // this.forceUpdate();
     })
   }
