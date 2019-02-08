@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { Modal, Button, ProgressBar } from 'react-bootstrap'
+import { Modal, Button, ProgressBar, Radio } from 'react-bootstrap'
 import moment from 'moment'
 
 import '../../css/datetime.css'
@@ -85,10 +85,15 @@ class EventDetails extends Component {
         (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
         !!this.props.inviteError,
       sending: false,
+      endDateOrDuration:
+        this.props.eventDetail && this.props.eventDetail.duration
+          ? 'duration'
+          : 'endDate',
     }
 
     this.bound = [
       'handleDataChange',
+      'handlleEndDateOrDurationChange',
       'handleInvitesHide',
       'handleClose',
       'popInvitesModal',
@@ -96,6 +101,7 @@ class EventDetails extends Component {
       'addEvent',
       'updateEvent',
       'deleteEvent',
+      'updateEndDateFromDuration',
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this)
       delete this[d]
@@ -137,10 +143,44 @@ class EventDetails extends Component {
     this.setState({ eventDetail })
   }
 
+  handlleEndDateOrDurationChange(e, ref) {
+    var { eventDetail } = this.props
+
+    if (ref === 'duration') {
+      eventDetail['duration'] = eventDetail.duration
+        ? eventDetail.duration
+        : '00:00'
+    } else {
+      eventDetail['duration'] = null
+    }
+
+    this.setState({
+      endDateOrDuration: ref,
+      eventDetail,
+    })
+  }
+
+  updateEndDateFromDuration() {
+    const { eventDetail } = this.props
+
+    if (eventDetail.duration) {
+      eventDetail['end'] = moment(eventDetail.start).add(
+        moment.duration(eventDetail.duration)
+      )
+    }
+  }
+
   addEvent() {
     const { addEvent, eventDetail } = this.props
-    const { popInvitesModal, handleClose } = this.bound
+    const {
+      popInvitesModal,
+      handleClose,
+      updateEndDateFromDuration,
+    } = this.bound
     const { guests, noInvites } = eventDetail
+
+    updateEndDateFromDuration()
+
     console.log('add event', eventDetail, checkHasGuests(guests))
     if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail)
@@ -164,8 +204,11 @@ class EventDetails extends Component {
 
   updateEvent(eventDetail) {
     console.log('[updateEvent]', eventDetail)
-    const { handleClose } = this.bound
+    const { handleClose, updateEndDateFromDuration } = this.bound
     const { updateEvent } = this.props
+
+    updateEndDateFromDuration()
+
     updateEvent(eventDetail)
     handleClose()
   }
@@ -196,7 +239,7 @@ class EventDetails extends Component {
 
   render() {
     console.log('[EVENDETAILS.render]', this.props)
-    const { showInvitesModal, sending } = this.state
+    const { showInvitesModal, sending, endDateOrDuration } = this.state
     const { handleClose } = this.bound
     const {
       views,
@@ -208,6 +251,7 @@ class EventDetails extends Component {
     const { GuestList } = views
     const {
       handleDataChange,
+      handlleEndDateOrDurationChange,
       handleInvitesHide,
       popInvitesModal,
       sendInvites,
@@ -233,6 +277,36 @@ class EventDetails extends Component {
         )
       }
     }
+
+    function renderEndComponent() {
+      return eventDetail.allDay ? (
+        <Datetime
+          value={eventDetail.end}
+          dateFormat="MM-DD-YYYY"
+          timeFormat={false}
+          onChange={e => handleDataChange(e, 'end')}
+        />
+      ) : (
+        <Datetime
+          value={eventDetail.end}
+          onChange={e => handleDataChange(e, 'end')}
+        />
+      )
+    }
+
+    function renderDurationComponent() {
+      return (
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Enter the Event Duration"
+          ref="duration"
+          value={eventDetail.duration || ''}
+          onChange={e => handleDataChange(e, 'duration')}
+        />
+      )
+    }
+
     return (
       <Modal show onHide={handleClose}>
         <Modal.Header closeButton>
@@ -264,19 +338,31 @@ class EventDetails extends Component {
             />
           )}
 
-          <label> End Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.end}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'end')}
-            />
+          <Radio
+            name="endDateOrDuration"
+            checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
+            onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
+          >
+            Use End Date
+          </Radio>
+          <Radio
+            name="endDateOrDuration"
+            checked={endDateOrDuration === 'duration' ? 'checked' : ''}
+            onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
+          >
+            Use Duration
+          </Radio>
+
+          {endDateOrDuration === 'endDate' ? (
+            <div>
+              <label> End Date </label>
+              {renderEndComponent()}
+            </div>
           ) : (
-            <Datetime
-              value={eventDetail.end}
-              onChange={e => handleDataChange(e, 'end')}
-            />
+            <div>
+              <label> Duration </label>
+              {renderDurationComponent()}
+            </div>
           )}
 
           <label> Event Notes </label>

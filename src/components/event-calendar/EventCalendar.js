@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import moment from 'moment'
+import moment, { duration } from 'moment'
 import { Panel, Grid, Row, Col } from 'react-bootstrap'
 import BigCalendar from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
@@ -84,7 +84,13 @@ class EventCalendar extends Component {
   }
 
   getEventEnd(eventInfo) {
-    return eventInfo ? new Date(eventInfo.end) : new Date()
+    return eventInfo
+      ? eventInfo.end
+        ? new Date(eventInfo.end)
+        : new Date(
+            moment(eventInfo.start).add(moment.duration(eventInfo.duration))
+          )
+      : new Date()
   }
 
   render() {
