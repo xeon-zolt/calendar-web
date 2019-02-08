@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import { Panel, Grid, Row, Col } from 'react-bootstrap'
+import { Panel, Grid, Row, Col, ProgressBar } from 'react-bootstrap'
 import BigCalendar from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { uuid } from '../../flow/io/eventFN'
@@ -99,6 +99,8 @@ class EventCalendar extends Component {
       showGeneralInstructions,
       eventModal,
       inviteSuccess,
+      currentCalendarLength,
+      currentCalendarIndex,
     } = this.props
     const { EventDetails } = views
     const {
@@ -121,21 +123,35 @@ class EventCalendar extends Component {
         window.location.origin + '/?intent=addics&url=' + publicCalendar
     }
     const calendarView = (
-      <BigCalendar
-        localizer={localizer}
-        selectable={this.props.signedIn && !myPublicCalendar && !publicCalendar}
-        events={events}
-        views={allViews}
-        step={60}
-        showMultiDayTimes
-        defaultDate={new Date(moment())}
-        onSelectEvent={event => handleEditEvent(event)}
-        onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
-        style={{ minHeight: '500px' }}
-        eventPropGetter={this.eventStyle}
-        startAccessor={this.getEventStart}
-        endAccessor={this.getEventEnd}
-      />
+      <div>
+        <div style={{ height: 8 }}>
+          {currentCalendarLength && (
+            <ProgressBar
+              style={{ height: 8 }}
+              active
+              now={currentCalendarIndex + 1}
+              max={currentCalendarLength}
+            />
+          )}
+        </div>
+        <BigCalendar
+          localizer={localizer}
+          selectable={
+            this.props.signedIn && !myPublicCalendar && !publicCalendar
+          }
+          events={events}
+          views={allViews}
+          step={60}
+          showMultiDayTimes
+          defaultDate={new Date(moment())}
+          onSelectEvent={event => handleEditEvent(event)}
+          onSelectSlot={slotInfo => handleAddEvent(slotInfo)}
+          style={{ minHeight: '500px' }}
+          eventPropGetter={this.eventStyle}
+          startAccessor={this.getEventStart}
+          endAccessor={this.getEventEnd}
+        />
+      </div>
     )
 
     return (
