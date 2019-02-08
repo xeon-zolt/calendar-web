@@ -40,3 +40,6 @@ export const SHOW_MY_PUBLIC_CALENDAR = 'settings.SHOW_MY_PUBLIC_CALENDAR'
 export const SHOW_ALL_CALENDARS = 'settings.SHOW_ALL_CALENDARS'
 export const SHOW_SETTINGS_ADD_CALENDAR = 'settings.SHOW_SETTINGS_ADD_CALENDAR'
 export const SHOW_INSTRUCTIONS = 'settings.SHOW_INSTRUCTIONS'
+
+// App
+export const SET_ERROR = 'app.SET_ERROR'

@@ -1,6 +1,14 @@
 import React, { Component } from 'react'
 import moment from 'moment'
-import { Panel, Grid, Row, Col, ProgressBar } from 'react-bootstrap'
+import {
+  Panel,
+  Grid,
+  Row,
+  Col,
+  ProgressBar,
+  Button,
+  Alert,
+} from 'react-bootstrap'
 import BigCalendar from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { uuid } from '../../flow/io/eventFN'
@@ -101,6 +109,10 @@ class EventCalendar extends Component {
       inviteSuccess,
       currentCalendarLength,
       currentCalendarIndex,
+      showError,
+      error,
+      showSettingsAddCalendar,
+      markErrorAsRead,
     } = this.props
     const { EventDetails } = views
     const {
@@ -122,6 +134,7 @@ class EventCalendar extends Component {
       shareUrl =
         window.location.origin + '/?intent=addics&url=' + publicCalendar
     }
+
     const calendarView = (
       <div>
         <div style={{ height: 8 }}>
@@ -151,6 +164,18 @@ class EventCalendar extends Component {
           startAccessor={this.getEventStart}
           endAccessor={this.getEventEnd}
         />
+        {showError && (
+          <Alert bsStyle="danger" onDismiss={this.handleDismissError}>
+            {error}
+            <p>
+              <Button onClick={() => showSettingsAddCalendar()}>
+                Go to settings
+              </Button>
+              <span> or </span>
+              <Button onClick={markErrorAsRead}>Hide this message</Button>
+            </p>
+          </Alert>
+        )}
       </div>
     )
 

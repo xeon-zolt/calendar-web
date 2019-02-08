@@ -4,6 +4,7 @@ import { setCurrentEvent } from '../store/event/eventAction'
 import {
   showAllCalendars,
   hideInstructions,
+  setError,
 } from '../store/event/eventActionLazy'
 
 import { showSettingsAddCalendar } from '../store/event/calendarActionLazy'
@@ -24,6 +25,7 @@ export default connect(
       showInstructions,
       currentCalendarIndex,
       currentCalendarLength,
+      currentError,
     } = events || {}
 
     let eventModal
@@ -37,6 +39,8 @@ export default connect(
       ? showInstructions.general
       : true
 
+    let showError = currentError && currentError.msg
+    let error = currentError ? currentError.msg : null
     return {
       events,
       signedIn,
@@ -53,6 +57,8 @@ export default connect(
       showGeneralInstructions,
       currentCalendarIndex,
       currentCalendarLength,
+      showError,
+      error,
     }
   },
   dispatch => {
@@ -74,6 +80,9 @@ export default connect(
           eventInfo: currentEvent,
         } = eventModal
         dispatch(setCurrentEvent(currentEvent, currentEventType))
+      },
+      markErrorAsRead: () => {
+        dispatch(setError())
       },
     }
   }

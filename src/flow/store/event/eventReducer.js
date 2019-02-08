@@ -19,6 +19,7 @@ import {
   AUTH_SIGN_OUT,
   UNSET_CURRENT_INVITES,
   SET_LOADING_CALENDARS,
+  SET_ERROR,
 } from '../ActionTypes'
 
 let initialState = {
@@ -170,6 +171,12 @@ export default function reduce(state = initialState, action = {}) {
       break
     case AUTH_SIGN_OUT:
       newState = initialState
+      break
+    case SET_ERROR:
+      newState = {
+        ...state,
+        currentError: payload,
+      }
       break
     default:
       newState = state

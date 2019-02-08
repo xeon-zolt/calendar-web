@@ -17,6 +17,7 @@ import {
   SET_PUBLIC_CALENDAR_EVENTS,
   SHOW_INSTRUCTIONS,
   SET_LOADING_CALENDARS,
+  SET_ERROR,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -157,6 +158,9 @@ function setPublicCalendarEventsAction(allEvents, calendar) {
   return { type: SET_PUBLIC_CALENDAR_EVENTS, payload: { allEvents, calendar } }
 }
 
+export function setError(type, msg, error) {
+  return { type: SET_ERROR, payload: { type, msg, error } }
+}
 function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
     console.log('viewpubliccalendar', name)
@@ -170,7 +174,9 @@ function viewPublicCalendar(name) {
             dispatch(setPublicCalendarEventsAction(allEvents, calendar))
           },
           error => {
-            console.log('failed to load public calendar ' + name, error)
+            const msg = 'failed to load public calendar ' + name
+            console.log(msg, error)
+            dispatch(setError('publicCalendar', msg, error))
           }
         )
       }
@@ -248,6 +254,17 @@ function loadCalendarEvents(calendars, dispatch) {
         },
         error => {
           dispatch(setLoadingCalendars(index, calendarCount))
+          let msg
+          if (
+            calendar.name &&
+            calendar.name.startsWith('https://calendar.google.com/')
+          ) {
+            msg =
+              'Failed to load a Google calendar. Have you enabled CORS calls?'
+          } else {
+            msg = 'Failed to load calendar ' + calendar.name
+          }
+          dispatch(setError('loadCalendar', msg, error))
           console.log('[ERROR.loadCalendarEvents]', error, calendar)
           return { name: calendar.name, events: {} }
         }
