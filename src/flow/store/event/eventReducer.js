@@ -108,13 +108,24 @@ export default function reduce(state = initialState, action = {}) {
       break
 
     case SHOW_SETTINGS:
-      newState = { ...state, showSettings: true }
+      newState = {
+        ...state,
+        showSettings: true,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined,
+      }
       break
 
     case SHOW_SETTINGS_ADD_CALENDAR:
       newState = {
         ...state,
         showSettings: true,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined,
         showSettingsAddCalendarUrl: payload.url,
       }
       break
@@ -132,6 +143,7 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: payload.icsUrl,
         publicCalendar: undefined,
         publicCalendarEvents: undefined,
+        showSettings: false,
       }
       break
     case SHOW_ALL_CALENDARS:
@@ -141,6 +153,7 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: undefined,
         publicCalendar: undefined,
         publicCalendarEvents: undefined,
+        showSettings: false,
       }
       break
     case SET_PUBLIC_CALENDAR_EVENTS:

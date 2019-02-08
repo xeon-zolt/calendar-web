@@ -161,6 +161,7 @@ function setPublicCalendarEventsAction(allEvents, calendar) {
 export function setError(type, msg, error) {
   return { type: SET_ERROR, payload: { type, msg, error } }
 }
+
 function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
     console.log('viewpubliccalendar', name)
@@ -343,9 +344,11 @@ export function showMyPublicCalendarAction(name, icsUrl) {
 
 export function showMyPublicCalendar(name) {
   return async dispatch => {
+    dispatch(setLoadingCalendars(0, 1))
     fetchIcsUrl(name).then(url => {
       console.log('icsurl', url)
       dispatch(showMyPublicCalendarAction(name, url))
+      dispatch(setLoadingCalendars(0, 0))
     })
   }
 }
