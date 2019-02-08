@@ -164,9 +164,10 @@ class EventDetails extends Component {
     const { eventDetail } = this.props
 
     if (eventDetail.duration) {
-      eventDetail['end'] = moment(eventDetail.start).add(
+      eventDetail['calculatedEndTime'] = moment(eventDetail.start).add(
         moment.duration(eventDetail.duration)
       )
+      eventDetail['end'] = null
     }
   }
 
