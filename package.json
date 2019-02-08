@@ -75,8 +75,5 @@
             "npm run lint:fix",
             "git add"
         ]
-    },
-    "optionalDependencies": {
-        "olm": "https://matrix.org/packages/npm/olm/olm-3.0.0.tgz"
     }
 }

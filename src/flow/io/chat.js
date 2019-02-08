@@ -6,17 +6,11 @@ import {
   putFile,
   loadUserData,
 } from 'blockstack'
-import { createClient, WebStorageSessionStore } from 'matrix-js-sdk'
+import { createClient } from 'matrix-js-sdk'
 
 export class UserSessionChat {
-  constructor(ownerAddress) {
-    this.matrixClient = createClient({
-      baseUrl: 'https://openintents.modular.im',
-      sessionStore: new WebStorageSessionStore(window.localStorage),
-      userId: '@' + ownerAddress + ':openintents.modular.im',
-      deviceId: 'd' + Math.random,
-    })
-    this.matrixClient.initCrypto()
+  constructor() {
+    this.matrixClient = createClient('https://openintents.modular.im')
   }
 
   getOTP(userData) {
@@ -72,18 +66,7 @@ export class UserSessionChat {
   createNewRoom(name, topic) {
     const matrix = this.matrixClient
     return this.login().then(() => {
-      return matrix
-        .createRoom({ visibility: 'private', name, topic })
-        .then(room => {
-          return matrix
-            .sendStateEvent(room.room_id, 'm.room.encryption', {
-              algorithm: 'm.megolm.v1.aes-sha2',
-            })
-            .then(result => {
-              console.log(result)
-              return room
-            })
-        })
+      return matrix.createRoom({ visibility: 'private', name, topic })
     })
   }
 
@@ -142,7 +125,7 @@ export class UserSessionChat {
    **/
 
   login() {
-    if (this.matrixClient.getAccessToken()) {
+    if (this.matrixClient.getUserId()) {
       return Promise.resolve()
     } else {
       const userData = loadUserData()
@@ -208,6 +191,5 @@ export class UserSessionChat {
 }
 
 export function createSessionChat() {
-  console.log('create session for chat', global.Olm)
   return new UserSessionChat()
 }

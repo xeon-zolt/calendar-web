@@ -4,7 +4,7 @@ import AddDeleteSetting from './AddDeleteSetting'
 const LINK_URL_BASE = 'https://debutapp.social/'
 
 const ContactItem = props => {
-  const { item } = props
+  const { item, onItemChanged } = props
   const { image, username, name } = item
   const linkUrl = LINK_URL_BASE + username
   var avatarUrl
