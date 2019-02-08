@@ -5,7 +5,9 @@ import moment from 'moment'
 
 import SendInvitesModal from './SendInvitesModal'
 
+// Styles
 import '../../css/datetime.css'
+import '../../css/EventDetails.css'
 
 const Datetime = require('react-datetime')
 
@@ -202,35 +204,65 @@ class EventDetails extends Component {
             onChange={e => handleDataChange(e, 'title')}
           />
 
-          <label> Start Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.start}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.start}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          )}
+          <div className="date-time-container">
+            <div className="date-time-group">
+              <label> Start Date </label>
+              {eventDetail.allDay ? (
+                <Datetime
+                  value={eventDetail.start}
+                  dateFormat="MM-DD-YYYY"
+                  timeFormat={false}
+                  onChange={e => handleDataChange(e, 'start')}
+                />
+              ) : (
+                <Datetime
+                  value={eventDetail.start}
+                  onChange={e => handleDataChange(e, 'start')}
+                />
+              )}
+            </div>
 
-          <label> End Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.end}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'end')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.end}
-              onChange={e => handleDataChange(e, 'end')}
-            />
-          )}
+            <div className="date-time-group">
+              <label> End Date </label>
+              {eventDetail.allDay ? (
+                <Datetime
+                  value={eventDetail.end}
+                  dateFormat="MM-DD-YYYY"
+                  timeFormat={false}
+                  onChange={e => handleDataChange(e, 'end')}
+                />
+              ) : (
+                <Datetime
+                  value={eventDetail.end}
+                  onChange={e => handleDataChange(e, 'end')}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="reminder-container">
+            <label> Set Reminder </label>
+
+            <div className="reminder-group">
+              <input
+                type="number"
+                className="form-control"
+                placeholder="10"
+                ref="reminderTime"
+                value={eventDetail.reminderTime || ''}
+                onChange={e => handleDataChange(e, 'reminderTime')}
+              />
+
+              <select
+                value={eventDetail.reminderTimeUnit || 'ss'}
+                onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+              >
+                <option value="ss">Seconds</option>
+                <option value="mm">Minutes</option>
+                <option value="hh">Hours</option>
+              </select>
+            </div>
+          </div>
 
           <label> Event Notes </label>
           <textarea
@@ -277,7 +309,7 @@ class EventDetails extends Component {
         </Modal.Body>
         <Modal.Footer>
           {eventType === 'add' && (
-            <Button bsStyle="success" onClick={() => addEvent()}>
+            <Button bsStyle="success" onClick={addEvent}>
               Add
             </Button>
           )}

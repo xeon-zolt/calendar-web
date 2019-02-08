@@ -23,7 +23,7 @@
     },
     "scripts": {
         "start": "react-scripts start",
-        "build": "REACT_APP_VERSION=$(node -pe 'require(\"./package.json\").version') react-scripts build",
+        "build": "REACT_APP_VERSION=$(node -pe 'require(\"./package.json\").version') react-scripts build && sw-precache --config=sw-precache-config.js",
         "test": "react-scripts test --env=jsdom",
         "testflow": "mocha spec/*.spec.js --compilers js:babel-core/register --presets @babel/preset-stage-2",
         "eject": "react-scripts eject",
@@ -54,7 +54,8 @@
         "lint-staged": "^8.1.3",
         "mocha": "5.2.0",
         "prettier": "^1.16.4",
-        "prop-types": "^15.6.2"
+        "prop-types": "^15.6.2",
+        "sw-precache": "^5.2.1"
     },
     "browserslist": [
         ">0.2%",
