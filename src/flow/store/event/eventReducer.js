@@ -18,6 +18,7 @@ import {
   SHOW_INSTRUCTIONS,
   AUTH_SIGN_OUT,
   UNSET_CURRENT_INVITES,
+  SET_LOADING_CALENDARS,
 } from '../ActionTypes'
 
 let initialState = {
@@ -148,6 +149,17 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: undefined,
         publicCalendarEvents: payload.allEvents,
         publicCalendar: payload.calendar.name,
+      }
+      break
+    case SET_LOADING_CALENDARS:
+      const currentIndex = state.currentCalendarIndex || 0
+      const currentCalendarIndex =
+        payload.index > currentIndex ? payload.index : currentIndex
+      const done = payload.index >= payload.length
+      newState = {
+        ...state,
+        currentCalendarIndex: done ? undefined : currentCalendarIndex,
+        currentCalendarLength: done ? undefined : payload.length,
       }
       break
     case SHOW_INSTRUCTIONS:

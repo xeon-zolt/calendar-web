@@ -16,6 +16,7 @@ import {
   SHOW_ALL_CALENDARS,
   SET_PUBLIC_CALENDAR_EVENTS,
   SHOW_INSTRUCTIONS,
+  SET_LOADING_CALENDARS,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -105,8 +106,13 @@ function initializeQueryString(query, username) {
 export function initializeEvents() {
   return (dispatch, getState) => {
     dispatch(initializeCalendars())
-      .then(calendars => loadCalendarEvents(calendars))
+      .then(calendars => {
+        dispatch(setLoadingCalendars(0, calendars.length))
+        const allEventsPromise = loadCalendarEvents(calendars, dispatch)
+        return allEventsPromise
+      })
       .then(allEvents => {
+        dispatch(setLoadingCalendars(0, 0))
         dispatch(setEventsAction(allEvents))
       })
   }
@@ -215,22 +221,43 @@ export function saveAllEvents(allEvents) {
   }
 }
 
-function loadCalendarEvents(calendars) {
-  var promises = calendars.map(function(calendar) {
-    return importCalendarEvents(calendar, defaultEvents).then(
-      events => {
-        return { name: calendar.name, events }
-      },
-      error => {
-        console.log('[ERROR.loadCalendarEvents]', error, calendar)
-        return { name: calendar.name, events: {} }
-      }
-    )
+function setLoadingCalendars(index, length) {
+  return { type: SET_LOADING_CALENDARS, payload: { index, length } }
+}
+
+function loadCalendarEvents(calendars, dispatch) {
+  const calendarCount = calendars.length
+  const allCalendars = []
+  var promises = calendars.map(function(calendar, index) {
+    if (calendar.disabled) {
+      dispatch(setLoadingCalendars(index, calendarCount))
+      return {}
+    } else {
+      return importCalendarEvents(calendar, defaultEvents).then(
+        events => {
+          const calendarEvents = { name: calendar.name, events }
+          allCalendars.push(calendarEvents)
+          const allEventsSoFar = allCalendars.reduce((acc, cur) => {
+            const events = cur.events
+            return { ...acc, ...events }
+          }, {})
+          console.log('all events so far', index, allEventsSoFar)
+          dispatch(setEventsAction(allEventsSoFar))
+          dispatch(setLoadingCalendars(index, calendarCount))
+          return calendarEvents
+        },
+        error => {
+          dispatch(setLoadingCalendars(index, calendarCount))
+          console.log('[ERROR.loadCalendarEvents]', error, calendar)
+          return { name: calendar.name, events: {} }
+        }
+      )
+    }
   })
 
   return Promise.all(promises).then(
     allCalendars => {
-      return allCalendars.reduce((acc, cur, i) => {
+      return allCalendars.reduce((acc, cur) => {
         const events = cur.events
         return { ...acc, ...events }
       }, {})

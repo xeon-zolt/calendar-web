@@ -4,24 +4,6 @@ import { Button } from 'react-bootstrap'
 import Calendars from './Calendars'
 import Contacts from './Contacts'
 
-// class SettingsPanel extends Component {
-//   render() {
-//     const { show, handleHide, CalendarsContent, ContactsContent } = this.props
-//     return (
-//       <Modal show={show} onHide={handleHide}>
-//         <Modal.Header closeButton>
-//           <Modal.Title id="contained-modal-title">Settings</Modal.Title>
-//         </Modal.Header>
-//         <Modal.Body>{CalendarsContent}</Modal.Body>
-//         <Modal.Body>{ContactsContent}</Modal.Body>
-//         <Modal.Footer>
-//           <Button onClick={handleHide}>Close</Button>
-//         </Modal.Footer>
-//       </Modal>
-//     )
-//   }
-// }
-
 class SettingsPage extends Component {
   render() {
     const { CalendarsContent, ContactsContent, handleHide } = this.props

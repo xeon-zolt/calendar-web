@@ -22,6 +22,8 @@ export default connect(
       publicCalendarEvents,
       publicCalendar,
       showInstructions,
+      currentCalendarIndex,
+      currentCalendarLength,
     } = events || {}
 
     let eventModal
@@ -49,6 +51,8 @@ export default connect(
       publicCalendarEvents,
       publicCalendar,
       showGeneralInstructions,
+      currentCalendarIndex,
+      currentCalendarLength,
     }
   },
   dispatch => {

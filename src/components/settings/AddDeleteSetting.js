@@ -85,7 +85,11 @@ class AddDeleteSetting extends Component {
               onChange={onAddValueChange}
               style={{ width: '80%' }}
             />
-            <Button onClick={onAddItem} disabled={!valueOfAdd}>
+            <Button
+              onClick={onAddItem}
+              disabled={!valueOfAdd}
+              style={{ margin: 8 }}
+            >
               Add
             </Button>
             <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
