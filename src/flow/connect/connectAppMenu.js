@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { showSettings, hideSettings } from '../store/event/calendarActionLazy'
+import { showSettings } from '../store/event/calendarActionLazy'
 import {
   showMyPublicCalendar,
   showAllCalendars,

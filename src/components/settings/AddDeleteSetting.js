@@ -6,6 +6,7 @@ class AddDeleteSetting extends Component {
     super(props)
     this.state = {
       valueOfAdd: props.valueOfAdd || '',
+      showFollow: false,
     }
     this.bound = [
       'renderItem',
@@ -52,16 +53,26 @@ class AddDeleteSetting extends Component {
     setItemData(item, data)
   }
 
-  renderItem(d, i) {
-    const { ItemRenderer } = this.state
-    const { onChangeItem, onDeleteItem } = this.bound
+  renderItem(d, i, user, follows) {
+    const { ItemRenderer, showFollow } = this.state
+    const { onChangeItem, onDeleteItem, onFollowItem } = this.bound
     return (
       <div key={i} className="d-inline-block">
-        <div style={{ display: 'inline-block', width: 320 }}>
+        <div style={{ display: 'inline-block', width: '80%' }}>
           {ItemRenderer && (
-            <ItemRenderer item={d} idx={i} onChangeItem={onChangeItem} />
+            <ItemRenderer
+              item={d}
+              idx={i}
+              onChangeItem={onChangeItem}
+              user={user}
+            />
           )}
         </div>
+        {showFollow && (
+          <div style={{ display: 'inline-block' }}>
+            <Glyphicon glyph="plus-sign" onClick={onFollowItem} data-idx={i} />
+          </div>
+        )}
         <div style={{ display: 'inline-block' }}>
           <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />
         </div>
@@ -70,21 +81,21 @@ class AddDeleteSetting extends Component {
   }
 
   render() {
-    const { items: itemList } = this.props
-    const { renderItem, onAddValueChange, onAddItem } = this.bound
-    const { addPlaceholder, valueOfAdd, errorOfAdd } = this.state
+    const { items: itemList, user } = this.props
+    const { renderItem, onAddItem } = this.bound
+    const {
+      valueOfAdd,
+      addTitle,
+      listTitle,
+      renderAdd,
+      errorOfAdd,
+    } = this.state
     return (
       <div className="settings">
         <Panel style={{ width: '80%' }}>
-          <Panel.Heading>New</Panel.Heading>
+          <Panel.Heading>{addTitle}</Panel.Heading>
           <Panel.Body>
-            <input
-              placeholder={addPlaceholder}
-              type="text"
-              value={valueOfAdd}
-              onChange={onAddValueChange}
-              style={{ width: '80%' }}
-            />
+            {renderAdd()}
             <Button
               onClick={onAddItem}
               disabled={!valueOfAdd}
@@ -97,9 +108,9 @@ class AddDeleteSetting extends Component {
         </Panel>
 
         <Panel style={{ width: '80%' }}>
-          <Panel.Heading>Yours</Panel.Heading>
+          <Panel.Heading>{listTitle}</Panel.Heading>
           <Panel.Body>
-            <div>{(itemList || []).map(renderItem)}</div>
+            <div>{(itemList || []).map((v, k) => renderItem(v, k, user))}</div>
           </Panel.Body>
         </Panel>
       </div>

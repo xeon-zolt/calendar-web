@@ -19,9 +19,10 @@ export default connect(
   (state, redux) => {
     const show = state.events.showSettings
     const addCalendarUrl = state.events.showSettingsAddCalendarUrl
-    const contacts = state.events.contacts
+    var contacts = state.events.contacts
     const calendars = state.events.calendars
-    return { show, contacts, calendars, addCalendarUrl }
+    const user = state.auth.user
+    return { show, contacts, calendars, addCalendarUrl, user }
   },
   dispatch => {
     return {
