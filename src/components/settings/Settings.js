@@ -56,9 +56,10 @@ export default class Settings extends Component {
           lookupContacts={lookupContacts}
           addItem={addContact}
           deleteItems={deleteContacts}
-          onFollowItem={followContact}
-          onUnfollowItem={unfollowContact}
+          followItem={followContact}
+          unfollowItem={unfollowContact}
           user={user}
+          calendars={calendars}
         />
       </div>
     )

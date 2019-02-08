@@ -14,6 +14,7 @@ import {
   deleteContacts,
   lookupContacts,
 } from '../store/event/contactActionLazy'
+import { uuid } from '../io/eventFN'
 
 export default connect(
   (state, redux) => {
@@ -24,7 +25,7 @@ export default connect(
     const user = state.auth.user
     return { show, contacts, calendars, addCalendarUrl, user }
   },
-  dispatch => {
+  (dispatch, redux) => {
     return {
       handleHide: () => {
         dispatch(initializeEvents())
@@ -49,6 +50,26 @@ export default connect(
       },
       setCalendarData: (calendar, data) => {
         dispatch(setCalendarData(calendar, data))
+      },
+      followContact: contact => {
+        const calendar = {
+          uid: uuid(),
+          type: 'blockstack-user',
+          name: 'public@' + contact.username,
+          mode: 'read-only',
+          data: {
+            user: contact.username,
+            src: 'public/AllEvents',
+          },
+        }
+        dispatch(addCalendar(calendar))
+      },
+      unfollowContact: contact => {
+        const { calendars } = redux.store.getState().events
+        const calendarToDelete = calendars.find(
+          c => (c.name = 'public@' + contact.username)
+        )
+        dispatch(deleteCalendars([calendarToDelete]))
       },
     }
   }

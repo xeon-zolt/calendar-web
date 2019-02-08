@@ -39,7 +39,7 @@ class CalendarItem extends Component {
     const { onColorChange, onVisibilityChange } = this.bound
     var name = (calendar || {}).name
     if (isPrivateDefault) {
-      name = 'Your private Kalendar (' + user.username + ')'
+      name = 'Your private calendar (' + user.username + ')'
     }
     return (
       <div>

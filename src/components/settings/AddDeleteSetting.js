@@ -1,5 +1,11 @@
 import React, { Component } from 'react'
-import { Button, Glyphicon, Panel } from 'react-bootstrap'
+import {
+  Button,
+  Glyphicon,
+  Panel,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
 
 class AddDeleteSetting extends Component {
   constructor(props) {
@@ -14,6 +20,8 @@ class AddDeleteSetting extends Component {
       'onAddItem',
       'onDeleteItem',
       'onChangeItem',
+      'onFollowItem',
+      'onUnfollowItem',
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this)
       return acc
@@ -53,9 +61,55 @@ class AddDeleteSetting extends Component {
     setItemData(item, data)
   }
 
-  renderItem(d, i, user, follows) {
+  onFollowItem(event) {
+    const { items, followItem } = this.props
+    const { idx } = event.target.dataset
+    const item = items[idx]
+    followItem(item)
+  }
+
+  onUnfollowItem(event) {
+    const { items, unfollowItem } = this.props
+    const { idx } = event.target.dataset
+    const item = items[idx]
+    unfollowItem(item)
+  }
+
+  renderUnFollowButton(follows, i, username) {
+    const { onUnfollowItem, onFollowItem } = this.bound
+    if (follows) {
+      const tip = 'Remove ' + username + "'s public calendar"
+      const tooltip = <Tooltip id="tooltip">{tip}</Tooltip>
+      return (
+        <OverlayTrigger placement="left" overlay={tooltip}>
+          <div style={{ display: 'inline-block', margin: '16px' }}>
+            <Glyphicon
+              glyph="minus-sign"
+              onClick={onUnfollowItem}
+              data-idx={i}
+            />
+          </div>
+        </OverlayTrigger>
+      )
+    } else {
+      const tip = 'Add ' + username + "'s public calendar"
+      const tooltip = <Tooltip id="tooltip">{tip}</Tooltip>
+      return (
+        <OverlayTrigger placement="left" overlay={tooltip}>
+          <div style={{ display: 'inline-block', margin: '16px' }}>
+            <Glyphicon glyph="plus-sign" onClick={onFollowItem} data-idx={i} />
+          </div>
+        </OverlayTrigger>
+      )
+    }
+  }
+
+  renderItem(d, i, user, calendars) {
     const { ItemRenderer, showFollow } = this.state
-    const { onChangeItem, onDeleteItem, onFollowItem } = this.bound
+    const { onChangeItem, onDeleteItem } = this.bound
+    const follows =
+      showFollow && !!calendars.find(c => c.name === 'public@' + d.username)
+    const showDelete = d.name !== 'default' && d.type !== 'private'
     return (
       <div key={i} className="d-inline-block">
         <div style={{ display: 'inline-block', width: '80%' }}>
@@ -68,20 +122,18 @@ class AddDeleteSetting extends Component {
             />
           )}
         </div>
-        {showFollow && (
-          <div style={{ display: 'inline-block' }}>
-            <Glyphicon glyph="plus-sign" onClick={onFollowItem} data-idx={i} />
+        {showFollow && this.renderUnFollowButton(follows, i, user.username)}
+        {showDelete && (
+          <div style={{ display: 'inline-block', margin: '16px' }}>
+            <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />
           </div>
         )}
-        <div style={{ display: 'inline-block' }}>
-          <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />
-        </div>
       </div>
     )
   }
 
   render() {
-    const { items: itemList, user } = this.props
+    const { items: itemList, user, calendars } = this.props
     const { renderItem, onAddItem } = this.bound
     const {
       valueOfAdd,
@@ -110,7 +162,11 @@ class AddDeleteSetting extends Component {
         <Panel style={{ width: '80%' }}>
           <Panel.Heading>{listTitle}</Panel.Heading>
           <Panel.Body>
-            <div>{(itemList || []).map((v, k) => renderItem(v, k, user))}</div>
+            <div>
+              {(itemList || []).map((v, k) =>
+                renderItem(v, k, user, calendars)
+              )}
+            </div>
           </Panel.Body>
         </Panel>
       </div>

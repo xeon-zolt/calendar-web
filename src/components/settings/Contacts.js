@@ -35,7 +35,7 @@ export default class Contacts extends AddDeleteSetting {
     this.state.ItemRenderer = ContactItem
     this.state.addTitle = 'Add Contact'
     this.state.listTitle = 'Contacts'
-    this.state.showFollow = false
+    this.state.showFollow = true
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
       const { items: contacts } = this.props
       const contactQuery = valueOfAdd
