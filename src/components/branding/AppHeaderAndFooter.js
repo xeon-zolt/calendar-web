@@ -2,14 +2,11 @@ import React from 'react'
 
 export const AppHeader = props => {
   return (
-    <h1 style={{ margin: '0px' }}>
-      <img
-        src="/android-chrome-192x192.png"
-        alt="logo"
-        style={{ marginRight: '10px', height: '40px', width: '40px' }}
-      />
-      OI Calendar{' '}
-    </h1>
+    <img
+      src="/android-chrome-192x192.png"
+      alt="logo"
+      style={{ marginRight: '10px', height: '40px', width: '40px' }}
+    />
   )
 }
 

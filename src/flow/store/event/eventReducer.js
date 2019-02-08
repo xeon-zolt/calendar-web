@@ -18,6 +18,8 @@ import {
   SHOW_INSTRUCTIONS,
   AUTH_SIGN_OUT,
   UNSET_CURRENT_INVITES,
+  SET_LOADING_CALENDARS,
+  SET_ERROR,
 } from '../ActionTypes'
 
 let initialState = {
@@ -106,13 +108,24 @@ export default function reduce(state = initialState, action = {}) {
       break
 
     case SHOW_SETTINGS:
-      newState = { ...state, showSettings: true }
+      newState = {
+        ...state,
+        showSettings: true,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined,
+      }
       break
 
     case SHOW_SETTINGS_ADD_CALENDAR:
       newState = {
         ...state,
         showSettings: true,
+        myPublicCalendar: undefined,
+        myPublicCalendarIcsUrl: undefined,
+        publicCalendar: undefined,
+        publicCalendarEvents: undefined,
         showSettingsAddCalendarUrl: payload.url,
       }
       break
@@ -130,6 +143,7 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: payload.icsUrl,
         publicCalendar: undefined,
         publicCalendarEvents: undefined,
+        showSettings: false,
       }
       break
     case SHOW_ALL_CALENDARS:
@@ -139,6 +153,7 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: undefined,
         publicCalendar: undefined,
         publicCalendarEvents: undefined,
+        showSettings: false,
       }
       break
     case SET_PUBLIC_CALENDAR_EVENTS:
@@ -150,6 +165,17 @@ export default function reduce(state = initialState, action = {}) {
         publicCalendar: payload.calendar.name,
       }
       break
+    case SET_LOADING_CALENDARS:
+      const currentIndex = state.currentCalendarIndex || 0
+      const currentCalendarIndex =
+        payload.index > currentIndex ? payload.index : currentIndex
+      const done = payload.index >= payload.length
+      newState = {
+        ...state,
+        currentCalendarIndex: done ? undefined : currentCalendarIndex,
+        currentCalendarLength: done ? undefined : payload.length,
+      }
+      break
     case SHOW_INSTRUCTIONS:
       newState = {
         ...state,
@@ -158,6 +184,12 @@ export default function reduce(state = initialState, action = {}) {
       break
     case AUTH_SIGN_OUT:
       newState = initialState
+      break
+    case SET_ERROR:
+      newState = {
+        ...state,
+        currentError: payload,
+      }
       break
     default:
       newState = state

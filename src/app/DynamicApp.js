@@ -33,13 +33,13 @@ class DynamicApp extends Component {
         <header className="App-header">
           <Grid>
             <Row>
-              <Col sm={6} xs={12}>
+              <Col sm={1} xs={6}>
                 <AppHeader />
               </Col>
-              <Col sm={4} xs={6}>
+              <Col sm={3} xs={6}>
                 {UserProfile && <UserProfile />}
               </Col>
-              <Col sm={2} xs={6}>
+              <Col sm={6} xs={12}>
                 <ConnectedAppMenu />
               </Col>
             </Row>

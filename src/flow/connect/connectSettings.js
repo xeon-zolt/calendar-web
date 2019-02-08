@@ -1,11 +1,13 @@
 import { connect } from 'react-redux'
-import { initializeEvents } from '../store/event/eventActionLazy'
+import {
+  initializeEvents,
+  showAllCalendars,
+} from '../store/event/eventActionLazy'
 
 import {
   addCalendar,
   deleteCalendars,
   setCalendarData,
-  hideSettings,
 } from '../store/event/calendarActionLazy'
 import {
   addContact,
@@ -25,7 +27,7 @@ export default connect(
     return {
       handleHide: () => {
         dispatch(initializeEvents())
-        dispatch(hideSettings())
+        dispatch(showAllCalendars())
       },
       lookupContacts: contactQuery => {
         return dispatch(lookupContacts(contactQuery))

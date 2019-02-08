@@ -31,6 +31,7 @@ export const UNSET_CURRENT_INVITES = 'contacts.UNSET_CURRENT_INVITES'
 export const SET_CALENDARS = 'calendar.SET_CALENDARS'
 export const ADD_CALENDAR = 'calendar.ADD_CALENDAR'
 export const SET_PUBLIC_CALENDAR_EVENTS = 'calendar.SET_PUBLIC_CALENDAR_EVENTS'
+export const SET_LOADING_CALENDARS = 'calendar.SET_LOADING_CALENDARS'
 
 // Settings
 export const SHOW_SETTINGS = 'settings.SHOW_SETTINGS'
@@ -39,3 +40,6 @@ export const SHOW_MY_PUBLIC_CALENDAR = 'settings.SHOW_MY_PUBLIC_CALENDAR'
 export const SHOW_ALL_CALENDARS = 'settings.SHOW_ALL_CALENDARS'
 export const SHOW_SETTINGS_ADD_CALENDAR = 'settings.SHOW_SETTINGS_ADD_CALENDAR'
 export const SHOW_INSTRUCTIONS = 'settings.SHOW_INSTRUCTIONS'
+
+// App
+export const SET_ERROR = 'app.SET_ERROR'
