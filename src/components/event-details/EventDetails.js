@@ -249,17 +249,16 @@ class EventDetails extends Component {
                 className="form-control"
                 placeholder="10"
                 ref="reminderTime"
-                value={eventDetail.reminderTime || ''}
+                value={eventDetail.reminderTime}
                 onChange={e => handleDataChange(e, 'reminderTime')}
               />
 
               <select
-                value={eventDetail.reminderTimeUnit || 'ss'}
+                value={eventDetail.reminderTimeUnit}
                 onChange={e => handleDataChange(e, 'reminderTimeUnit')}
               >
-                <option value="ss">Seconds</option>
-                <option value="mm">Minutes</option>
-                <option value="hh">Hours</option>
+                <option value="minutes">Minutes</option>
+                <option value="hours">Hours</option>
               </select>
             </div>
           </div>

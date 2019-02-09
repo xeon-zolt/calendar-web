@@ -50,12 +50,12 @@ backgroundProcess()
 // Listen for events being sent to this web worker from app.js
 onmessage = function(event) {
   // When the timer on app.js changes state, update the state here
-  if (event.data[0] === 'state_change') {
+  if (event.data[0] === 'enabled') {
     isEnabled = event.data[1]
   }
 
   // When the app is first loaded, the latest time is pushed to this web worker via postMessage()
-  else if (event.data[0] === 'update_from_storage') {
+  else if (event.data[0] === 'update') {
     hh = event.data[1]
     mm = event.data[2]
     ss = event.data[3]

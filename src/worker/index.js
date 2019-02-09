@@ -1,7 +1,8 @@
-import Reminder from './reminder'
+import moment from 'moment'
 
-let canUseNotifications = true
-let reminderData = new Reminder()
+import { getRemindersArray } from './utils'
+
+let reminders = getRemindersArray()
 let webWorker
 
 /**
@@ -16,10 +17,9 @@ export const startBackgroundProcess = () => {
       webWorker = new Worker('background_process.js')
     }
 
-    webWorker.postMessage(['state_change', true])
+    webWorker.postMessage(['enabled', true])
 
     webWorker.onmessage = event => {
-      console.log(event)
       updateTimer(event.data)
     }
   } else {
@@ -33,51 +33,58 @@ export const startBackgroundProcess = () => {
  * autosaves the timer in localstorage every 10 seconds.
  */
 const updateTimer = data => {
-  console.log(data)
-
-  /**
-   * data is passed when the web worker posts a message and contains a type and a value.
-   * data.type is either 'hh', 'mm' or 'ss' and the value is the corresponding updated value.
-   */
-  switch (data.type) {
-    case 'ss':
-      reminderData.secondsPassed++
-
-      // If 10 seconds has passed, update the local storage
-      // if (data.value % 10 === 0) {
-      //   setAllStorage()
-      // }
-
-      break
-    case 'mm':
-      reminderData.minutesPassed++
-      break
-    case 'hh':
-      reminderData.hoursPassed++
-      break
+  // For every 30 seconds, update reminders from localStorage to watch for latest changes
+  if (data.type === 'ss' && data.value % 30 === 0) {
+    reminders = getRemindersArray()
   }
 
-  /**
-   * If the time passed has reached the set interval,
-   * play a reminder sound and reset the time passed to be checked again
-   */
-  if (reminderData.intervalHasPassed()) {
-    reminderData.hoursPassed = 0
-    reminderData.minutesPassed = 0
+  reminders.forEach(reminder => {
+    if (reminder.isEnabled) {
+      /**
+       * data is passed when the web worker posts a message and contains a type and a value.
+       * data.type is either 'hh', 'mm' or 'ss' and the value is the corresponding updated value.
+       */
+      switch (data.type) {
+        case 'ss':
+          reminder.secondsPassed++
+          break
+        case 'mm':
+          reminder.minutesPassed++
+          break
+        case 'hh':
+          reminder.hoursPassed++
+          break
+        default:
+          break
+      }
+    }
 
-    if (canUseNotifications) {
+    /**
+     * If the time passed has reached the set interval,
+     * play a reminder sound and reset the time passed to be checked again
+     */
+    if (reminder.intervalHasPassed()) {
+      reminder.hoursPassed = 0
+      reminder.minutesPassed = 0
+      reminder.secondsPassed = 0
+
       if (Notification.permission !== 'granted') {
         Notification.requestPermission()
       } else {
-        const notification = new Notification('Times up!', {
-          icon: 'icon-144x144.png',
-          silent: true,
-        })
+        const notification = new Notification(
+          `${reminder.title} takes place ${moment
+            .utc()
+            .to(moment(reminder.start))}`,
+          {
+            icon: 'android-chrome-192x192.png',
+            silent: true,
+          }
+        )
 
         notification.onclick = function() {
-          notification.close()
+          window.location.href = `/?intent=view&uid=${reminder.uid}`
         }
       }
     }
-  }
+  })
 }
