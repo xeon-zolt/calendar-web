@@ -6,6 +6,7 @@ import {
 } from '../ActionTypes'
 import { fetchCalendars, publishCalendars } from '../../io/event'
 import { defaultCalendars } from '../../io/eventDefaults'
+import { guaranteeHexColor } from '../../io/eventFN'
 
 // ################
 // When initializing app
@@ -57,6 +58,7 @@ export function showSettingsAddCalendar(url) {
 }
 
 export function addCalendar(calendar) {
+  calendar.hexColor = guaranteeHexColor(calendar.hexColor)
   return (dispatch, getState) => {
     fetchCalendars().then(calendars => {
       // TODO check for duplicates

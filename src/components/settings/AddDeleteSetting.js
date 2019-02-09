@@ -1,11 +1,18 @@
 import React, { Component } from 'react'
-import { Button, Glyphicon, Panel } from 'react-bootstrap'
+import {
+  Button,
+  Glyphicon,
+  Panel,
+  OverlayTrigger,
+  Tooltip,
+} from 'react-bootstrap'
 
 class AddDeleteSetting extends Component {
   constructor(props) {
     super(props)
     this.state = {
       valueOfAdd: props.valueOfAdd || '',
+      showFollow: false,
     }
     this.bound = [
       'renderItem',
@@ -13,6 +20,8 @@ class AddDeleteSetting extends Component {
       'onAddItem',
       'onDeleteItem',
       'onChangeItem',
+      'onFollowItem',
+      'onUnfollowItem',
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this)
       return acc
@@ -52,39 +61,93 @@ class AddDeleteSetting extends Component {
     setItemData(item, data)
   }
 
-  renderItem(d, i) {
-    const { ItemRenderer } = this.state
+  onFollowItem(event) {
+    const { items, followItem } = this.props
+    const { idx } = event.target.dataset
+    const item = items[idx]
+    followItem(item)
+  }
+
+  onUnfollowItem(event) {
+    const { items, unfollowItem } = this.props
+    const { idx } = event.target.dataset
+    const item = items[idx]
+    unfollowItem(item)
+  }
+
+  renderUnFollowButton(follows, i, username) {
+    const { onUnfollowItem, onFollowItem } = this.bound
+    if (follows) {
+      const tip = 'Remove ' + username + "'s public calendar"
+      const tooltip = <Tooltip id="tooltip">{tip}</Tooltip>
+      return (
+        <OverlayTrigger placement="left" overlay={tooltip}>
+          <div style={{ display: 'inline-block', margin: '16px' }}>
+            <Glyphicon
+              glyph="minus-sign"
+              onClick={onUnfollowItem}
+              data-idx={i}
+            />
+          </div>
+        </OverlayTrigger>
+      )
+    } else {
+      const tip = 'Add ' + username + "'s public calendar"
+      const tooltip = <Tooltip id="tooltip">{tip}</Tooltip>
+      return (
+        <OverlayTrigger placement="left" overlay={tooltip}>
+          <div style={{ display: 'inline-block', margin: '16px' }}>
+            <Glyphicon glyph="plus-sign" onClick={onFollowItem} data-idx={i} />
+          </div>
+        </OverlayTrigger>
+      )
+    }
+  }
+
+  renderItem(d, i, user, calendars) {
+    const { ItemRenderer, showFollow } = this.state
     const { onChangeItem, onDeleteItem } = this.bound
+    const follows =
+      showFollow && !!calendars.find(c => c.name === 'public@' + d.username)
+    const showDelete = d.name !== 'default' && d.type !== 'private'
     return (
       <div key={i} className="d-inline-block">
-        <div style={{ display: 'inline-block', width: 320 }}>
+        <div style={{ display: 'inline-block', width: '80%' }}>
           {ItemRenderer && (
-            <ItemRenderer item={d} idx={i} onChangeItem={onChangeItem} />
+            <ItemRenderer
+              item={d}
+              idx={i}
+              onChangeItem={onChangeItem}
+              user={user}
+            />
           )}
         </div>
-        <div style={{ display: 'inline-block' }}>
-          <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />
-        </div>
+        {showFollow && this.renderUnFollowButton(follows, i, user.username)}
+        {showDelete && (
+          <div style={{ display: 'inline-block', margin: '16px' }}>
+            <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />
+          </div>
+        )}
       </div>
     )
   }
 
   render() {
-    const { items: itemList } = this.props
-    const { renderItem, onAddValueChange, onAddItem } = this.bound
-    const { addPlaceholder, valueOfAdd, errorOfAdd } = this.state
+    const { items: itemList, user, calendars } = this.props
+    const { renderItem, onAddItem } = this.bound
+    const {
+      valueOfAdd,
+      addTitle,
+      listTitle,
+      renderAdd,
+      errorOfAdd,
+    } = this.state
     return (
       <div className="settings">
         <Panel style={{ width: '80%' }}>
-          <Panel.Heading>New</Panel.Heading>
+          <Panel.Heading>{addTitle}</Panel.Heading>
           <Panel.Body>
-            <input
-              placeholder={addPlaceholder}
-              type="text"
-              value={valueOfAdd}
-              onChange={onAddValueChange}
-              style={{ width: '80%' }}
-            />
+            {renderAdd()}
             <Button
               onClick={onAddItem}
               disabled={!valueOfAdd}
@@ -97,9 +160,13 @@ class AddDeleteSetting extends Component {
         </Panel>
 
         <Panel style={{ width: '80%' }}>
-          <Panel.Heading>Yours</Panel.Heading>
+          <Panel.Heading>{listTitle}</Panel.Heading>
           <Panel.Body>
-            <div>{(itemList || []).map(renderItem)}</div>
+            <div>
+              {(itemList || []).map((v, k) =>
+                renderItem(v, k, user, calendars)
+              )}
+            </div>
           </Panel.Body>
         </Panel>
       </div>

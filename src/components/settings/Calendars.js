@@ -8,7 +8,7 @@ class CalendarItem extends Component {
     const { type, name, disabled, hexColor } = props.item || {}
     const isPrivateDefault = type === 'private' && name === 'default'
     this.state = {
-      disabled: isPrivateDefault ? false : disabled || false,
+      disabled: disabled || false,
       hexColor: hexColor || '#000000',
       isPrivateDefault,
     }
@@ -34,17 +34,18 @@ class CalendarItem extends Component {
   }
 
   render() {
-    const { item: calendar } = this.props || {}
+    const { item: calendar, user } = this.props || {}
     const { hexColor, disabled, isPrivateDefault } = this.state
     const { onColorChange, onVisibilityChange } = this.bound
-
-    // const privateCalendar = calendar.type === "private";
+    var name = (calendar || {}).name
+    if (isPrivateDefault) {
+      name = 'Your private calendar (' + user.username + ')'
+    }
     return (
       <div>
         <input
           type="checkbox"
           checked={!disabled}
-          disabled={isPrivateDefault}
           onChange={onVisibilityChange}
         />
         <input
@@ -54,7 +55,7 @@ class CalendarItem extends Component {
           style={{ marginRight: '20px', marginLeft: '5px' }}
         />
 
-        <label>{(calendar || {}).name}</label>
+        <label>{name}</label>
         {/* TODO implement editCalendar
         {privateCalendar && (
           <Button variant="light">
@@ -70,9 +71,11 @@ class CalendarItem extends Component {
 export default class Calendars extends AddDeleteSetting {
   constructor(props) {
     super(props)
-    this.state.addPlaceholder =
-      'e.g. public@user.id or https://calendar.google..../basic.ics'
+    const addPlaceholder = 'e.g. https://calendar.google..../basic.ics'
     this.state.ItemRenderer = CalendarItem
+    this.state.addTitle = 'Add Calendar from url'
+    this.state.listTitle = 'Calendars'
+    this.state.showFollow = false
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
       let newItem
 
@@ -120,5 +123,23 @@ export default class Calendars extends AddDeleteSetting {
         error: (errors || []).join(' '),
       })
     }
+
+    this.state.renderAdd = () => {
+      return (
+        <input
+          placeholder={addPlaceholder}
+          type="text"
+          value={this.state.valueOfAdd}
+          onChange={this.bound2.onAddValueChange}
+          style={{ width: '80%' }}
+        />
+      )
+    }
+
+    this.bound2 = ['onAddValueChange'].reduce((acc, d) => {
+      acc[d] = this[d].bind(this)
+      delete this[d]
+      return acc
+    }, {})
   }
 }
