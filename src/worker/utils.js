@@ -33,7 +33,7 @@ export const addReminder = event => {
 // Get reminders from localStorage
 export const getReminders = () => {
   try {
-    return JSON.parse(storage.getItem('reminders'))
+    return JSON.parse(storage.getItem('reminders')) || {}
   } catch (e) {
     return {}
   }
