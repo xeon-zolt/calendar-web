@@ -19,7 +19,7 @@ import { createInitialStore } from '../flow/store/storeManager'
 let store = createInitialStore()
 registerServiceWorker()
 
-class DynamicApp extends Component {
+export class DynamicApp extends Component {
   render() {
     const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store)
     const ConnectedSettings = connectToStore(Settings, connectSettings, store)
