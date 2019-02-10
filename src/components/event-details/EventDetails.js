@@ -140,6 +140,11 @@ class EventDetails extends Component {
     }
 
     eventDetail[ref] = val
+
+    if (ref === 'allDay' && val) {
+      this.handlleEndDateOrDurationChange(e, 'endDate')
+    }
+
     this.setState({ eventDetail })
   }
 
@@ -346,13 +351,15 @@ class EventDetails extends Component {
           >
             Use End Date
           </Radio>
-          <Radio
-            name="endDateOrDuration"
-            checked={endDateOrDuration === 'duration' ? 'checked' : ''}
-            onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
-          >
-            Use Duration
-          </Radio>
+          {!eventDetail.allDay && (
+            <Radio
+              name="endDateOrDuration"
+              checked={endDateOrDuration === 'duration' ? 'checked' : ''}
+              onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
+            >
+              Use Duration
+            </Radio>
+          )}
 
           {endDateOrDuration === 'endDate' ? (
             <div>
