@@ -22,7 +22,7 @@
 	"__COVERAGE__": false
   },
   "rules": {
-	"valid-jsdoc": "error",
+	"valid-jsdoc": "warn",
 	"react/prop-types": "warn",
 	"linebreak-style": ["error", "unix"]
   },

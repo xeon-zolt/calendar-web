@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
-
-import { Modal, Button, ProgressBar } from 'react-bootstrap'
+import PropTypes from 'prop-types'
+import { Modal, Button } from 'react-bootstrap'
 import moment from 'moment'
 
-import '../../css/datetime.css'
+import SendInvitesModal from './SendInvitesModal'
 
-var Datetime = require('react-datetime')
+// Styles
+import '../../css/datetime.css'
+import '../../css/EventDetails.css'
+
+const Datetime = require('react-datetime')
 
 const guestsStringToArray = function(guestsString) {
   if (!guestsString || !guestsString.length) {
@@ -23,67 +27,15 @@ function checkHasGuests(str) {
   return guests.filter(g => g.length > 0).length > 0
 }
 
-class SendInvitesModal extends Component {
-  constructor(props) {
-    super(props)
-    console.log('SendInvitesModal')
-    this.state = { sending: true, profiles: undefined }
-
-    var { guests } = props
-    if (typeof guests !== 'string') {
-      guests = ''
-    }
-    const guestList = guests.toLowerCase().split(/[,\s]+/g)
-    console.log('dispatch load guest list', guestList)
-
-    props.loadGuestList(guestList, ({ profiles, contacts }) => {
-      console.log('profiles', profiles)
-      this.setState({ profiles })
-    })
-  }
-
-  render() {
-    const {
-      title,
-      handleInvitesHide,
-      sending,
-      inviteError,
-      inviteErrorMsg,
-      sendInvites,
-      GuestList,
-    } = this.props
-
-    const { profiles } = this.state
-    return (
-      <Modal show onHide={handleInvitesHide}>
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title">{title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Send invites according to their Blockstack settings:
-          {GuestList && <GuestList guests={profiles} />}
-          {sending && !inviteError && <ProgressBar active now={50} />}
-          {inviteError && inviteErrorMsg}
-          <Modal.Footer>
-            <Button bsStyle="success" onClick={() => sendInvites(profiles)}>
-              Send
-            </Button>
-            <Button onClick={handleInvitesHide}>Close</Button>
-          </Modal.Footer>
-        </Modal.Body>
-      </Modal>
-    )
-  }
-}
-
 class EventDetails extends Component {
   constructor(props) {
     super(props)
+
+    const { inviteError, inviteSuccess, showModal } = props
+
     this.state = {
-      showModal: this.props.showModal,
-      showInvitesModal:
-        (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
-        !!this.props.inviteError,
+      showModal,
+      showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
       sending: false,
     }
 
@@ -103,11 +55,6 @@ class EventDetails extends Component {
     }, {})
   }
 
-  handleClose() {
-    console.log('HANDLE_CLOSE')
-    const { unsetCurrentEvent } = this.props
-    unsetCurrentEvent()
-  }
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state
     console.log('nextProp', nextProps)
@@ -118,6 +65,12 @@ class EventDetails extends Component {
       showInvitesModal: showInvitesModal && notProcessedYet,
       sending: sending && notProcessedYet,
     })
+  }
+
+  handleClose() {
+    console.log('HANDLE_CLOSE')
+    const { unsetCurrentEvent } = this.props
+    unsetCurrentEvent()
   }
 
   handleDataChange(e, ref) {
@@ -196,6 +149,7 @@ class EventDetails extends Component {
 
   render() {
     console.log('[EVENDETAILS.render]', this.props)
+
     const { showInvitesModal, sending } = this.state
     const { handleClose } = this.bound
     const {
@@ -217,7 +171,7 @@ class EventDetails extends Component {
     } = this.bound
     const hasGuests = checkHasGuests(eventDetail.guests)
 
-    var inviteErrorMsg = []
+    let inviteErrorMsg = []
     if (inviteError) {
       const error = inviteError
       if (error.errcode === 'M_CONSENT_NOT_GIVEN') {
@@ -233,6 +187,7 @@ class EventDetails extends Component {
         )
       }
     }
+
     return (
       <Modal show onHide={handleClose}>
         <Modal.Header closeButton>
@@ -249,35 +204,64 @@ class EventDetails extends Component {
             onChange={e => handleDataChange(e, 'title')}
           />
 
-          <label> Start Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.start}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.start}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          )}
+          <div className="date-time-container">
+            <div className="date-time-group">
+              <label> Start Date </label>
+              {eventDetail.allDay ? (
+                <Datetime
+                  value={eventDetail.start}
+                  dateFormat="MM-DD-YYYY"
+                  timeFormat={false}
+                  onChange={e => handleDataChange(e, 'start')}
+                />
+              ) : (
+                <Datetime
+                  value={eventDetail.start}
+                  onChange={e => handleDataChange(e, 'start')}
+                />
+              )}
+            </div>
 
-          <label> End Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.end}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'end')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.end}
-              onChange={e => handleDataChange(e, 'end')}
-            />
-          )}
+            <div className="date-time-group">
+              <label> End Date </label>
+              {eventDetail.allDay ? (
+                <Datetime
+                  value={eventDetail.end}
+                  dateFormat="MM-DD-YYYY"
+                  timeFormat={false}
+                  onChange={e => handleDataChange(e, 'end')}
+                />
+              ) : (
+                <Datetime
+                  value={eventDetail.end}
+                  onChange={e => handleDataChange(e, 'end')}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="reminder-container">
+            <label> Set Reminder </label>
+
+            <div className="reminder-group">
+              <input
+                type="number"
+                className="form-control"
+                placeholder="10"
+                ref="reminderTime"
+                value={eventDetail.reminderTime}
+                onChange={e => handleDataChange(e, 'reminderTime')}
+              />
+
+              <select
+                value={eventDetail.reminderTimeUnit}
+                onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+              >
+                <option value="minutes">Minutes</option>
+                <option value="hours">Hours</option>
+              </select>
+            </div>
+          </div>
 
           <label> Event Notes </label>
           <textarea
@@ -324,7 +308,7 @@ class EventDetails extends Component {
         </Modal.Body>
         <Modal.Footer>
           {eventType === 'add' && (
-            <Button bsStyle="success" onClick={() => addEvent()}>
+            <Button bsStyle="success" onClick={addEvent}>
               Add
             </Button>
           )}
@@ -368,6 +352,12 @@ class EventDetails extends Component {
       </Modal>
     )
   }
+}
+
+EventDetails.propTypes = {
+  inviteError: PropTypes.object,
+  inviteSuccess: PropTypes.bool,
+  showModal: PropTypes.bool,
 }
 
 export default EventDetails

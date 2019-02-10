@@ -21,6 +21,8 @@ const eventDefaults = {
   end: moment(),
   allDay: false,
   hexColor: '#265985',
+  reminderTime: 10,
+  reminderTimeUnit: 'minutes',
 }
 
 export default connect(
