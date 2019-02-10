@@ -8,7 +8,9 @@ function eventFromIcal(d) {
     title: vevent.summary,
     start: vevent.startDate.toJSDate().toISOString(),
     end: vevent.endDate.toJSDate().toISOString(),
-    duration: vevent.duration ? vevent.toJSDate().toTimeString() : null,
+    duration: vevent.duration
+      ? vevent.duration.toJSDate().toTimeString()
+      : null,
     uid: vevent.uid,
   }
 }
@@ -28,7 +30,7 @@ export function eventAsIcs(event) {
   let { title, description, start, end, allDay, uid, duration } = event
   start = dateToArray(allDay, new Date(start))
   end = dateToArray(allDay, new Date(end))
-  duration = timeToArray(duration)
+  duration = durationToObject(duration)
   return { title, description, start, end, uid, duration }
 }
 
@@ -54,7 +56,7 @@ function dateToArray(allDay, date) {
   }
 }
 
-function timeToArray(time) {
+function durationToObject(time) {
   if (time != null) {
     let duration = moment.duration(time)
     return {
