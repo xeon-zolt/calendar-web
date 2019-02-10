@@ -1,160 +1,71 @@
-import React, { Component } from "react";
-import { Button } from "react-bootstrap";
+import React from 'react'
+import AddDeleteSetting from './AddDeleteSetting'
 
-const LINK_URL_BASE = "https://debutapp.social/";
+const LINK_URL_BASE = 'https://debutapp.social/'
 
-const Contact = props => {
-  const { contact, handleDataChange } = props;
-  const linkUrl = LINK_URL_BASE + contact.username;
-  var avatarUrl;
-  if (
-    contact.image &&
-    contact.image.length > 0 &&
-    contact.image[0].contentUrl
-  ) {
-    avatarUrl = contact.image[0].contentUrl;
+const ContactItem = props => {
+  const { item, user } = props
+  var { image, username, name } = item
+  const linkUrl = LINK_URL_BASE + username
+  var avatarUrl
+  if (image && image.length > 0 && image[0].contentUrl) {
+    avatarUrl = image[0].contentUrl
   }
-  var name = contact.name;
-  if (!name) {
-    name = contact.username;
+  if (user && user.username && user.username === username) {
+    name = 'You (' + username + ')'
   }
   return (
     <div>
-      <input
-        type="checkbox"
-        checked={contact.selected}
-        value={contact.selected}
-        onChange={e => handleDataChange(e, "delete")}
-      />
       {avatarUrl && (
         <img src={avatarUrl} height="16px" width="16px" alt="avatar" />
       )}
       {!avatarUrl && <span className="glyphicon glyphicon-user" />}
-      <a href={linkUrl}>{name}</a>
+      <a style={{ marginLeft: 4 }} href={linkUrl}>
+        {name || username}
+      </a>
     </div>
-  );
-};
+  )
+}
 
-export default class Contacts extends Component {
+export default class Contacts extends AddDeleteSetting {
   constructor(props) {
-    super(props);
-    this.state = {
-      nameToAdd: "",
-      lookingUpContacts: false,
-      selectedContacts: {}
-    };
-    this.bound = [
-      "lookupContacts",
-      "addContact",
-      "deleteContacts",
-      "handleContactChange"
-    ].reduce((acc, d) => {
-      acc[d] = this[d].bind(this);
-      return acc;
-    }, {});
-  }
-  handleContactChange(contact) {
-    return (event, ref) => {
-      const { selectedContacts } = this.state;
-      if (ref === "delete") {
-        selectedContacts[contact.username] = event.target.checked;
-        this.setState({ selectedContacts });
-      }
-    };
-  }
-  renderContacts(contacts) {
-    const list = [];
-    for (var property in contacts) {
-      if (contacts.hasOwnProperty(property)) {
-        var contact = contacts[property];
-        contact.username = property;
-        list.push(
-          <Contact
-            key={property}
-            contact={contact}
-            handleDataChange={this.handleContactChange(contact)}
-          />
-        );
+    super(props)
+    const addPlaceholder = 'e.g. alice.id or bob.id.blockstack'
+
+    this.state.ItemRenderer = ContactItem
+    this.state.addTitle = 'Add Contact'
+    this.state.listTitle = 'Contacts'
+    this.state.showFollow = true
+    this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
+      const { items: contacts } = this.props
+      const contactQuery = valueOfAdd
+      console.log('contactQuery', contactQuery)
+
+      // check if contact already in
+      const usernames = Object.keys(contacts || {})
+      if (usernames.includes(contactQuery)) {
+        asyncReturn({ error: 'already in' })
+      } else {
+        asyncReturn({ item: { username: contactQuery } })
       }
     }
-    if (list.length === 0) {
-      list.push(<p key={0} />);
-    }
-    return list;
-  }
 
-  lookupContacts(event) {
-    const { lookupContacts, contacts } = this.props;
-    const contactQuery = event.target.value;
-
-    this.setState({ lookingUpContacts: true, nameToAdd: contactQuery });
-    const proposedContacts = [];
-    for (var n in contacts) {
-      const c = contacts[n];
-      if (c && n.indexOf(contactQuery) >= 0) {
-        proposedContacts.push(c);
-      }
-    }
-    this.setState({ proposedContacts, lookingUpContacts: false });
-    lookupContacts(contactQuery).then(
-      proposedContacts =>
-        this.setState({ proposedContacts, lookingUpContacts: false }),
-      () => {
-        this.setState({ lookingUpContacts: false });
-      }
-    );
-  }
-
-  addContact() {
-    const { addContact } = this.props;
-    const { nameToAdd } = this.state;
-    addContact(nameToAdd, { username: nameToAdd });
-    this.setState({ nameToAdd: "" });
-  }
-
-  deleteContacts() {
-    const { deleteContacts, contacts } = this.props;
-    const { selectedContacts } = this.state;
-    const contactList = Object.values(contacts);
-    const contactsToDelete = contactList.filter(
-      c => selectedContacts[c.username]
-    );
-    deleteContacts(contactsToDelete);
-    this.setState({ selectedContacts: {} });
-  }
-
-  render() {
-    const { contacts } = this.props;
-    const { lookupContacts, addContact, deleteContacts } = this.bound;
-    const { selectedContacts, nameToAdd } = this.state;
-    const contactsView = this.renderContacts(contacts);
-    return (
-      <div className="settings">
+    this.state.renderAdd = () => {
+      return (
         <input
+          placeholder={addPlaceholder}
           type="text"
-          placeholder="e.g. alice.id or bob.id.blockstack"
-          onChange={lookupContacts}
+          value={this.state.valueOfAdd}
+          onChange={this.bound2.onAddValueChange}
+          style={{ width: '80%' }}
         />
-        <Button
-          onClick={addContact}
-          disabled={!nameToAdd || nameToAdd.length === 0}
-        >
-          Add
-        </Button>
-        {contactsView}
-        <Button
-          bsStyle="danger"
-          bsSize="small"
-          onClick={deleteContacts}
-          disabled={
-            !selectedContacts ||
-            Object.keys(selectedContacts).filter(u => selectedContacts[u])
-              .length === 0
-          }
-        >
-          Delete
-        </Button>
-      </div>
-    );
+      )
+    }
+
+    this.bound2 = ['onAddValueChange'].reduce((acc, d) => {
+      acc[d] = this[d].bind(this)
+      delete this[d]
+      return acc
+    }, {})
   }
 }

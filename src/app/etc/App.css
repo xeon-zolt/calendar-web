@@ -38,7 +38,7 @@ h1,
 }
 
 .rbc-toolbar span:first-child button:first-child {
-	background-color: #558ed588;
+	background-color: #558ed5;
 	color: white;
 	font-weight: bold;
 }
@@ -50,7 +50,7 @@ h1,
 }
 
 .rbc-toolbar span:first-child button:nth-child(2)::after {
-	content: "◀";
+	content: '◀';
 	text-indent: 0;
 	display: block;
 	line-height: initial;
@@ -63,7 +63,7 @@ h1,
 }
 
 .rbc-toolbar span:first-child button:nth-child(3)::after {
-	content: "▶";
+	content: '▶';
 	text-indent: 0;
 	display: block;
 	line-height: initial;
@@ -71,7 +71,7 @@ h1,
 }
 
 .rbc-active {
-	background-color: #007bff !important;
+	background-color: #558ed5 !important;
 	color: white !important;
 }
 
@@ -123,6 +123,14 @@ h1,
 .modal-container .modal,
 .modal-container .modal-backdrop {
 	position: absolute;
+}
+
+.nav-pills li.active a {
+	background-color: #558ed5;
+}
+
+.nav-pills li a {
+	color: #558ed5;
 }
 
 @keyframes App-logo-spin {

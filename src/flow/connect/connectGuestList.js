@@ -1,5 +1,5 @@
-import { connect } from "react-redux";
+import { connect } from 'react-redux'
 
 export default connect((state, redux) => {
-  return {};
-});
+  return {}
+})

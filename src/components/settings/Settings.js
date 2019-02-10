@@ -1,49 +1,75 @@
-import React, { Component } from "react";
-import { Modal, Button } from "react-bootstrap";
-import Calendars from "./Calendars";
-import Contacts from "./Contacts";
+import React, { Component } from 'react'
+import { Button } from 'react-bootstrap'
+
+import Calendars from './Calendars'
+import Contacts from './Contacts'
+
+class SettingsPage extends Component {
+  render() {
+    const { CalendarsContent, ContactsContent, handleHide } = this.props
+    return (
+      <div className="text-left" style={{ marginLeft: 100 }}>
+        <h4>Settings</h4>
+        {CalendarsContent}
+        {ContactsContent}
+        <Button onClick={handleHide}>Done</Button>
+      </div>
+    )
+  }
+}
 
 export default class Settings extends Component {
   render() {
     const {
-      show,
+      // show,
       handleHide,
       calendars,
       addCalendarUrl,
       contacts,
       addCalendar,
       deleteCalendars,
+      setCalendarData,
       lookupContacts,
       addContact,
-      deleteContacts
-    } = this.props;
+      deleteContacts,
+      followContact,
+      unfollowContact,
+      user,
+    } = this.props
+    const CalendarsContent = (
+      <div>
+        <Calendars
+          items={calendars}
+          addItem={addCalendar}
+          deleteItems={deleteCalendars}
+          setItemData={setCalendarData}
+          valueOfAdd={addCalendarUrl}
+          user={user}
+        />
+      </div>
+    )
+
+    const ContactsContent = (
+      <div>
+        <Contacts
+          items={Object.values(contacts || {})}
+          lookupContacts={lookupContacts}
+          addItem={addContact}
+          deleteItems={deleteContacts}
+          followItem={followContact}
+          unfollowItem={unfollowContact}
+          user={user}
+          calendars={calendars}
+        />
+      </div>
+    )
+
     return (
-      <Modal show={show} onHide={handleHide}>
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title">Settings</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <label>Calendars</label>
-          <Calendars
-            calendars={calendars}
-            addCalendar={addCalendar}
-            deleteCalendars={deleteCalendars}
-            addCalendarUrl={addCalendarUrl}
-          />
-        </Modal.Body>
-        <Modal.Body>
-          <label>Contacts</label>
-          <Contacts
-            contacts={contacts}
-            lookupContacts={lookupContacts}
-            addContact={addContact}
-            deleteContacts={deleteContacts}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button onClick={handleHide}>Close</Button>
-        </Modal.Footer>
-      </Modal>
-    );
+      <SettingsPage
+        CalendarsContent={CalendarsContent}
+        ContactsContent={ContactsContent}
+        handleHide={handleHide}
+      />
+    )
   }
 }

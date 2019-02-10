@@ -1,18 +1,20 @@
-import { connect } from "react-redux";
+import { connect } from 'react-redux'
 
-import { setCurrentEvent } from "../store/event/eventAction";
+import { setCurrentEvent } from '../store/event/eventAction'
 import {
   showAllCalendars,
   hideInstructions,
-  showSettingsAddCalendar
-} from "../store/event/eventActionLazy";
+  setError,
+} from '../store/event/eventActionLazy'
+
+import { showSettingsAddCalendar } from '../store/event/calendarActionLazy'
 
 export default connect(
   (state, redux) => {
-    const { events, auth } = state;
-    const { EventDetails } = state.lazy;
-    const signedIn = !!auth.user;
-    console.log("[CALENDAR_REDUX]", events);
+    const { events, auth } = state
+    const { EventDetails } = state.lazy
+    const signedIn = !!auth.user
+    console.log('[CALENDAR_REDUX]', events)
     const {
       currentEvent,
       currentEventType,
@@ -20,25 +22,30 @@ export default connect(
       myPublicCalendarIcsUrl,
       publicCalendarEvents,
       publicCalendar,
-      showInstructions
-    } = events || {};
+      showInstructions,
+      currentCalendarIndex,
+      currentCalendarLength,
+      currentError,
+    } = events || {}
 
-    let eventModal;
+    let eventModal
     if (currentEvent) {
-      const eventType = currentEventType || "view"; // "add", "edit"
-      const eventInfo = currentEvent;
-      eventModal = { eventType, eventInfo };
+      const eventType = currentEventType || 'view' // "add", "edit"
+      const eventInfo = currentEvent
+      eventModal = { eventType, eventInfo }
     }
 
     const showGeneralInstructions = showInstructions
       ? showInstructions.general
-      : true;
+      : true
 
+    let showError = currentError && currentError.msg
+    let error = currentError ? currentError.msg : null
     return {
       events,
       signedIn,
       views: {
-        EventDetails
+        EventDetails,
       },
       eventModal,
       currentEvent,
@@ -47,29 +54,36 @@ export default connect(
       myPublicCalendarIcsUrl,
       publicCalendarEvents,
       publicCalendar,
-      showGeneralInstructions
-    };
+      showGeneralInstructions,
+      currentCalendarIndex,
+      currentCalendarLength,
+      showError,
+      error,
+    }
   },
   dispatch => {
     return {
       initializeLazyActions: () => {},
       showAllCalendars: () => {
-        dispatch(showAllCalendars());
+        dispatch(showAllCalendars())
       },
       hideInstructions: () => {
-        dispatch(hideInstructions());
+        dispatch(hideInstructions())
       },
       showSettingsAddCalendar: url => {
-        dispatch(showSettingsAddCalendar(url));
+        dispatch(showSettingsAddCalendar(url))
       },
       pickEventModal: eventModal => {
-        console.log("[pickEventModal]", eventModal);
+        console.log('[pickEventModal]', eventModal)
         const {
           eventType: currentEventType,
-          eventInfo: currentEvent
-        } = eventModal;
-        dispatch(setCurrentEvent(currentEvent, currentEventType));
-      }
-    };
+          eventInfo: currentEvent,
+        } = eventModal
+        dispatch(setCurrentEvent(currentEvent, currentEventType))
+      },
+      markErrorAsRead: () => {
+        dispatch(setError())
+      },
+    }
   }
-);
+)

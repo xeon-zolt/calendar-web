@@ -4,91 +4,91 @@ import {
   getPublicKeyFromPrivate,
   resolveZoneFileToProfile,
   putFile,
-  loadUserData
-} from "blockstack";
-import { createClient } from "matrix-js-sdk";
+  loadUserData,
+} from 'blockstack'
+import { createClient } from 'matrix-js-sdk'
 
 export class UserSessionChat {
   constructor() {
-    this.matrixClient = createClient("https://openintents.modular.im");
+    this.matrixClient = createClient('https://openintents.modular.im')
   }
 
   getOTP(userData) {
     const appUserAddress = publicKeyToAddress(
       getPublicKeyFromPrivate(userData.appPrivateKey)
-    );
-    var txid = userData.identityAddress + "" + Math.random();
-    console.log("txid", txid);
-    return fetch("https://auth.openintents.org/c/" + txid, { method: "POST" })
+    )
+    var txid = userData.identityAddress + '' + Math.random()
+    console.log('txid', txid)
+    return fetch('https://auth.openintents.org/c/' + txid, { method: 'POST' })
       .then(
         response => {
-          return response.json();
+          return response.json()
         },
-        error => console.log("error", error)
+        error => console.log('error', error)
       )
       .then(c => {
-        const challenge = c.challenge;
-        console.log("challenge", challenge);
-        return putFile("mxid.json", challenge, { encrypt: false }).then(
+        const challenge = c.challenge
+        console.log('challenge', challenge)
+        return putFile('mxid.json', challenge, { encrypt: false }).then(
           () => {
             return {
               username: appUserAddress.toLowerCase(),
               password:
-                txid + "|" + window.location.origin + "|" + userData.username
-            };
+                txid + '|' + window.location.origin + '|' + userData.username,
+            }
           },
-          error => console.log("err2", error)
-        );
-      });
+          error => console.log('err2', error)
+        )
+      })
   }
 
   setOnMessageListener(onMsgReceived) {
-    const matrixClient = this.matrixClient;
+    const matrixClient = this.matrixClient
     if (onMsgReceived) {
       return this.login().then(
         () => {
-          matrixClient.on("Room.timeline", onMsgReceived);
-          matrixClient.startClient();
-          console.log("event listeners are setup");
+          matrixClient.on('Room.timeline', onMsgReceived)
+          matrixClient.startClient()
+          console.log('event listeners are setup')
         },
         err => {
-          console.log("login failed", err);
+          console.log('login failed', err)
         }
-      );
+      )
     } else {
-      console.log("user id ", matrixClient.getUserId());
+      console.log('user id ', matrixClient.getUserId())
       if (matrixClient.getUserId()) {
-        matrixClient.stopClient();
+        matrixClient.stopClient()
       }
     }
   }
 
   createNewRoom(name, topic) {
-    const matrix = this.matrixClient;
+    const matrix = this.matrixClient
     return this.login().then(() => {
-      return matrix.createRoom({ visibility: "private", name, topic });
-    });
+      return matrix.createRoom({ visibility: 'private', name, topic })
+    })
   }
 
   sendMessage(receiverName, roomId, content) {
     return this.lookupProfile(receiverName).then(receiverProfile => {
-      console.log("receiver", receiverProfile);
+      console.log('receiver', receiverProfile)
       const receiverMatrixAccount = this.addressToAccount(
         receiverProfile.identityAddress
-      );
+      )
       content.formatted_body = content.formatted_body.replace(
-        "<subjectlink/>",
+        '<subjectlink/>',
         '<a href="https://matrix.to/#/' +
           receiverMatrixAccount +
           '">' +
           receiverProfile.identityAddress +
-          "</a>"
-      );
-      const matrixClient = this.matrixClient;
+          '</a>'
+      )
+      const matrixClient = this.matrixClient
 
       return this.login().then(() => {
         return matrixClient.joinRoom(roomId, {}).then(data => {
-          console.log("data join", data);
+          console.log('data join', data)
           return matrixClient
             .invite(roomId, receiverMatrixAccount)
             .finally(() => {
@@ -100,24 +100,24 @@ export class UserSessionChat {
                   )
                   .finally(res => {
                     return matrixClient
-                      .sendEvent(roomId, "m.room.message", content, "")
+                      .sendEvent(roomId, 'm.room.message', content, '')
                       .then(res => {
-                        console.log("msg sent", res);
-                        return Promise.resolve(res);
-                      });
-                  });
+                        console.log('msg sent', res)
+                        return Promise.resolve(res)
+                      })
+                  })
               } else {
                 return matrixClient
-                  .sendEvent(roomId, "m.room.message", content, "")
+                  .sendEvent(roomId, 'm.room.message', content, '')
                   .then(res => {
-                    console.log("msg sent", res);
-                    return Promise.resolve(res);
-                  });
+                    console.log('msg sent', res)
+                    return Promise.resolve(res)
+                  })
               }
-            });
-        });
-      });
-    });
+            })
+        })
+      })
+    })
   }
 
   /**
@@ -126,70 +126,70 @@ export class UserSessionChat {
 
   login() {
     if (this.matrixClient.getUserId()) {
-      return Promise.resolve();
+      return Promise.resolve()
     } else {
-      const userData = loadUserData();
+      const userData = loadUserData()
       return this.getOTP(userData).then(result => {
-        var deviceDisplayName = userData.username + " via OI Calendar";
+        var deviceDisplayName = userData.username + ' via OI Calendar'
         console.log(
-          "login",
+          'login',
           deviceDisplayName,
           result.username,
           result.password
-        );
-        return this.matrixClient.login("m.login.password", {
+        )
+        return this.matrixClient.login('m.login.password', {
           identifier: {
-            type: "m.id.user",
-            user: result.username
+            type: 'm.id.user',
+            user: result.username,
           },
           user: result.username,
           password: result.password,
-          initial_device_display_name: deviceDisplayName
-        });
-      });
+          initial_device_display_name: deviceDisplayName,
+        })
+      })
     }
   }
 
   addressToAccount(address) {
     // TODO lookup home server for user
-    return "@" + address.toLowerCase() + ":openintents.modular.im";
+    return '@' + address.toLowerCase() + ':openintents.modular.im'
   }
 
   lookupProfile(username) {
     if (!username) {
-      return Promise.reject();
+      return Promise.reject(new Error('Invalid username'))
     }
-    console.log("username", username);
-    let lookupPromise = config.network.getNameInfo(username);
+    console.log('username', username)
+    let lookupPromise = config.network.getNameInfo(username)
     return lookupPromise.then(responseJSON => {
       if (
-        responseJSON.hasOwnProperty("zonefile") &&
-        responseJSON.hasOwnProperty("address")
+        responseJSON.hasOwnProperty('zonefile') &&
+        responseJSON.hasOwnProperty('address')
       ) {
-        let profile = {};
-        profile.identityAddress = responseJSON.address;
+        let profile = {}
+        profile.identityAddress = responseJSON.address
         return resolveZoneFileToProfile(
           responseJSON.zonefile,
           responseJSON.address
         ).then(pr => {
-          console.log("pr", pr);
+          console.log('pr', pr)
           if (pr.apps[window.location.origin]) {
-            const gaiaUrl = pr.apps[window.location.origin];
-            const urlParts = gaiaUrl.split("/");
-            profile.appUserAddress = urlParts[urlParts.length - 2];
+            const gaiaUrl = pr.apps[window.location.origin]
+            const urlParts = gaiaUrl.split('/')
+            profile.appUserAddress = urlParts[urlParts.length - 2]
           }
-          return profile;
-        });
+          return profile
+        })
       } else {
         throw new Error(
-          "Invalid zonefile lookup response: did not contain `address`" +
-            " or `zonefile` field"
-        );
+          'Invalid zonefile lookup response: did not contain `address`' +
+            ' or `zonefile` field'
+        )
       }
-    });
+    })
   }
 }
 
 export function createSessionChat() {
-  return new UserSessionChat();
+  return new UserSessionChat()
 }
