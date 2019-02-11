@@ -1,42 +1,51 @@
-import { listFiles } from "blockstack/lib/storage";
-import { SHOW_FILES, SET_FILES } from "../ActionTypes";
+import { listFiles } from 'blockstack'
+import { SHOW_FILES, SET_FILES } from '../ActionTypes'
 
 function showFilesScreen(show) {
-  return { type: SHOW_FILES, payload: { show } };
+  return { type: SHOW_FILES, payload: { show } }
 }
 
 function newFile(files, f) {
-  const publicCalendar = {};
-  if (f.endsWith("Contacts")) {
-    files.contactListFile = f;
-  } else if (f.endsWith("Calendars")) {
-    files.calendarListFile = f;
-  } else if (f.endsWith("public/AllEvents")) {
-    publicCalendar.url = f;
-  } else if (f.endsWith("public/AllEvents.ics")) {
-    publicCalendar.ics = f;
-  } else if (f.endsWith("default/AllEvents")) {
-    files.calendars.private = [{ name: "default", url: f }];
+  console.log('received ', f)
+  if (f.endsWith('Contacts')) {
+    files.contactListFile = files.appBucketUrl + f
+  } else if (f.endsWith('Calendars')) {
+    files.calendarListFile = files.appBucketUrl + f
+  } else if (f.endsWith('public/AllEvents')) {
+    files.calendars.public[0].url = files.appBucketUrl + f
+  } else if (f.endsWith('public/AllEvents.ics')) {
+    files.calendars.public[0].ics = files.appBucketUrl + f
+  } else if (f.endsWith('default/AllEvents')) {
+    files.calendars.private = [{ name: 'private', url: files.appBucketUrl + f }]
+  } else if (f.endsWith('event.json') && f.startsWith('shared/')) {
+    files.sharedEvents.push({ name: f, url: files.appBucketUrl + f })
   } else {
-    const filename = f;
-    files.others.push({ name: { filename }, url: f });
+    const filename = f
+    files.others.push({ name: filename, url: files.appBucketUrl + f })
   }
-  files.calendars.public = [publicCalendar]; // there can be more in the future
-  return { type: SET_FILES, payload: { files, count: -1, lastAdded: f } };
 }
 function lastFile(files, count) {
-  return { type: SET_FILES, payload: { files, count } };
+  return { type: SET_FILES, payload: { files, count } }
 }
 
 export function showFiles() {
   return (dispatch, getState) => {
-    dispatch(showFilesScreen(true));
-    const { files } = getState().gaia;
+    dispatch(showFilesScreen(true))
+    const files = {
+      calendars: {
+        public: [{ name: 'public' }],
+      },
+      others: [],
+      sharedEvents: [],
+    }
+    const { user } = getState().auth
+
+    files.appBucketUrl = user.profile.apps[window.origin]
     listFiles(f => {
-      dispatch(newFile(files, f));
-      return true;
+      newFile(files, f)
+      return true
     }).then(count => {
-      dispatch(lastFile(files, count));
-    });
-  };
+      dispatch(lastFile(files, count))
+    })
+  }
 }

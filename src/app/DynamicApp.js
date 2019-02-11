@@ -15,6 +15,7 @@ import connectAppMenu from '../flow/connect/connectAppMenu'
 import connectSettings from '../flow/connect/connectSettings'
 import connectApp from '../flow/connect/connectApp'
 import { createInitialStore } from '../flow/store/storeManager'
+import { Export } from '../components/export/Export'
 
 let store = createInitialStore()
 registerServiceWorker()
@@ -24,7 +25,7 @@ export class DynamicApp extends Component {
     const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store)
     const ConnectedSettings = connectToStore(Settings, connectSettings, store)
     const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store)
-    const { views, showSettings } = this.props
+    const { views, showSettings, showFiles, files } = this.props
     const { UserProfile } = views
 
     //
@@ -46,6 +47,7 @@ export class DynamicApp extends Component {
           </Grid>
         </header>
         {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
+        {showFiles && <Export files={files} />}
         <footer>
           <AppFooter />
         </footer>
