@@ -8,9 +8,7 @@ function eventFromIcal(d) {
     title: vevent.summary,
     start: vevent.startDate.toJSDate().toISOString(),
     end: vevent.endDate.toJSDate().toISOString(),
-    duration: vevent.duration
-      ? vevent.duration.toJSDate().toTimeString()
-      : null,
+    duration: vevent.duration ? durationFromObject(vevent.duration) : null,
     uid: vevent.uid,
   }
 }
@@ -67,4 +65,14 @@ function durationToObject(time) {
   }
 
   return null
+}
+
+function durationFromObject(obj) {
+  return pad(obj.hours, 2) + ':' + pad(obj.minutes, 2)
+}
+
+function pad(num, size) {
+  var s = num + ''
+  while (s.length < size) s = '0' + s
+  return s
 }

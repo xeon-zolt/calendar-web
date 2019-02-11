@@ -1,16 +1,8 @@
-import React from 'react'
 import ReactDOM from 'react-dom'
-import App from './App'
-
-let EventCalendar = props => {
-  return <div>EventCalenda r</div>
-}
-let UserProfile = props => {
-  return <div>UserProfile</div>
-}
+import App from '../DynamicApp'
 
 it('renders without crashing', () => {
   const div = document.createElement('div')
-  ReactDOM.render(<App views={{ EventCalendar, UserProfile }} />, div)
+  ReactDOM.render(App, div)
   ReactDOM.unmountComponentAtNode(div)
 })
