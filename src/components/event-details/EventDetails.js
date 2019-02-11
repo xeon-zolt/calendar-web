@@ -351,15 +351,14 @@ class EventDetails extends Component {
           >
             Use End Date
           </Radio>
-          {!eventDetail.allDay && (
-            <Radio
-              name="endDateOrDuration"
-              checked={endDateOrDuration === 'duration' ? 'checked' : ''}
-              onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
-            >
-              Use Duration
-            </Radio>
-          )}
+          <Radio
+            name="endDateOrDuration"
+            checked={endDateOrDuration === 'duration' ? 'checked' : ''}
+            onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
+            disabled={eventDetail.allDay}
+          >
+            Use Duration
+          </Radio>
 
           {endDateOrDuration === 'endDate' ? (
             <div>
