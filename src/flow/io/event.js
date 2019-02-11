@@ -17,7 +17,9 @@ import { getUserAppFileUrl } from 'blockstack/lib/storage'
 // Contacts
 // ################
 export function fetchContactData() {
-  return fetchFromBlockstack('Contacts')
+  return fetchFromBlockstack('Contacts').then(contacts => {
+    return contacts || {}
+  })
 }
 
 export function publishContacts(contacts) {

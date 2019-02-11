@@ -32,28 +32,34 @@ export default class Settings extends Component {
       lookupContacts,
       addContact,
       deleteContacts,
+      followContact,
+      unfollowContact,
+      user,
     } = this.props
     const CalendarsContent = (
       <div>
-        <label>Calendars</label>
         <Calendars
           items={calendars}
           addItem={addCalendar}
           deleteItems={deleteCalendars}
           setItemData={setCalendarData}
           valueOfAdd={addCalendarUrl}
+          user={user}
         />
       </div>
     )
 
     const ContactsContent = (
       <div>
-        <label>Contacts</label>
         <Contacts
           items={Object.values(contacts || {})}
           lookupContacts={lookupContacts}
           addItem={addContact}
           deleteItems={deleteContacts}
+          followItem={followContact}
+          unfollowItem={unfollowContact}
+          user={user}
+          calendars={calendars}
         />
       </div>
     )
