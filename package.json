@@ -2,7 +2,7 @@
     "homepage": "https://cal.openintents.org",
     "name": "oi-calendar",
     "author": "friedger@gmail.com",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "private": true,
     "dependencies": {
         "blockstack": "18.2.1",
