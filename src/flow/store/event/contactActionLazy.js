@@ -2,18 +2,21 @@ import {
   SET_CONTACTS,
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
-  UNSET_CURRENT_INVITES
-} from "../ActionTypes";
+  UNSET_CURRENT_INVITES,
+} from '../ActionTypes'
 
 import {
   fetchContactData,
   publishContacts,
   sendInvitesToGuests,
-  loadGuestProfiles
-} from "../../io/event";
+  loadGuestProfiles,
+} from '../../io/event'
 
-function asAction_setContacts(contacts) {
-  return { type: SET_CONTACTS, payload: { contacts } };
+function resetContacts(contacts) {
+  return (dispatch, getState) => {
+    publishContacts(contacts)
+    dispatch({ type: SET_CONTACTS, payload: contacts })
+  }
 }
 
 // ################
@@ -23,59 +26,65 @@ function asAction_setContacts(contacts) {
 export function initializeContactData() {
   return async (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      dispatch(asAction_setContacts(contacts));
-    });
-  };
+      console.log('')
+      dispatch(resetContacts(contacts))
+    })
+  }
 }
 
 // ################
 // In Settings
 // ################
+
+export function lookupContacts() {
+  return (dispatch, getState) => {
+    return Promise.reject(new Error('not yet implemented'))
+  }
+}
+
 export function addContact(username, contact) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      contacts[username] = contact;
-      publishContacts(contacts);
-      dispatch(asAction_setContacts(contacts));
-    });
-  };
+      contacts[username] = { ...contacts[username], ...contact }
+      dispatch(resetContacts(contacts))
+    })
+  }
 }
 
 export function deleteContacts(deleteList) {
-  return async (dispatch, getState) => {
+  return (dispatch, getState) => {
     fetchContactData().then(contacts => {
       for (var i in deleteList) {
-        delete contacts[deleteList[i].username];
+        delete contacts[deleteList[i].username]
       }
-      publishContacts(contacts);
-      dispatch(asAction_setContacts(contacts));
-    });
-  };
+      dispatch(resetContacts(contacts))
+    })
+  }
 }
 
 // #########################
 // INVITES
 // #########################
 
-function asAction_invitesSentOk() {
+function invitesSentOkAction() {
   return {
-    type: INVITES_SENT_OK
-  };
+    type: INVITES_SENT_OK,
+  }
 }
 
-function asAction_invitesSentFail(error, eventType, eventInfo) {
+function invitesSentFailAction(error, eventType, eventInfo) {
   return {
     type: INVITES_SENT_FAIL,
-    payload: { error, eventType, eventInfo }
-  };
+    payload: { error, eventType, eventInfo },
+  }
 }
 export function unsetCurrentInvites() {
-  return { type: UNSET_CURRENT_INVITES };
+  return { type: UNSET_CURRENT_INVITES }
 }
 
 export function sendInvites(eventInfo, guests) {
   return async (dispatch, getState) => {
-    const state = getState();
+    const state = getState()
     sendInvitesToGuests(
       state.events.contacts,
       state.auth.user,
@@ -84,15 +93,15 @@ export function sendInvites(eventInfo, guests) {
       state.events.userSessionChat
     ).then(
       () => {
-        dispatch(asAction_invitesSentOk());
-        return Promise.resolve();
+        dispatch(invitesSentOkAction())
+        return Promise.resolve()
       },
       error => {
-        dispatch(asAction_invitesSentFail(error));
-        return Promise.reject(error);
+        dispatch(invitesSentFailAction(error))
+        return Promise.reject(error)
       }
-    );
-  };
+    )
+  }
 }
 
 // #########################
@@ -100,13 +109,13 @@ export function sendInvites(eventInfo, guests) {
 // #########################
 
 export function loadGuestList(guests, contacts, asyncReturn) {
-  console.log("loadGuestList", guests, contacts);
+  console.log('loadGuestList', guests, contacts)
   loadGuestProfiles(guests, contacts).then(
     ({ profiles, contacts }) => {
-      asyncReturn({ profiles, contacts });
+      asyncReturn({ profiles, contacts })
     },
     error => {
-      console.log("load guest list failed", error);
+      console.log('load guest list failed', error)
     }
-  );
+  )
 }

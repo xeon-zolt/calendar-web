@@ -1,39 +1,76 @@
-import { connect } from "react-redux";
-import { HIDE_SETTINGS } from "../store/ActionTypes";
+import { connect } from 'react-redux'
+import {
+  initializeEvents,
+  showAllCalendars,
+} from '../store/event/eventActionLazy'
+
 import {
   addCalendar,
-  deleteCalendars
-} from "../store/event/calendarActionLazy";
-import { addContact, deleteContacts } from "../store/event/contactActionLazy";
+  deleteCalendars,
+  setCalendarData,
+} from '../store/event/calendarActionLazy'
+import {
+  addContact,
+  deleteContacts,
+  lookupContacts,
+} from '../store/event/contactActionLazy'
+import { uuid } from '../io/eventFN'
 
 export default connect(
   (state, redux) => {
-    const show = state.events.showSettings;
-    const addCalendarUrl = state.events.showSettingsAddCalendarUrl;
-    const contacts = state.events.contacts;
-    const calendars = state.events.calendars;
-    return { show, contacts, calendars, addCalendarUrl };
+    const show = state.events.showSettings
+    const addCalendarUrl = state.events.showSettingsAddCalendarUrl
+    var contacts = state.events.contacts
+    const calendars = state.events.calendars
+    const user = state.auth.user
+    return { show, contacts, calendars, addCalendarUrl, user }
   },
-  dispatch => {
+  (dispatch, redux) => {
     return {
       handleHide: () => {
-        dispatch({ type: HIDE_SETTINGS });
+        dispatch(initializeEvents())
+        dispatch(showAllCalendars())
       },
       lookupContacts: contactQuery => {
-        return Promise.reject("not yet implemented");
+        return dispatch(lookupContacts(contactQuery))
       },
-      addContact: (username, contact) => {
-        dispatch(addContact(username, contact));
+      addContact: contactFormData => {
+        const username = contactFormData.username
+        const contact = { username }
+        dispatch(addContact(username, contact))
       },
       deleteContacts: contacts => {
-        dispatch(deleteContacts(contacts));
+        dispatch(deleteContacts(contacts))
       },
       addCalendar: calendar => {
-        dispatch(addCalendar(calendar));
+        dispatch(addCalendar(calendar))
       },
       deleteCalendars: calendars => {
-        dispatch(deleteCalendars(calendars));
-      }
-    };
+        dispatch(deleteCalendars(calendars))
+      },
+      setCalendarData: (calendar, data) => {
+        dispatch(setCalendarData(calendar, data))
+      },
+      followContact: contact => {
+        const calendar = {
+          uid: uuid(),
+          type: 'blockstack-user',
+          name: 'public@' + contact.username,
+          mode: 'read-only',
+          data: {
+            user: contact.username,
+            src: 'public/AllEvents',
+          },
+        }
+        dispatch(addCalendar(calendar))
+      },
+      unfollowContact: contact => {
+        const { calendars } = redux.store.getState().events
+        const calendarToDelete = calendars.find(
+          c => (c.name = 'public@' + contact.username)
+        )
+        dispatch(deleteCalendars([calendarToDelete]))
+      },
+    }
   }
-);
+)

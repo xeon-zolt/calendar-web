@@ -1,31 +1,49 @@
-import { connect } from "react-redux";
+import { connect } from 'react-redux'
+import { showSettings } from '../store/event/calendarActionLazy'
 import {
-  asAction_showSettings,
-  showMyPublicCalendar
-} from "../store/event/eventActionLazy";
-import { showFiles } from "../store/gaia/filesAction";
+  showMyPublicCalendar,
+  showAllCalendars,
+} from '../store/event/eventActionLazy'
+import { showFiles } from '../store/gaia/filesAction'
+import { setCurrentEvent } from '../store/event/eventAction'
 
 export default connect(
   (state, redux) => {
-    var username = null;
-    var signedIn = false;
-    if (state.auth && state.auth.user) {
-      username = state.auth.user.username;
-      signedIn = true;
+    const { events, auth } = state
+    const { user } = auth
+    var username = null
+    var signedIn = false
+
+    if (user) {
+      username = user.username
+      signedIn = true
     }
-    return { username, signedIn };
+
+    var page
+    if (events.showSettings) {
+      page = 'settings'
+    } else if (events.myPublicCalendarIcsUrl || events.publicCalendarEvents) {
+      page = 'publicCalendar'
+    } else {
+      page = 'all'
+    }
+    return { username, signedIn, page }
   },
   dispatch => {
     return {
       showSettings: () => {
-        dispatch(asAction_showSettings());
+        dispatch(showSettings())
       },
-      viewMyPublicCalendar: name => {
-        dispatch(showMyPublicCalendar(name));
+      showMyPublicCalendar: name => {
+        dispatch(setCurrentEvent)
+        dispatch(showMyPublicCalendar(name))
+      },
+      showAllEvents: () => {
+        dispatch(showAllCalendars())
       },
       showFiles: () => {
-        dispatch(showFiles());
-      }
-    };
+        dispatch(showFiles())
+      },
+    }
   }
-);
+)

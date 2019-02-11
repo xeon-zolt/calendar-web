@@ -1,29 +1,26 @@
-import React from "react";
+import React from 'react'
 
 export const AppHeader = props => {
   return (
-    <h1 style={{ margin: "0px" }}>
-      <img
-        src="/android-chrome-192x192.png"
-        alt="logo"
-        style={{ marginRight: "10px", height: "40px", width: "40px" }}
-      />
-      OI Calendar{" "}
-    </h1>
-  );
-};
+    <img
+      src="/android-chrome-192x192.png"
+      alt="logo"
+      style={{ marginRight: '10px', height: '40px', width: '40px' }}
+    />
+  )
+}
 
 export const AppFooter = props => {
   return (
     <div>
       <hr />
       <h5>
-        Developed By <a href="https://openintents.org">OpenIntents</a>, free and{" "}
+        Developed By <a href="https://openintents.org">OpenIntents</a>, free and{' '}
         <a href="https://github.com/friedger/oi-calendar">open source</a>, based
-        on work by{" "}
+        on work by{' '}
         <a href="https://github.com/yasnaraj/react-calendar-events-example">
           Yasna R.
-        </a>{" "}
+        </a>{' '}
         | {new Date().getFullYear().toString()} | v
         {process.env.REACT_APP_VERSION}
       </h5>
@@ -38,5 +35,5 @@ export const AppFooter = props => {
         Using <a href="https://glyphicons.com">glyphicons.com</a>
       </h5>
     </div>
-  );
-};
+  )
+}
