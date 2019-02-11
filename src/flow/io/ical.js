@@ -1,5 +1,6 @@
 import { parse, Component, Event } from 'ical.js'
 import { createEvents } from 'ics'
+import moment from 'moment'
 
 function eventFromIcal(d) {
   var vevent = new Event(d)
@@ -7,6 +8,9 @@ function eventFromIcal(d) {
     title: vevent.summary,
     start: vevent.startDate.toJSDate().toISOString(),
     end: vevent.endDate.toJSDate().toISOString(),
+    duration: vevent.duration
+      ? vevent.duration.toJSDate().toTimeString()
+      : null,
     uid: vevent.uid,
   }
 }
@@ -23,10 +27,11 @@ export function iCalParseEvents(icsContent, formatEvent) {
 }
 
 export function eventAsIcs(event) {
-  let { title, description, start, end, allDay, uid } = event
+  let { title, description, start, end, allDay, uid, duration } = event
   start = dateToArray(allDay, new Date(start))
   end = dateToArray(allDay, new Date(end))
-  return { title, description, start, end, uid }
+  duration = durationToObject(duration)
+  return { title, description, start, end, uid, duration }
 }
 
 export function icsFromEvents(events) {
@@ -49,4 +54,17 @@ function dateToArray(allDay, date) {
   } else {
     return base.concat([date.getHours(), date.getMinutes(), date.getSeconds()])
   }
+}
+
+function durationToObject(time) {
+  if (time != null) {
+    let duration = moment.duration(time)
+    return {
+      hours: duration.hours(),
+      minutes: duration.minutes(),
+      seconds: duration.seconds(),
+    }
+  }
+
+  return null
 }

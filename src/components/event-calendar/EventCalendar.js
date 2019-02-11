@@ -92,7 +92,11 @@ class EventCalendar extends Component {
   }
 
   getEventEnd(eventInfo) {
-    return eventInfo ? new Date(eventInfo.end) : new Date()
+    return eventInfo && (eventInfo.end || eventInfo.calculatedEndTime)
+      ? eventInfo.end
+        ? new Date(eventInfo.end)
+        : new Date(eventInfo.calculatedEndTime)
+      : new Date()
   }
 
   render() {
