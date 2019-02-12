@@ -46,7 +46,7 @@ export function icsFromEvents(events) {
 }
 
 function dateToArray(allDay, date) {
-  let base = [date.getFullYear(), date.getMonth() + 1, date.getDay()]
+  let base = [date.getFullYear(), date.getMonth() + 1, date.getDate()]
   if (allDay) {
     return base
   } else {

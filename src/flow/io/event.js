@@ -12,6 +12,7 @@ import { iCalParseEvents, icsFromEvents } from './ical'
 import { parseQueryString, encodeQueryString } from './queryString'
 
 import { getUserAppFileUrl } from 'blockstack/lib/storage'
+import { defaultCalendars } from './eventDefaults'
 
 // ################
 // Contacts
@@ -289,6 +290,12 @@ export function fetchCalendars() {
 export function publishCalendars(calendars) {
   if (!Array.isArray(calendars)) {
     calendars = Object.values(calendars || {})
+  }
+  const privateCalendarIndex = calendars.findIndex(
+    c => c.type === 'private' && c.name === 'default'
+  )
+  if (privateCalendarIndex < 0) {
+    calendars.splice(0, 0, defaultCalendars[0])
   }
   putOnBlockstack('Calendars', calendars)
 }
