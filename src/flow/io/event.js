@@ -245,8 +245,14 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
         return str
       },
       error => {
-        console.error(errorData)
-        console.error(error)
+        console.error(
+          'failed to fetch ',
+          src,
+          config,
+          !!privateKey,
+          error,
+          errorData
+        )
         return Promise.reject(
           new Error(`Couldn't fetch from fetchFromBlockstack`)
         )
@@ -428,8 +434,8 @@ export function loadPublicCalendar(calendarName, username) {
   })
 }
 
-function publishCalendar(events, filepath, contentType) {
-  putOnBlockstack(filepath, JSON.stringify(events), {
+function publishCalendar(eventsString, filepath, contentType) {
+  putOnBlockstack(filepath, eventsString, {
     encrypt: false,
     contentType,
   }).then(
@@ -454,7 +460,11 @@ export function publishEvents(param, updatePublicEvents) {
       publicEvents
     )
     if (republish) {
-      publishCalendar(newPublicEvents, publicEventPath, 'text/json')
+      publishCalendar(
+        JSON.stringify(newPublicEvents),
+        publicEventPath,
+        'text/json'
+      )
       var ics = icsFromEvents(newPublicEvents)
       publishCalendar(ics, publicEventPath + '.ics', 'text/calendar')
     } else {
