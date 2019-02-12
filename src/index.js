@@ -1,8 +1,14 @@
 import ReactDOM from 'react-dom'
-import './index.css'
-import App from './app/DynamicApp'
-import { startBackgroundProcess } from './worker'
 
-startBackgroundProcess()
+// App
+import App from './app/DynamicApp'
+
+// Styles
+import './index.css'
+
+// Reminders
+import { initReminders } from './reminder'
+
+initReminders()
 
 ReactDOM.render(App, document.getElementById('root'))
