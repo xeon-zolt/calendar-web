@@ -1,3 +1,25 @@
+table {
+	width: 100% !important;
+	table-layout: fixed !important
+}
+
+th, td {
+	width: 25% !important;
+	overflow: hidden;
+	width:200px;
+  max-width:200px;
+  min-width:200px;
+	word-wrap: break-word;
+}
+
+.rbc-header {
+	width: 25% !important
+}
+
+.rbc-agenda-date-cell {
+	white-space: wrap
+}
+
 .App {
 	text-align: center;
 }
@@ -147,16 +169,35 @@ h1,
 	}
 }
 
-@media screen and (min-width: 1080px) {
+@media screen and (min-width: 1000px) {
 	.bodyContainer {
 		width: 1050px;
 		margin-left: auto;
 		margin-right: auto;
 	}
+
+	th, td {
+		width: 25% !important;
+		overflow: hidden;
+		width:300px;
+	  max-width:300px;
+	  min-width:300px;
+		word-wrap: break-word;
+	}
+
 }
 
 @media screen and (max-width: 500px) {
 	.bodyContainer {
 		margin: 2%;
+	}
+
+	th, td {
+		width: 25% !important;
+		overflow: hidden;
+		width:100px;
+	  max-width:100px;
+	  min-width:100px;
+		word-wrap: break-word
 	}
 }
