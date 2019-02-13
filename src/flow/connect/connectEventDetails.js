@@ -8,6 +8,8 @@ import {
   deleteEvent,
   updateEvent,
   saveAllEvents,
+  createConferencingRoom,
+  removeConferencingRoom,
 } from '../../flow/store/event/eventActionLazy'
 
 import {
@@ -30,6 +32,8 @@ export default connect(
     const { currentEvent, currentEventType } = state.events
     const inviteError = state.events.inviteError
     const inviteSuccess = state.events.inviteSuccess
+    const addingConferencing = state.events.addingConferencing
+    const removingConferencing = state.events.removingConferencing
 
     return {
       inviteError,
@@ -37,6 +41,8 @@ export default connect(
       views: { GuestList },
       eventDetail: Object.assign({}, eventDefaults, currentEvent),
       eventType: currentEventType,
+      addingConferencing,
+      removingConferencing,
     }
   },
   (dispatch, redux) => {
@@ -67,6 +73,8 @@ export default connect(
         dispatch(addEvent(obj))
       },
       updateEvent: obj => dispatch(updateEvent(obj)),
+      createConferencingRoom: () => dispatch(createConferencingRoom()),
+      removeConferencingRoom: obj => dispatch(removeConferencingRoom(obj)),
     }
   }
 )

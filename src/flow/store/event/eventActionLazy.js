@@ -18,6 +18,8 @@ import {
   SHOW_INSTRUCTIONS,
   SET_LOADING_CALENDARS,
   SET_ERROR,
+  CREATE_CONFERENCING_ROOM,
+  REMOVE_CONFERENCING_ROOM,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -361,5 +363,35 @@ export function showAllCalendars() {
   return async (dispatch, getState) => {
     window.history.pushState({}, 'OI Calendar', '/')
     dispatch(showAllCalendarsAction())
+  }
+}
+
+export function createConferencingRoomAction(status, url) {
+  return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
+}
+
+export function createConferencingRoom() {
+  return async (dispatch, getState) => {
+    dispatch(createConferencingRoomAction('adding', null))
+    setTimeout(() => {
+      dispatch(
+        createConferencingRoomAction(
+          'added',
+          'https://chat.openintents.org/#/room/#oi-calendar:openintents.modular.im'
+        )
+      )
+    }, 1000)
+  }
+}
+
+export function removeConferencingRoomAction(status) {
+  return { type: REMOVE_CONFERENCING_ROOM, payload: { status } }
+}
+
+export function removeConferencingRoom(url) {
+  console.log('removeConferencingRoom')
+  return async (dispatch, getState) => {
+    dispatch(removeConferencingRoomAction('removing'))
+    setTimeout(() => dispatch(removeConferencingRoomAction('removed')), 1000)
   }
 }

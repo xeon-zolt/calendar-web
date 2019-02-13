@@ -248,45 +248,20 @@ class EventDetails extends Component {
   }
 
   addConferencing() {
+    const { createConferencingRoom } = this.props
     console.log('add conferencing')
-    this.setState({
-      addingConferencing: true,
-    })
-
-    setTimeout(() => this.addConferencingCallback(), 1000)
-  }
-
-  addConferencingCallback() {
-    const { eventDetail } = this.props
-    eventDetail['url'] =
-      'https://chat.openintents.org/#/room/#oi-calendar:openintents.modular.im'
-    this.setState({ eventDetail, addingConferencing: false })
+    createConferencingRoom()
   }
 
   removeConferencing() {
+    const { removeConferencingRoom } = this.props
     console.log('remove conferencing')
-    this.setState({
-      removingConferencing: true,
-    })
-
-    setTimeout(() => this.removeConferencingCallback(), 1000)
-  }
-
-  removeConferencingCallback() {
-    const { eventDetail } = this.props
-    eventDetail['url'] = null
-    this.setState({ eventDetail, addingConferencing: false })
+    removeConferencingRoom()
   }
 
   render() {
     console.log('[EVENDETAILS.render]', this.props)
-    const {
-      showInvitesModal,
-      sending,
-      endDateOrDuration,
-      addingConferencing,
-      removingConferencing,
-    } = this.state
+    const { showInvitesModal, sending, endDateOrDuration } = this.state
     const { handleClose } = this.bound
     const {
       views,
@@ -294,6 +269,8 @@ class EventDetails extends Component {
       eventType,
       eventDetail,
       loadGuestList,
+      addingConferencing,
+      removingConferencing,
     } = this.props
     const { GuestList } = views
     const {
