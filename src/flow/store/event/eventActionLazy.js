@@ -305,9 +305,17 @@ export function deleteEvent(event) {
 export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState()
-    let { allEvents } = state.events
+    let { allEvents, calendars } = state.events
+    console.log('calendars', calendars)
+    const privateCalendar = calendars.find(
+      c => c.type === 'private' && c.name === 'default'
+    )
+    if (privateCalendar) {
+      event.hexColor = privateCalendar.hexColor
+    }
     event.calendarName = 'default'
     event.uid = uuid()
+
     allEvents[event.uid] = event
     saveEvents('default', allEvents)
     if (event.public) {
