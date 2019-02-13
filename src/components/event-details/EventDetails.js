@@ -89,6 +89,8 @@ class EventDetails extends Component {
         this.props.eventDetail && this.props.eventDetail.duration
           ? 'duration'
           : 'endDate',
+      addingConferencing: false,
+      removingConferencing: false,
     }
 
     this.bound = [
@@ -102,6 +104,8 @@ class EventDetails extends Component {
       'updateEvent',
       'deleteEvent',
       'updateEndDateFromDuration',
+      'addConferencing',
+      'removeConferencing',
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this)
       delete this[d]
@@ -243,9 +247,46 @@ class EventDetails extends Component {
     sendInvites(eventDetail, guests, eventType)
   }
 
+  addConferencing() {
+    console.log('add conferencing')
+    this.setState({
+      addingConferencing: true,
+    })
+
+    setTimeout(() => this.addConferencingCallback(), 1000)
+  }
+
+  addConferencingCallback() {
+    const { eventDetail } = this.props
+    eventDetail['url'] =
+      'https://chat.openintents.org/#/room/#oi-calendar:openintents.modular.im'
+    this.setState({ eventDetail, addingConferencing: false })
+  }
+
+  removeConferencing() {
+    console.log('remove conferencing')
+    this.setState({
+      removingConferencing: true,
+    })
+
+    setTimeout(() => this.removeConferencingCallback(), 1000)
+  }
+
+  removeConferencingCallback() {
+    const { eventDetail } = this.props
+    eventDetail['url'] = null
+    this.setState({ eventDetail, addingConferencing: false })
+  }
+
   render() {
     console.log('[EVENDETAILS.render]', this.props)
-    const { showInvitesModal, sending, endDateOrDuration } = this.state
+    const {
+      showInvitesModal,
+      sending,
+      endDateOrDuration,
+      addingConferencing,
+      removingConferencing,
+    } = this.state
     const { handleClose } = this.bound
     const {
       views,
@@ -264,6 +305,8 @@ class EventDetails extends Component {
       addEvent,
       updateEvent,
       deleteEvent,
+      addConferencing,
+      removeConferencing,
     } = this.bound
     const hasGuests = checkHasGuests(eventDetail.guests)
 
@@ -371,6 +414,40 @@ class EventDetails extends Component {
               {renderDurationComponent()}
             </div>
           )}
+          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+            {!eventDetail.url ? (
+              <Button
+                bsStyle="primary"
+                bsSize="small"
+                onClick={() => addConferencing()}
+                disabled={addingConferencing}
+              >
+                {addingConferencing
+                  ? 'Adding conferencing...'
+                  : 'Add conferencing'}
+              </Button>
+            ) : (
+              <div>
+                <Button
+                  bsStyle="danger"
+                  bsSize="small"
+                  onClick={() => removeConferencing()}
+                  disabled={removingConferencing}
+                >
+                  {removingConferencing
+                    ? 'Removing conferencing...'
+                    : 'Remove conferencing'}
+                </Button>
+                <Button
+                  bsStyle="linkUrl"
+                  href={eventDetail.url}
+                  target="_blank"
+                >
+                  Open conferencing
+                </Button>
+              </div>
+            )}
+          </div>
 
           <label> Event Notes </label>
           <textarea
