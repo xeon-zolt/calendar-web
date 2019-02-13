@@ -257,8 +257,9 @@ function loadCalendarEvents(calendars, dispatch) {
           dispatch(setLoadingCalendars(index, calendarCount))
           let msg
           if (
-            calendar.name &&
-            calendar.name.startsWith('https://calendar.google.com/')
+            calendar.data &&
+            calendar.data.src &&
+            calendar.data.src.startsWith('https://calendar.google.com/')
           ) {
             msg =
               'Failed to load a Google calendar. Have you enabled CORS calls?'
