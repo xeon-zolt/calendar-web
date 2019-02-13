@@ -89,6 +89,8 @@ class EventDetails extends Component {
         this.props.eventDetail && this.props.eventDetail.duration
           ? 'duration'
           : 'endDate',
+      addingConferencing: false,
+      removingConferencing: false,
     }
 
     this.bound = [
@@ -102,6 +104,8 @@ class EventDetails extends Component {
       'updateEvent',
       'deleteEvent',
       'updateEndDateFromDuration',
+      'addConferencing',
+      'removeConferencing',
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this)
       delete this[d]
@@ -243,6 +247,18 @@ class EventDetails extends Component {
     sendInvites(eventDetail, guests, eventType)
   }
 
+  addConferencing() {
+    const { createConferencingRoom } = this.props
+    console.log('add conferencing')
+    createConferencingRoom()
+  }
+
+  removeConferencing() {
+    const { removeConferencingRoom } = this.props
+    console.log('remove conferencing')
+    removeConferencingRoom()
+  }
+
   render() {
     console.log('[EVENDETAILS.render]', this.props)
     const { showInvitesModal, sending, endDateOrDuration } = this.state
@@ -253,6 +269,8 @@ class EventDetails extends Component {
       eventType,
       eventDetail,
       loadGuestList,
+      addingConferencing,
+      removingConferencing,
     } = this.props
     const { GuestList } = views
     const {
@@ -264,6 +282,8 @@ class EventDetails extends Component {
       addEvent,
       updateEvent,
       deleteEvent,
+      addConferencing,
+      removeConferencing,
     } = this.bound
     const hasGuests = checkHasGuests(eventDetail.guests)
 
@@ -371,6 +391,40 @@ class EventDetails extends Component {
               {renderDurationComponent()}
             </div>
           )}
+          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+            {!eventDetail.url ? (
+              <Button
+                bsStyle="primary"
+                bsSize="small"
+                onClick={() => addConferencing()}
+                disabled={addingConferencing}
+              >
+                {addingConferencing
+                  ? 'Adding conferencing...'
+                  : 'Add conferencing'}
+              </Button>
+            ) : (
+              <div>
+                <Button
+                  bsStyle="danger"
+                  bsSize="small"
+                  onClick={() => removeConferencing()}
+                  disabled={removingConferencing}
+                >
+                  {removingConferencing
+                    ? 'Removing conferencing...'
+                    : 'Remove conferencing'}
+                </Button>
+                <Button
+                  bsStyle="linkUrl"
+                  href={eventDetail.url}
+                  target="_blank"
+                >
+                  Open conferencing
+                </Button>
+              </div>
+            )}
+          </div>
 
           <label> Event Notes </label>
           <textarea

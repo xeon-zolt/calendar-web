@@ -20,6 +20,8 @@ import {
   UNSET_CURRENT_INVITES,
   SET_LOADING_CALENDARS,
   SET_ERROR,
+  CREATE_CONFERENCING_ROOM,
+  REMOVE_CONFERENCING_ROOM,
 } from '../ActionTypes'
 
 let initialState = {
@@ -189,6 +191,40 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         currentError: payload,
+      }
+      break
+    case CREATE_CONFERENCING_ROOM:
+      console.log('CREATE_CONFERENCING_ROOM', payload)
+      if (payload.status === 'added') {
+        newState = {
+          ...state,
+          addingConferencing: false,
+          currentEvent: Object.assign({}, state.currentEvent, {
+            url: payload.url,
+          }),
+        }
+      } else {
+        newState = {
+          ...state,
+          addingConferencing: payload.status === 'adding',
+        }
+      }
+      break
+    case REMOVE_CONFERENCING_ROOM:
+      console.log('REMOVE_CONFERENCING_ROOM', payload)
+      if (payload.status === 'removed') {
+        newState = {
+          ...state,
+          removingConferencing: false,
+          currentEvent: Object.assign({}, state.currentEvent, {
+            url: null,
+          }),
+        }
+      } else {
+        newState = {
+          ...state,
+          removingConferencing: payload.status === 'removing',
+        }
       }
       break
     default:
