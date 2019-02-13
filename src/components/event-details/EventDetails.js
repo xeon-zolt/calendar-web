@@ -1,6 +1,14 @@
 import React, { Component } from 'react'
 
-import { Modal, Button, ProgressBar, Radio } from 'react-bootstrap'
+import {
+  Modal,
+  Button,
+  ProgressBar,
+  Radio,
+  Grid,
+  Row,
+  Col,
+} from 'react-bootstrap'
 import moment from 'moment'
 
 import '../../css/datetime.css'
@@ -339,135 +347,151 @@ class EventDetails extends Component {
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <label> Event Name </label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter the Event Name"
-            ref="title"
-            value={eventDetail.title || ''}
-            onChange={e => handleDataChange(e, 'title')}
-          />
-
-          <label> Start Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.start}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.start}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          )}
-
-          <Radio
-            name="endDateOrDuration"
-            checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
-            onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
-          >
-            Use End Date
-          </Radio>
-          <Radio
-            name="endDateOrDuration"
-            checked={endDateOrDuration === 'duration' ? 'checked' : ''}
-            onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
-            disabled={eventDetail.allDay}
-          >
-            Use Duration
-          </Radio>
-
-          {endDateOrDuration === 'endDate' ? (
-            <div>
-              <label> End Date </label>
-              {renderEndComponent()}
-            </div>
-          ) : (
-            <div>
-              <label> Duration </label>
-              {renderDurationComponent()}
-            </div>
-          )}
-          <div style={{ marginTop: '10px', marginBottom: '10px' }}>
-            {!eventDetail.url ? (
-              <Button
-                bsStyle="primary"
-                bsSize="small"
-                onClick={() => addConferencing()}
-                disabled={addingConferencing}
-              >
-                {addingConferencing
-                  ? 'Adding conferencing...'
-                  : 'Add conferencing'}
-              </Button>
-            ) : (
-              <div>
-                <Button
-                  bsStyle="danger"
-                  bsSize="small"
-                  onClick={() => removeConferencing()}
-                  disabled={removingConferencing}
+          <Grid fluid>
+            <Row>
+              <Col xs={12}>
+                <label> Event Name </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter the Event Name"
+                  ref="title"
+                  value={eventDetail.title || ''}
+                  onChange={e => handleDataChange(e, 'title')}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <label> Start Date </label>
+                {eventDetail.allDay ? (
+                  <Datetime
+                    value={eventDetail.start}
+                    dateFormat="MM-DD-YYYY"
+                    timeFormat={false}
+                    onChange={e => handleDataChange(e, 'start')}
+                  />
+                ) : (
+                  <Datetime
+                    value={eventDetail.start}
+                    onChange={e => handleDataChange(e, 'start')}
+                  />
+                )}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12} sm={8}>
+                {endDateOrDuration === 'endDate' ? (
+                  <div>
+                    <label> End Date </label>
+                    {renderEndComponent()}
+                  </div>
+                ) : (
+                  <div>
+                    <label> Duration </label>
+                    {renderDurationComponent()}
+                  </div>
+                )}
+              </Col>
+              <Col xs={12} sm={4}>
+                <Radio
+                  name="endDateOrDuration"
+                  checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
+                  onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
                 >
-                  {removingConferencing
-                    ? 'Removing conferencing...'
-                    : 'Remove conferencing'}
-                </Button>
-                <Button
-                  bsStyle="linkUrl"
-                  href={eventDetail.url}
-                  target="_blank"
+                  Use End Date
+                </Radio>
+                <Radio
+                  name="endDateOrDuration"
+                  checked={endDateOrDuration === 'duration' ? 'checked' : ''}
+                  onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
+                  disabled={eventDetail.allDay}
                 >
-                  Open conferencing
-                </Button>
-              </div>
-            )}
-          </div>
-
-          <label> Event Notes </label>
-          <textarea
-            className="form-control"
-            placeholder="Event Notes"
-            ref="notes"
-            value={eventDetail.notes || ''}
-            onChange={e => handleDataChange(e, 'notes')}
-          />
-
-          <label> Guests (experimental)</label>
-          <textarea
-            className="form-control"
-            placeholder="bob.id, alice.id.blockstack,.."
-            ref="guests"
-            value={eventDetail.guests || ''}
-            onChange={e => handleDataChange(e, 'guests')}
-          />
-
-          <label> Event Color </label>
-          <input
-            type="color"
-            value={eventDetail.hexColor || ''}
-            onChange={e => handleDataChange(e, 'hexColor')}
-            style={{ marginRight: '20px', marginLeft: '5px' }}
-          />
-
-          <input
-            type="checkBox"
-            name="all_Day"
-            value={eventDetail.allDay}
-            checked={eventDetail.allDay}
-            onChange={e => handleDataChange(e, 'allDay')}
-          />
-          <label> All Day </label>
-          <input
-            type="checkBox"
-            name="public"
-            value={eventDetail.public}
-            checked={eventDetail.public}
-            onChange={e => handleDataChange(e, 'public')}
-          />
-          <label> Public </label>
+                  Use Duration
+                </Radio>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <label> Event Notes </label>
+                <textarea
+                  className="form-control"
+                  placeholder="Event Notes"
+                  ref="notes"
+                  value={eventDetail.notes || ''}
+                  onChange={e => handleDataChange(e, 'notes')}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col sm={8} xs={12}>
+                <label> Guests (experimental)</label>
+                <textarea
+                  className="form-control"
+                  placeholder="bob.id, alice.id.blockstack,.."
+                  ref="guests"
+                  value={eventDetail.guests || ''}
+                  onChange={e => handleDataChange(e, 'guests')}
+                />
+              </Col>
+              <Col sm={4} xs={12}>
+                <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                  {!eventDetail.url ? (
+                    <Button
+                      bsStyle="primary"
+                      bsSize="small"
+                      onClick={() => addConferencing()}
+                      disabled={addingConferencing}
+                    >
+                      {addingConferencing
+                        ? 'Adding conferencing...'
+                        : 'Add conferencing'}
+                    </Button>
+                  ) : (
+                    <div>
+                      <Button
+                        bsStyle="danger"
+                        bsSize="small"
+                        onClick={() => removeConferencing()}
+                        disabled={removingConferencing}
+                      >
+                        {removingConferencing
+                          ? 'Removing conferencing...'
+                          : 'Remove conferencing'}
+                      </Button>
+                      <Button
+                        bsStyle="linkUrl"
+                        href={eventDetail.url}
+                        target="_blank"
+                      >
+                        Open conferencing
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <input
+                  type="checkBox"
+                  name="all_Day"
+                  value={eventDetail.allDay}
+                  checked={eventDetail.allDay}
+                  onChange={e => handleDataChange(e, 'allDay')}
+                />
+                <label> All Day </label>
+                <input
+                  type="checkBox"
+                  name="public"
+                  value={eventDetail.public}
+                  checked={eventDetail.public}
+                  onChange={e => handleDataChange(e, 'public')}
+                />
+                <label> Public </label>
+              </Col>
+            </Row>
+          </Grid>
         </Modal.Body>
         <Modal.Footer>
           {eventType === 'add' && (
