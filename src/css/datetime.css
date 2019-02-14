@@ -62,7 +62,7 @@
 }
 
 .rdtPicker td.rdtToday:before {
-	content: "";
+	content: '';
 	display: inline-block;
 	border-left: 7px solid transparent;
 	border-bottom: 7px solid #428bca;
