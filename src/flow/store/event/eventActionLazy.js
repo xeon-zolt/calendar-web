@@ -43,7 +43,9 @@ import {
 } from './calendarActionLazy'
 
 import { setCurrentEvent } from './eventAction'
-import { addReminder } from '../../../worker/utils'
+
+// Reminders
+import { addReminder } from '../../../reminder'
 
 // #########################
 // Chat

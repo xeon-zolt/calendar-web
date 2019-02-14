@@ -3,6 +3,7 @@ import moment from 'moment'
 import Reminder from './reminder'
 
 const storage = window.localStorage
+let remindersArray
 
 // Add reminder to localStorage
 export const addReminder = event => {
@@ -25,6 +26,20 @@ export const addReminder = event => {
 
   eventData.reminder = reminder
 
+  const timeout = moment(reminder).diff(moment(new Date()))
+
+  let r = remindersArray.find(x => x.uid === uid)
+
+  if (r) {
+    r.setReminderInterval(timeout)
+
+    // Update event metadata
+    r.title = event.title
+    r.start = event.start
+  } else {
+    remindersArray.push(new Reminder(timeout, event.title, uid, event.start))
+  }
+
   reminders[uid] = eventData
 
   setReminders(reminders)
@@ -45,26 +60,23 @@ export const setReminders = reminders => {
 }
 
 // Get `Reminder` Array from localStorage
-export const getRemindersArray = () => {
+export const initReminders = () => {
   const reminders = getReminders()
-  let remindersArray = []
   let delUid = []
 
   remindersArray = Object.keys(reminders).map(key => {
     const now = moment.utc()
     const reminder = moment(reminders[key].reminder)
-    const duration = moment.duration(reminder.diff(now))
+    const timeout = reminder.diff(now)
 
     // Store `uid` of events whose reminder time has passed
     // To be deleted from localStorage
-    if (duration.get('seconds') < 0) {
+    if (timeout < 0) {
       delUid.push(key)
     }
 
     return new Reminder(
-      duration.get('hours'),
-      duration.get('minutes'),
-      duration.get('seconds'),
+      timeout,
       reminders[key].title,
       key,
       reminders[key].start
@@ -74,6 +86,4 @@ export const getRemindersArray = () => {
   delUid.forEach(uid => delete reminders[uid])
 
   setReminders(reminders)
-
-  return remindersArray
 }
