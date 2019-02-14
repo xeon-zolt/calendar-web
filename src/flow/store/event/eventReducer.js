@@ -22,6 +22,7 @@ import {
   SET_ERROR,
   CREATE_CONFERENCING_ROOM,
   REMOVE_CONFERENCING_ROOM,
+  VERIFY_ADD_CALENDAR,
 } from '../ActionTypes'
 
 let initialState = {
@@ -29,6 +30,9 @@ let initialState = {
   calendars: [],
   contacts: [],
   user: '',
+  verifyAddCalendarData: {
+    status: '',
+  },
 }
 
 export default function reduce(state = initialState, action = {}) {
@@ -225,6 +229,23 @@ export default function reduce(state = initialState, action = {}) {
           ...state,
           removingConferencing: payload.status === 'removing',
         }
+      }
+      break
+    case VERIFY_ADD_CALENDAR:
+      newState = {
+        ...state,
+        verifyAddCalendarData: payload,
+      }
+      if (
+        payload.calendar &&
+        payload.calendar.data &&
+        payload.calendar.data.src
+      ) {
+        newState['showSettingsAddCalendarUrl'] = payload.calendar.data.src
+      }
+
+      if (payload.showSettingsAddCalendarUrl != null) {
+        newState['showSettingsAddCalendarUrl'] = null
       }
       break
     default:

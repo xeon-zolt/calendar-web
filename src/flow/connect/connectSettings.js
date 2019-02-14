@@ -2,6 +2,8 @@ import { connect } from 'react-redux'
 import {
   initializeEvents,
   showAllCalendars,
+  verifyAddCalendar,
+  clearVerifyCalendar,
 } from '../store/event/eventActionLazy'
 
 import {
@@ -23,7 +25,15 @@ export default connect(
     var contacts = state.events.contacts
     const calendars = state.events.calendars
     const user = state.auth.user
-    return { show, contacts, calendars, addCalendarUrl, user }
+    const verifyAddCalendarData = state.events.verifyAddCalendarData
+    return {
+      show,
+      contacts,
+      calendars,
+      addCalendarUrl,
+      user,
+      verifyAddCalendarData,
+    }
   },
   (dispatch, redux) => {
     return {
@@ -44,6 +54,7 @@ export default connect(
       },
       addCalendar: calendar => {
         dispatch(addCalendar(calendar))
+        dispatch(clearVerifyCalendar())
       },
       deleteCalendars: calendars => {
         dispatch(deleteCalendars(calendars))
@@ -70,6 +81,9 @@ export default connect(
           c => (c.name = 'public@' + contact.username)
         )
         dispatch(deleteCalendars([calendarToDelete]))
+      },
+      verifyAddCalendar: calendar => {
+        dispatch(verifyAddCalendar(calendar))
       },
     }
   }

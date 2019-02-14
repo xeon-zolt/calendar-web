@@ -8,6 +8,7 @@ import {
   Col,
   DropdownButton,
   MenuItem,
+  Alert,
   // Alert,
 } from 'react-bootstrap'
 
@@ -90,7 +91,8 @@ export default class Calendars extends AddDeleteSetting {
     this.state.hexColor = ''
     this.state.isVerified = false
     this.state.menuItems = [
-      'https://5c609074a2c02d0007d39068--upbeat-wing-158214.netlify.com/?intent=view&name=public%40friedger.id',
+      // 'https://5c609074a2c02d0007d39068--upbeat-wing-158214.netlify.com/?intent=view&name=public%40friedger.id',
+      'https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics',
     ]
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
       let newItem
@@ -129,6 +131,7 @@ export default class Calendars extends AddDeleteSetting {
           uid: uuid(),
           type,
           name: this.state.calendarName || valueOfAdd,
+          hexColor: this.state.hexColor || null,
           mode: 'read-only',
           data,
         }
@@ -165,17 +168,29 @@ export default class Calendars extends AddDeleteSetting {
 
   renderOrSeparator = () => (
     <Row style={{ padding: '5px' }}>
-      <Col sm="12" style={{ textAlign: 'center' }}>
+      <Col sm={12} style={{ textAlign: 'center' }}>
         or
       </Col>
     </Row>
   )
 
   handleVerifyButton = () => {
+    const { verifyAddCalendar } = this.props
+    const { valueOfAdd, addValueToItem } = this.state
+
     this.setState({
       hexColor: guaranteeHexColor(null),
-      isVerified: true,
-      calendarEvents: 10,
+    })
+
+    addValueToItem(valueOfAdd, ({ item, error }) => {
+      if (error) {
+        this.setState({
+          valueOfAdd,
+          errorOfAdd: (error || '').toString(),
+        })
+      } else {
+        verifyAddCalendar(item)
+      }
     })
   }
 
@@ -190,7 +205,12 @@ export default class Calendars extends AddDeleteSetting {
   }
 
   render() {
-    const { items: itemList, user, calendars } = this.props
+    const {
+      items: itemList,
+      user,
+      calendars,
+      verifyAddCalendarData,
+    } = this.props
     const { renderItem, onAddItem } = this.bound
     const {
       valueOfAdd,
@@ -206,7 +226,7 @@ export default class Calendars extends AddDeleteSetting {
           <Panel.Heading>{addTitle}</Panel.Heading>
           <Panel.Body>
             <Row>
-              <Col md="6" sm="12">
+              <Col md={6} sm={12}>
                 <Row style={{ padding: '5px' }}>
                   {renderAdd()}{' '}
                   <Button
@@ -218,13 +238,13 @@ export default class Calendars extends AddDeleteSetting {
                 </Row>
                 {this.renderOrSeparator()}
                 <Row style={{ padding: '5px' }}>
-                  <Col sm="12" style={{ textAlign: 'center' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
                     <Button disabled>Upload file...</Button>
                   </Col>
                 </Row>
                 {this.renderOrSeparator()}
                 <Row style={{ padding: '5px' }}>
-                  <Col sm="12" style={{ textAlign: 'center' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
                     <DropdownButton
                       title="Choose from list..."
                       id="document-type"
@@ -239,23 +259,18 @@ export default class Calendars extends AddDeleteSetting {
                   </Col>
                 </Row>
               </Col>
-              <Col
-                md="6"
-                sm="12"
-                style={{
-                  display: `${this.state.isVerified ? 'block' : 'none'}`,
-                }}
-              >
+              <Col md={6} sm={12}>
                 <Row style={{ padding: '5px' }}>
                   <input
                     type="text"
                     className="form-control"
                     placeholder="Calendar name"
                     onChange={this.handleCalendarNameChange}
+                    disabled={verifyAddCalendarData.status !== 'ok'}
                   />
                 </Row>
                 <Row style={{ padding: '5px' }}>
-                  <Col sm="12" style={{ textAlign: 'center' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
                     <input
                       type="color"
                       value={this.state.hexColor}
@@ -266,23 +281,33 @@ export default class Calendars extends AddDeleteSetting {
                         width: '50%',
                         height: '44px',
                       }}
+                      disabled={verifyAddCalendarData.status !== 'ok'}
                     />
                   </Col>
                 </Row>
-                {/* <Row style={{ padding: '5px' }}>
-                  <Col sm="12" style={{ textAlign: 'center' }}>
+                <Row style={{ padding: '5px' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
                     <Alert style={{ marginBottom: '0px' }}>
-                      Calendar {this.state.calendarName} has{' '}
-                      {this.state.calendarEvents} events
+                      Calendar{' '}
+                      <span style={{ fontWeight: 'bold' }}>
+                        {this.state.calendarName}
+                      </span>{' '}
+                      has{' '}
+                      <span style={{ fontWeight: 'bold' }}>
+                        {verifyAddCalendarData.eventsCount}
+                      </span>{' '}
+                      events
                     </Alert>
                   </Col>
-                </Row> */}
+                </Row>
 
                 <Row style={{ padding: '5px' }}>
-                  <Col sm="12" style={{ textAlign: 'center' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
                     <Button
                       onClick={onAddItem}
-                      disabled={!valueOfAdd}
+                      disabled={
+                        !valueOfAdd || verifyAddCalendarData.status !== 'ok'
+                      }
                       style={{ margin: 8 }}
                     >
                       Add Calendar
