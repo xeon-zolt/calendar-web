@@ -1,10 +1,10 @@
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+	margin: 0;
+	padding: 0;
+	font-family: sans-serif;
 }
 
-
-input[type="checkbox"], input[type="radio"] {
-  margin-top: 2px !important;
+input[type='checkbox'],
+input[type='radio'] {
+	margin-top: 2px !important;
 }

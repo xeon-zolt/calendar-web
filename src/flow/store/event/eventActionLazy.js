@@ -47,6 +47,9 @@ import {
 
 import { setCurrentEvent } from './eventAction'
 
+// Reminders
+import { addReminder } from '../../../reminder'
+
 // #########################
 // Chat
 // #########################
@@ -320,10 +323,16 @@ export function addEvent(event) {
     event.uid = uuid()
 
     allEvents[event.uid] = event
+
+    // Save and Publish Events to Blockstack
     saveEvents('default', allEvents)
     if (event.public) {
       publishEvents(event, updatePublicEvent)
     }
+
+    // Add reminder to notify user
+    addReminder(event)
+
     window.history.pushState({}, 'OI Calendar', '/')
     delete state.currentEvent
     delete state.currentEventType
@@ -334,7 +343,7 @@ export function addEvent(event) {
 export function updateEvent(event) {
   return async (dispatch, getState) => {
     let { allEvents } = getState().events
-    var eventInfo = event
+    let eventInfo = event
     eventInfo.uid = eventInfo.uid || uuid()
     allEvents[eventInfo.uid] = eventInfo
     if (eventInfo.public) {
@@ -343,6 +352,10 @@ export function updateEvent(event) {
       publishEvents(eventInfo.uid, removePublicEvent)
     }
     saveEvents('default', allEvents)
+
+    // Add reminder to notify user
+    addReminder(event)
+
     dispatch(setEventsAction(allEvents))
   }
 }

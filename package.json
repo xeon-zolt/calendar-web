@@ -30,7 +30,9 @@
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build",
         "lint": "eslint ./src ./spec",
-        "lint:fix": "eslint --fix ./src ./spec"
+        "lint:fix": "eslint --fix ./src ./spec",
+        "prettier-js": "prettier --single-quote --write \"src/**/*.js\"",
+        "prettier-css": "prettier --single-quote --parser css --write \"src/**/*.css\""
     },
     "devDependencies": {
         "@babel/cli": "7.2.3",
@@ -73,8 +75,13 @@
         }
     },
     "lint-staged": {
-        "src/*.js": [
+        "src/**/*.js": [
+            "npm run prettier-js",
             "npm run lint:fix",
+            "git add"
+        ],
+        "src/**/*.css": [
+            "npm run prettier-css",
             "git add"
         ]
     }
