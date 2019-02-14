@@ -20,6 +20,7 @@ import {
   SET_ERROR,
   CREATE_CONFERENCING_ROOM,
   REMOVE_CONFERENCING_ROOM,
+  VERIFY_NEW_CALENDAR,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -402,5 +403,60 @@ export function removeConferencingRoom(url) {
   return async (dispatch, getState) => {
     dispatch(removeConferencingRoomAction('removing'))
     setTimeout(() => dispatch(removeConferencingRoomAction('removed')), 1000)
+  }
+}
+
+export function setCalendarVerificationStatus(payload) {
+  return { type: VERIFY_NEW_CALENDAR, payload }
+}
+
+export function verifyNewCalendar(calendar) {
+  console.log('verifyCalendar')
+  return async (dispatch, getState) => {
+    if (calendar == null) {
+      setCalendarVerificationStatus({ status: '' })
+      return
+    }
+
+    dispatch(
+      setCalendarVerificationStatus({
+        calendar,
+        status: 'pending',
+      })
+    )
+
+    importCalendarEvents(calendar, defaultEvents).then(
+      events => {
+        const calendarEvents = {
+          name: calendar.name,
+          events,
+        }
+        console.log('import ok', calendarEvents)
+        dispatch(
+          setCalendarVerificationStatus({
+            status: 'ok',
+            calendarEvents,
+            eventsCount: Object.keys(events).length,
+          })
+        )
+      },
+      error => {
+        const msg = 'failed to verify calendar'
+        console.log(msg, error)
+        dispatch(setCalendarVerificationStatus({ status: 'error', error }))
+      }
+    )
+  }
+}
+
+export function clearVerifyCalendar() {
+  console.log('clearVerifyCalendar')
+  return async (dispatch, getState) => {
+    dispatch(
+      setCalendarVerificationStatus({
+        status: '',
+        clearShowSettingsAddCalendarUrl: true,
+      })
+    )
   }
 }
