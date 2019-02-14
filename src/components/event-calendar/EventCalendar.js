@@ -78,11 +78,7 @@ class EventCalendar extends Component {
     var bgColor = event && event.hexColor ? event.hexColor : '#265985'
     var style = {
       backgroundColor: bgColor,
-      borderRadius: '5px',
-      opacity: 1,
-      color: 'white',
-      border: '0px',
-      display: 'block',
+      borderColor: 'white',
     }
     return {
       style: style,
