@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import {
   initializeEvents,
   showAllCalendars,
-  verifyAddCalendar,
+  verifyNewCalendar,
   clearVerifyCalendar,
 } from '../store/event/eventActionLazy'
 
@@ -82,8 +82,8 @@ export default connect(
         )
         dispatch(deleteCalendars([calendarToDelete]))
       },
-      verifyAddCalendar: calendar => {
-        dispatch(verifyAddCalendar(calendar))
+      verifyNewCalendar: calendar => {
+        dispatch(verifyNewCalendar(calendar))
       },
     }
   }

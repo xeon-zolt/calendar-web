@@ -405,26 +405,26 @@ export function removeConferencingRoom(url) {
   }
 }
 
-export function verifyCalendarAction(payload) {
+export function setCalendarVerificationStatus(payload) {
   return { type: VERIFY_NEW_CALENDAR, payload }
 }
 
-export function verifyAddCalendar(calendar) {
+export function verifyNewCalendar(calendar) {
   console.log('verifyCalendar')
   return async (dispatch, getState) => {
     if (calendar == null) {
-      verifyCalendarAction({ status: '' })
+      setCalendarVerificationStatus({ status: '' })
       return
     }
 
     dispatch(
-      verifyCalendarAction({
+      setCalendarVerificationStatus({
         calendar,
         status: 'pending',
       })
     )
 
-    await importCalendarEvents(calendar, defaultEvents).then(
+    importCalendarEvents(calendar, defaultEvents).then(
       events => {
         const calendarEvents = {
           name: calendar.name,
@@ -432,7 +432,7 @@ export function verifyAddCalendar(calendar) {
         }
         console.log('import ok', calendarEvents)
         dispatch(
-          verifyCalendarAction({
+          setCalendarVerificationStatus({
             status: 'ok',
             calendarEvents,
             eventsCount: Object.keys(events).length,
@@ -442,7 +442,7 @@ export function verifyAddCalendar(calendar) {
       error => {
         const msg = 'failed to verify calendar'
         console.log(msg, error)
-        dispatch(verifyCalendarAction({ status: 'error' }))
+        dispatch(setCalendarVerificationStatus({ status: 'error', error }))
       }
     )
   }
@@ -452,7 +452,10 @@ export function clearVerifyCalendar() {
   console.log('clearVerifyCalendar')
   return async (dispatch, getState) => {
     dispatch(
-      verifyCalendarAction({ status: '', showSettingsAddCalendarUrl: '' })
+      setCalendarVerificationStatus({
+        status: '',
+        clearShowSettingsAddCalendarUrl: true,
+      })
     )
   }
 }

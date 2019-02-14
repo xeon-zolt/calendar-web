@@ -131,7 +131,7 @@ export default class Calendars extends AddDeleteSetting {
           uid: uuid(),
           type,
           name: this.state.calendarName || valueOfAdd,
-          hexColor: this.state.hexColor || null,
+          hexColor: this.state.hexColor,
           mode: 'read-only',
           data,
         }
@@ -175,7 +175,7 @@ export default class Calendars extends AddDeleteSetting {
   )
 
   handleVerifyButton = () => {
-    const { verifyAddCalendar } = this.props
+    const { verifyNewCalendar } = this.props
     const { valueOfAdd, addValueToItem } = this.state
 
     this.setState({
@@ -189,7 +189,7 @@ export default class Calendars extends AddDeleteSetting {
           errorOfAdd: (error || '').toString(),
         })
       } else {
-        verifyAddCalendar(item)
+        verifyNewCalendar(item)
       }
     })
   }
