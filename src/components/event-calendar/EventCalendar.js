@@ -73,6 +73,13 @@ class EventCalendar extends Component {
   }
 
   eventStyle(event, start, end, isSelected) {
+    var bgColor = event && event.hexColor ? event.hexColor : '#265985'
+    var style = {
+      backgroundColor: bgColor
+    }
+    return {
+      style: style,
+    }
   }
 
   getEventStart(eventInfo) {
