@@ -27,7 +27,6 @@ class CalendarItem extends Component {
 
   onColorChange(event) {
     const hexColor = event.target.value
-    console.log('onColorChange', event.target.value)
     const { item: calendar, idx, onChangeItem } = this.props
     onChangeItem(calendar, { hexColor }, idx)
     this.setState({ hexColor })
