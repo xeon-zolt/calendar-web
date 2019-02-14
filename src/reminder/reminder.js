@@ -42,14 +42,14 @@ class Reminder {
       Notification.requestPermission()
     } else {
       const notification = new Notification(
-        `${this.title} takes place ${moment.utc().to(moment(this.start))}`,
+        `${this.title} takes place ${moment.utc().to(moment.utc(this.start))}`,
         {
           icon: 'android-chrome-192x192.png',
           silent: true,
         }
       )
 
-      notification.onclick = function() {
+      notification.onclick = () => {
         window.location.href = `/?intent=view&uid=${this.uid}`
       }
     }

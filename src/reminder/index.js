@@ -32,6 +32,10 @@ export const addReminder = event => {
 
   if (r) {
     r.setReminderInterval(timeout)
+
+    // Update event metadata
+    r.title = event.title
+    r.start = event.start
   } else {
     remindersArray.push(new Reminder(timeout, event.title, uid, event.start))
   }
