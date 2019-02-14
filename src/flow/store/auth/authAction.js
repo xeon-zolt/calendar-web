@@ -1,7 +1,7 @@
 import { AUTH_SIGN_IN, AUTH_SIGN_OUT } from '../ActionTypes'
 import { redirectToSignIn, signUserOut as signUserOutService } from 'blockstack'
 
-export function signUserInAction() {
+export function redirectedToSignIn() {
   return { type: AUTH_SIGN_IN }
 }
 
@@ -13,7 +13,7 @@ export function signUserIn(store) {
         `${window.location.origin}/manifest.json`,
         ['store_write', 'publish_data']
       )
-      signUserInAction()
+      dispatch(redirectedToSignIn())
     } catch (e) {
       console.error(e)
     }

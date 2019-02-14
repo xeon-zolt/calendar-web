@@ -108,8 +108,11 @@ class AddDeleteSetting extends Component {
     const { ItemRenderer, showFollow } = this.state
     const { onChangeItem, onDeleteItem } = this.bound
     const follows =
-      showFollow && !!calendars.find(c => c.name === 'public@' + d.username)
-    const showDelete = d.name !== 'default' && d.type !== 'private'
+      showFollow &&
+      !!calendars.find(
+        c => c.type === 'blockstack-user' && c.data.user === d.username
+      )
+    const showDelete = d.name !== 'default' || d.type !== 'private'
     return (
       <div key={i} className="d-inline-block">
         <div style={{ display: 'inline-block', width: '80%' }}>
@@ -122,7 +125,7 @@ class AddDeleteSetting extends Component {
             />
           )}
         </div>
-        {showFollow && this.renderUnFollowButton(follows, i, user.username)}
+        {showFollow && this.renderUnFollowButton(follows, i, d.username)}
         {showDelete && (
           <div style={{ display: 'inline-block', margin: '16px' }}>
             <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />

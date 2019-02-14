@@ -58,6 +58,7 @@ export function showSettingsAddCalendar(url) {
 }
 
 export function addCalendar(calendar) {
+  console.log('addCalendar => ', calendar)
   calendar.hexColor = guaranteeHexColor(calendar.hexColor)
   return (dispatch, getState) => {
     fetchCalendars().then(calendars => {

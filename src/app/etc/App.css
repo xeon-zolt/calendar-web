@@ -8,7 +8,7 @@
 }
 
 .App-header {
-	background-color: #558ed588;
+	background-color: #558ed5;
 	padding: 1px;
 	color: white;
 }
@@ -126,11 +126,16 @@ h1,
 }
 
 .nav-pills li.active a {
-	background-color: #558ed5;
+	background-color: #e0e0e0;
+	color: #558ed5;
 }
 
 .nav-pills li a {
-	color: #558ed5;
+	color: #ffffff;
+}
+
+.nav-pills li a:hover {
+	background-color: #337ab7;
 }
 
 @keyframes App-logo-spin {
