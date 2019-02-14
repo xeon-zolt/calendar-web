@@ -78,7 +78,7 @@ export default connect(
       unfollowContact: contact => {
         const { calendars } = redux.store.getState().events
         const calendarToDelete = calendars.find(
-          c => (c.name = 'public@' + contact.username)
+          c => c.name === 'public@' + contact.username
         )
         dispatch(deleteCalendars([calendarToDelete]))
       },

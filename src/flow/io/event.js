@@ -295,6 +295,7 @@ export function publishCalendars(calendars) {
     c => c.type === 'private' && c.name === 'default'
   )
   if (privateCalendarIndex < 0) {
+    console.log('adding calendar', defaultCalendars[0])
     calendars.splice(0, 0, defaultCalendars[0])
   }
   putOnBlockstack('Calendars', calendars)

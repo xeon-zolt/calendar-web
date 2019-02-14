@@ -26,7 +26,6 @@ function resetContacts(contacts) {
 export function initializeContactData() {
   return async (dispatch, getState) => {
     fetchContactData().then(contacts => {
-      console.log('')
       dispatch(resetContacts(contacts))
     })
   }
