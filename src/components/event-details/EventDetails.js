@@ -1,14 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import {
-  Modal,
-  Button,
-  ProgressBar,
-  Radio,
-  Grid,
-  Row,
-  Col,
-} from 'react-bootstrap'
+import { Modal, Button, Radio, Grid, Row, Col } from 'react-bootstrap'
 import moment from 'moment'
 
 import SendInvitesModal from './SendInvitesModal'
@@ -39,18 +31,14 @@ class EventDetails extends Component {
   constructor(props) {
     super(props)
 
-    const { inviteError, inviteSuccess, showModal } = props
+    const { eventDetail, inviteError, inviteSuccess, showModal } = props
 
     this.state = {
-      showModal: this.props.showModal,
-      showInvitesModal:
-        (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
-        !!this.props.inviteError,
+      showModal: showModal,
+      showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
       sending: false,
       endDateOrDuration:
-        this.props.eventDetail && this.props.eventDetail.duration
-          ? 'duration'
-          : 'endDate',
+        eventDetail && eventDetail.duration ? 'duration' : 'endDate',
       addingConferencing: false,
       removingConferencing: false,
     }
@@ -80,6 +68,7 @@ class EventDetails extends Component {
     const { unsetCurrentEvent } = this.props
     unsetCurrentEvent()
   }
+
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state
     console.log('nextProp', nextProps)
@@ -522,6 +511,7 @@ class EventDetails extends Component {
 }
 
 EventDetails.propTypes = {
+  eventDetail: PropTypes.object,
   inviteError: PropTypes.object,
   inviteSuccess: PropTypes.bool,
   showModal: PropTypes.bool,

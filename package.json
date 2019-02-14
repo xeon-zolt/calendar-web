@@ -23,14 +23,16 @@
     },
     "scripts": {
         "start": "react-scripts start",
-        "build": "REACT_APP_VERSION=$(node -pe 'require(\"./package.json\").version') react-scripts build && sw-precache --config=sw-precache-config.js",
+        "build": "REACT_APP_VERSION=$(node -pe 'require(\"./package.json\").version') react-scripts build",
         "test": "react-scripts test --env=jsdom",
         "testflow": "mocha spec/*.spec.js --require babel-register --presets @babel/preset-stage-2",
         "eject": "react-scripts eject",
         "predeploy": "npm run build",
         "deploy": "gh-pages -d build",
         "lint": "eslint ./src ./spec",
-        "lint:fix": "eslint --fix ./src ./spec"
+        "lint:fix": "eslint --fix ./src ./spec",
+        "prettier-js": "prettier --single-quote --write \"src/**/*.js\"",
+        "prettier-css": "prettier --single-quote --parser css --write \"src/**/*.css\""
     },
     "devDependencies": {
         "@babel/cli": "7.2.3",
@@ -73,8 +75,13 @@
         }
     },
     "lint-staged": {
-        "src/*.js": [
+        "src/**/*.js": [
+            "npm run prettier-js",
             "npm run lint:fix",
+            "git add"
+        ],
+        "src/**/*.css": [
+            "npm run prettier-css",
             "git add"
         ]
     }
