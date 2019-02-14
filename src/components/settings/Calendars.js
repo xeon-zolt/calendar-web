@@ -1,6 +1,15 @@
 import React, { Component } from 'react'
 import AddDeleteSetting from './AddDeleteSetting'
-import { uuid } from '../../flow/io/eventFN'
+import { uuid, guaranteeHexColor } from '../../flow/io/eventFN'
+import {
+  Button,
+  Panel,
+  Row,
+  Col,
+  DropdownButton,
+  MenuItem,
+  // Alert,
+} from 'react-bootstrap'
 
 class CalendarItem extends Component {
   constructor(props) {
@@ -75,7 +84,14 @@ export default class Calendars extends AddDeleteSetting {
     this.state.ItemRenderer = CalendarItem
     this.state.addTitle = 'Add Calendar from url'
     this.state.listTitle = 'Calendars'
+    this.state.calendarName = ''
+    this.state.calendarEvents = 0
     this.state.showFollow = false
+    this.state.hexColor = ''
+    this.state.isVerified = false
+    this.state.menuItems = [
+      'https://5c609074a2c02d0007d39068--upbeat-wing-158214.netlify.com/?intent=view&name=public%40friedger.id',
+    ]
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
       let newItem
 
@@ -112,7 +128,7 @@ export default class Calendars extends AddDeleteSetting {
         newItem = {
           uid: uuid(),
           type,
-          name: valueOfAdd,
+          name: this.state.calendarName || valueOfAdd,
           mode: 'read-only',
           data,
         }
@@ -141,5 +157,155 @@ export default class Calendars extends AddDeleteSetting {
       delete this[d]
       return acc
     }, {})
+  }
+
+  handleSelect = (eventKey, event) => {
+    this.setState({ valueOfAdd: this.state.menuItems[eventKey] })
+  }
+
+  renderOrSeparator = () => (
+    <Row style={{ padding: '5px' }}>
+      <Col sm="12" style={{ textAlign: 'center' }}>
+        or
+      </Col>
+    </Row>
+  )
+
+  handleVerifyButton = () => {
+    this.setState({
+      hexColor: guaranteeHexColor(null),
+      isVerified: true,
+      calendarEvents: 10,
+    })
+  }
+
+  handleCalendarNameChange = event => {
+    this.setState({ calendarName: event.target.value })
+  }
+
+  onColorChange = event => {
+    const hexColor = event.target.value
+    console.log('onColorChange', event.target.value)
+    this.setState({ hexColor })
+  }
+
+  render() {
+    const { items: itemList, user, calendars } = this.props
+    const { renderItem, onAddItem } = this.bound
+    const {
+      valueOfAdd,
+      addTitle,
+      listTitle,
+      renderAdd,
+      errorOfAdd,
+    } = this.state
+
+    return (
+      <div className="settings">
+        <Panel style={{ width: '80%' }}>
+          <Panel.Heading>{addTitle}</Panel.Heading>
+          <Panel.Body>
+            <Row>
+              <Col md="6" sm="12">
+                <Row style={{ padding: '5px' }}>
+                  {renderAdd()}{' '}
+                  <Button
+                    onClick={this.handleVerifyButton}
+                    disabled={!valueOfAdd}
+                  >
+                    Verify
+                  </Button>
+                </Row>
+                {this.renderOrSeparator()}
+                <Row style={{ padding: '5px' }}>
+                  <Col sm="12" style={{ textAlign: 'center' }}>
+                    <Button disabled>Upload file...</Button>
+                  </Col>
+                </Row>
+                {this.renderOrSeparator()}
+                <Row style={{ padding: '5px' }}>
+                  <Col sm="12" style={{ textAlign: 'center' }}>
+                    <DropdownButton
+                      title="Choose from list..."
+                      id="document-type"
+                      onSelect={this.handleSelect}
+                    >
+                      {this.state.menuItems.map((opt, i) => (
+                        <MenuItem key={i} eventKey={i}>
+                          {opt}
+                        </MenuItem>
+                      ))}
+                    </DropdownButton>
+                  </Col>
+                </Row>
+              </Col>
+              <Col
+                md="6"
+                sm="12"
+                style={{
+                  display: `${this.state.isVerified ? 'block' : 'none'}`,
+                }}
+              >
+                <Row style={{ padding: '5px' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Calendar name"
+                    onChange={this.handleCalendarNameChange}
+                  />
+                </Row>
+                <Row style={{ padding: '5px' }}>
+                  <Col sm="12" style={{ textAlign: 'center' }}>
+                    <input
+                      type="color"
+                      value={this.state.hexColor}
+                      onChange={this.onColorChange}
+                      style={{
+                        marginRight: '20px',
+                        marginLeft: '5px',
+                        width: '50%',
+                        height: '44px',
+                      }}
+                    />
+                  </Col>
+                </Row>
+                {/* <Row style={{ padding: '5px' }}>
+                  <Col sm="12" style={{ textAlign: 'center' }}>
+                    <Alert style={{ marginBottom: '0px' }}>
+                      Calendar {this.state.calendarName} has{' '}
+                      {this.state.calendarEvents} events
+                    </Alert>
+                  </Col>
+                </Row> */}
+
+                <Row style={{ padding: '5px' }}>
+                  <Col sm="12" style={{ textAlign: 'center' }}>
+                    <Button
+                      onClick={onAddItem}
+                      disabled={!valueOfAdd}
+                      style={{ margin: 8 }}
+                    >
+                      Add Calendar
+                    </Button>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+            <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
+          </Panel.Body>
+        </Panel>
+
+        <Panel style={{ width: '80%' }}>
+          <Panel.Heading>{listTitle}</Panel.Heading>
+          <Panel.Body>
+            <div>
+              {(itemList || []).map((v, k) =>
+                renderItem(v, k, user, calendars)
+              )}
+            </div>
+          </Panel.Body>
+        </Panel>
+      </div>
+    )
   }
 }
