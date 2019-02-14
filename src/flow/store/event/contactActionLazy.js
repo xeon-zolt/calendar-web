@@ -65,13 +65,13 @@ export function deleteContacts(deleteList) {
 // INVITES
 // #########################
 
-function invitesSentOkAction() {
+function invitesSentSuccess() {
   return {
     type: INVITES_SENT_OK,
   }
 }
 
-function invitesSentFailAction(error, eventType, eventInfo) {
+function invitesSentFailure(error, eventType, eventInfo) {
   return {
     type: INVITES_SENT_FAIL,
     payload: { error, eventType, eventInfo },
@@ -92,11 +92,11 @@ export function sendInvites(eventInfo, guests) {
       state.events.userSessionChat
     ).then(
       () => {
-        dispatch(invitesSentOkAction())
+        dispatch(invitesSentSuccess())
         return Promise.resolve()
       },
       error => {
-        dispatch(invitesSentFailAction(error))
+        dispatch(invitesSentFailure(error))
         return Promise.reject(error)
       }
     )

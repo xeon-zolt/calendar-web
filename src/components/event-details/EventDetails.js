@@ -256,9 +256,9 @@ class EventDetails extends Component {
   }
 
   addConferencing() {
-    const { createConferencingRoom } = this.props
+    const { createConferencingRoom, eventDetail } = this.props
     console.log('add conferencing')
-    createConferencingRoom()
+    createConferencingRoom(eventDetail)
   }
 
   removeConferencing() {

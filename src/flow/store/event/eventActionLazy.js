@@ -381,17 +381,18 @@ export function createConferencingRoomAction(status, url) {
   return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
 }
 
-export function createConferencingRoom() {
+export function createConferencingRoom(eventDetail) {
   return async (dispatch, getState) => {
     dispatch(createConferencingRoomAction('adding', null))
-    setTimeout(() => {
+    const { userSessionChat } = getState().events
+    userSessionChat.createNewRoom(eventDetail.name).then(room => {
       dispatch(
         createConferencingRoomAction(
           'added',
-          'https://chat.openintents.org/#/room/#oi-calendar:openintents.modular.im'
+          'https://chat.openintents.org/#/room/' + room.room_id
         )
       )
-    }, 1000)
+    })
   }
 }
 
