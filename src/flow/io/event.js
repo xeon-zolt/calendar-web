@@ -295,6 +295,7 @@ export function publishCalendars(calendars) {
     c => c.type === 'private' && c.name === 'default'
   )
   if (privateCalendarIndex < 0) {
+    console.log('adding calendar', defaultCalendars[0])
     calendars.splice(0, 0, defaultCalendars[0])
   }
   putOnBlockstack('Calendars', calendars)
@@ -305,7 +306,7 @@ export function publishCalendars(calendars) {
 // :NOTE: As there is no more reliance on any knowledge of how these evens are managed
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
-export function importCalendarEvents(calendar, defaultEvents) {
+export function importCalendarEvents(calendar, user, defaultEvents) {
   const { type, data, name } = calendar || {}
   let fn = () => {}
   let config
@@ -326,7 +327,7 @@ export function importCalendarEvents(calendar, defaultEvents) {
         events = Object.values(defaultEvents)
       }
       return (events || [])
-        .map(applyCalendarDefaults(calendar))
+        .map(applyCalendarDefaults(calendar, user))
         .reduce((acc, d) => {
           acc[d.uid] = d
           return acc
@@ -334,7 +335,7 @@ export function importCalendarEvents(calendar, defaultEvents) {
     })
 }
 
-function applyCalendarDefaults(calendar) {
+function applyCalendarDefaults(calendar, user) {
   const { hexColor, mode, name: calendarName } = calendar
   const eventDefaults = {
     mode: mode,
@@ -342,6 +343,14 @@ function applyCalendarDefaults(calendar) {
   }
   const eventOverrides = {
     hexColor: guaranteeHexColor(hexColor),
+  }
+  if (
+    calendar.type === 'blockstack-user' &&
+    calendar.data &&
+    user &&
+    calendar.data.user === user.username
+  ) {
+    eventOverrides.mode = undefined
   }
   return d => {
     return { ...eventDefaults, uid: uuid(), ...d, ...eventOverrides }

@@ -15,7 +15,6 @@ function renderGuestList(guests) {
 }
 
 export const Guest = ({ guest, username }) => {
-  console.log('UI guest', guest)
   const guestUrl = GUEST_BASE + username
   var avatarUrl
   if (guest.image && guest.image.length > 0 && guest.image[0].contentUrl) {
@@ -56,7 +55,6 @@ class GuestList extends Component {
     const numberOfGuests = this.props.guestsCount || 1
     const numberOfGuestsLoaded = this.props.guestsLoaded || 0
     let guestView
-    console.log('guests', guests)
     if (guests && Object.keys(guests).length > 0) {
       guestView = renderGuestList(guests)
     } else if (numberOfGuests > 0) {
