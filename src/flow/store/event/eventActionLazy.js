@@ -20,7 +20,7 @@ import {
   SET_ERROR,
   CREATE_CONFERENCING_ROOM,
   REMOVE_CONFERENCING_ROOM,
-  VERIFY_ADD_CALENDAR,
+  VERIFY_NEW_CALENDAR,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -406,7 +406,7 @@ export function removeConferencingRoom(url) {
 }
 
 export function verifyCalendarAction(payload) {
-  return { type: VERIFY_ADD_CALENDAR, payload }
+  return { type: VERIFY_NEW_CALENDAR, payload }
 }
 
 export function verifyAddCalendar(calendar) {

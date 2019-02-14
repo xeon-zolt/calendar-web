@@ -209,7 +209,7 @@ export default class Calendars extends AddDeleteSetting {
       items: itemList,
       user,
       calendars,
-      verifyAddCalendarData,
+      verifiedNewCalendarData,
     } = this.props
     const { renderItem, onAddItem } = this.bound
     const {
@@ -266,7 +266,7 @@ export default class Calendars extends AddDeleteSetting {
                     className="form-control"
                     placeholder="Calendar name"
                     onChange={this.handleCalendarNameChange}
-                    disabled={verifyAddCalendarData.status !== 'ok'}
+                    disabled={verifiedNewCalendarData.status !== 'ok'}
                   />
                 </Row>
                 <Row style={{ padding: '5px' }}>
@@ -281,7 +281,7 @@ export default class Calendars extends AddDeleteSetting {
                         width: '50%',
                         height: '44px',
                       }}
-                      disabled={verifyAddCalendarData.status !== 'ok'}
+                      disabled={verifiedNewCalendarData.status !== 'ok'}
                     />
                   </Col>
                 </Row>
@@ -294,7 +294,7 @@ export default class Calendars extends AddDeleteSetting {
                       </span>{' '}
                       has{' '}
                       <span style={{ fontWeight: 'bold' }}>
-                        {verifyAddCalendarData.eventsCount}
+                        {verifiedNewCalendarData.eventsCount}
                       </span>{' '}
                       events
                     </Alert>
@@ -306,7 +306,7 @@ export default class Calendars extends AddDeleteSetting {
                     <Button
                       onClick={onAddItem}
                       disabled={
-                        !valueOfAdd || verifyAddCalendarData.status !== 'ok'
+                        !valueOfAdd || verifiedNewCalendarData.status !== 'ok'
                       }
                       style={{ margin: 8 }}
                     >

@@ -25,14 +25,14 @@ export default connect(
     var contacts = state.events.contacts
     const calendars = state.events.calendars
     const user = state.auth.user
-    const verifyAddCalendarData = state.events.verifyAddCalendarData
+    const verifiedNewCalendarData = state.events.verifiedNewCalendarData
     return {
       show,
       contacts,
       calendars,
       addCalendarUrl,
       user,
-      verifyAddCalendarData,
+      verifiedNewCalendarData,
     }
   },
   (dispatch, redux) => {

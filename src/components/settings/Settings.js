@@ -36,7 +36,7 @@ export default class Settings extends Component {
       unfollowContact,
       user,
       verifyAddCalendar,
-      verifyAddCalendarData,
+      verifiedNewCalendarData,
     } = this.props
     const CalendarsContent = (
       <div>
@@ -48,7 +48,7 @@ export default class Settings extends Component {
           valueOfAdd={addCalendarUrl}
           user={user}
           verifyAddCalendar={verifyAddCalendar}
-          verifyAddCalendarData={verifyAddCalendarData}
+          verifiedNewCalendarData={verifiedNewCalendarData}
         />
       </div>
     )

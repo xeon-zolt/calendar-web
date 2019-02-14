@@ -22,7 +22,7 @@ import {
   SET_ERROR,
   CREATE_CONFERENCING_ROOM,
   REMOVE_CONFERENCING_ROOM,
-  VERIFY_ADD_CALENDAR,
+  VERIFY_NEW_CALENDAR,
 } from '../ActionTypes'
 
 let initialState = {
@@ -30,7 +30,7 @@ let initialState = {
   calendars: [],
   contacts: [],
   user: '',
-  verifyAddCalendarData: {
+  verifiedNewCalendarData: {
     status: '',
   },
 }
@@ -231,10 +231,10 @@ export default function reduce(state = initialState, action = {}) {
         }
       }
       break
-    case VERIFY_ADD_CALENDAR:
+    case VERIFY_NEW_CALENDAR:
       newState = {
         ...state,
-        verifyAddCalendarData: payload,
+        verifiedNewCalendarData: payload,
       }
       if (
         payload.calendar &&
