@@ -1,13 +1,17 @@
-// view
 import React, { Component } from 'react'
 import { Grid, Row, Col } from 'react-bootstrap'
+
+// views
 import { AppHeader, AppFooter } from '../components/branding/AppHeaderAndFooter'
 import AppMenu from '../components/app-menu/AppMenu'
 import Calendar from '../components/event-calendar/EventCalendar'
 import Settings from '../components/settings/Settings'
+
 import { connectToStore } from './_FN'
+
 // style
 import './etc/App.css'
+
 // flow
 import registerServiceWorker from '../flow/io/registerServiceWorker'
 import connectCalendar from '../flow/connect/connectEventCalendar'
@@ -52,6 +56,7 @@ export class DynamicApp extends Component {
       </div>
     )
   }
+
   componentDidMount() {
     import('./LazyLoaded').then(({ initializeLazy }) => {
       initializeLazy(store)
@@ -61,4 +66,5 @@ export class DynamicApp extends Component {
 }
 
 const ConnectedDynamicApp = connectToStore(DynamicApp, connectApp, store)
+
 export default <ConnectedDynamicApp />

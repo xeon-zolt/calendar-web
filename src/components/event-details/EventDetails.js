@@ -1,19 +1,15 @@
 import React, { Component } from 'react'
-
-import {
-  Modal,
-  Button,
-  ProgressBar,
-  Radio,
-  Grid,
-  Row,
-  Col,
-} from 'react-bootstrap'
+import PropTypes from 'prop-types'
+import { Modal, Button, Radio, Grid, Row, Col } from 'react-bootstrap'
 import moment from 'moment'
 
-import '../../css/datetime.css'
+import SendInvitesModal from './SendInvitesModal'
 
-var Datetime = require('react-datetime')
+// Styles
+import '../../css/datetime.css'
+import '../../css/EventDetails.css'
+
+const Datetime = require('react-datetime')
 
 const guestsStringToArray = function(guestsString) {
   if (!guestsString || !guestsString.length) {
@@ -31,72 +27,18 @@ function checkHasGuests(str) {
   return guests.filter(g => g.length > 0).length > 0
 }
 
-class SendInvitesModal extends Component {
-  constructor(props) {
-    super(props)
-    console.log('SendInvitesModal')
-    this.state = { sending: true, profiles: undefined }
-
-    var { guests } = props
-    if (typeof guests !== 'string') {
-      guests = ''
-    }
-    const guestList = guests.toLowerCase().split(/[,\s]+/g)
-    console.log('dispatch load guest list', guestList)
-
-    props.loadGuestList(guestList, ({ profiles, contacts }) => {
-      console.log('profiles', profiles)
-      this.setState({ profiles })
-    })
-  }
-
-  render() {
-    const {
-      title,
-      handleInvitesHide,
-      sending,
-      inviteError,
-      inviteErrorMsg,
-      sendInvites,
-      GuestList,
-    } = this.props
-
-    const { profiles } = this.state
-    return (
-      <Modal show onHide={handleInvitesHide}>
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title">{title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Send invites according to their Blockstack settings:
-          {GuestList && <GuestList guests={profiles} />}
-          {sending && !inviteError && <ProgressBar active now={50} />}
-          {inviteError && inviteErrorMsg}
-          <Modal.Footer>
-            <Button bsStyle="success" onClick={() => sendInvites(profiles)}>
-              Send
-            </Button>
-            <Button onClick={handleInvitesHide}>Close</Button>
-          </Modal.Footer>
-        </Modal.Body>
-      </Modal>
-    )
-  }
-}
-
 class EventDetails extends Component {
   constructor(props) {
     super(props)
+
+    const { eventDetail, inviteError, inviteSuccess, showModal } = props
+
     this.state = {
-      showModal: this.props.showModal,
-      showInvitesModal:
-        (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
-        !!this.props.inviteError,
+      showModal: showModal,
+      showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
       sending: false,
       endDateOrDuration:
-        this.props.eventDetail && this.props.eventDetail.duration
-          ? 'duration'
-          : 'endDate',
+        eventDetail && eventDetail.duration ? 'duration' : 'endDate',
       addingConferencing: false,
       removingConferencing: false,
     }
@@ -126,6 +68,7 @@ class EventDetails extends Component {
     const { unsetCurrentEvent } = this.props
     unsetCurrentEvent()
   }
+
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state
     console.log('nextProp', nextProps)
@@ -413,6 +356,32 @@ class EventDetails extends Component {
             </Row>
             <Row>
               <Col xs={12}>
+                <div className="reminder-container">
+                  <label> Set Reminder </label>
+
+                  <div className="reminder-group">
+                    <input
+                      type="number"
+                      className="form-control"
+                      placeholder="10"
+                      ref="reminderTime"
+                      value={eventDetail.reminderTime}
+                      onChange={e => handleDataChange(e, 'reminderTime')}
+                    />
+
+                    <select
+                      value={eventDetail.reminderTimeUnit}
+                      onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+                    >
+                      <option value="minutes">Minutes</option>
+                      <option value="hours">Hours</option>
+                    </select>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
                 <label> Event Notes </label>
                 <textarea
                   className="form-control"
@@ -495,7 +464,7 @@ class EventDetails extends Component {
         </Modal.Body>
         <Modal.Footer>
           {eventType === 'add' && (
-            <Button bsStyle="success" onClick={() => addEvent()}>
+            <Button bsStyle="success" onClick={addEvent}>
               Add
             </Button>
           )}
@@ -539,6 +508,13 @@ class EventDetails extends Component {
       </Modal>
     )
   }
+}
+
+EventDetails.propTypes = {
+  eventDetail: PropTypes.object,
+  inviteError: PropTypes.object,
+  inviteSuccess: PropTypes.bool,
+  showModal: PropTypes.bool,
 }
 
 export default EventDetails
