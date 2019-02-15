@@ -219,18 +219,12 @@ export default class Calendars extends AddDeleteSetting {
     this.setState({ hexColor })
   }
 
-  handleFieInputChange = event => {
+  handleFileInputChange = event => {
     const { verifyNewCalendar } = this.props
 
     console.log('selected files', event.target.files[0])
     if (event.target.files[0]) {
       let file = event.target.files[0]
-      let fileExt = file.name.split('.').pop()
-
-      if (fileExt.toLowerCase() !== 'ics') {
-        alert('Invalid file type')
-        return
-      }
 
       let fileReader = new FileReader()
       fileReader.onloadend = e => {
@@ -238,12 +232,12 @@ export default class Calendars extends AddDeleteSetting {
 
         let calendar = {
           uid: uuid(),
-          type: 'ics',
+          type: 'ics-raw',
           name: this.state.calendarName,
           hexColor: this.state.hexColor,
-          mode: 'read-only',
+          mode: '',
           data: {
-            src: fileReader.result,
+            events: fileReader.result,
           },
         }
 
@@ -321,7 +315,7 @@ export default class Calendars extends AddDeleteSetting {
                       <input
                         id="fileInputIcs"
                         type="file"
-                        onChange={this.handleFieInputChange}
+                        onChange={this.handleFileInputChange}
                       />
                     </label>
                   </Col>

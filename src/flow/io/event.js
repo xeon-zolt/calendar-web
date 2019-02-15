@@ -310,8 +310,12 @@ export function importCalendarEvents(calendar, user, defaultEvents) {
   const { type, data, name } = calendar || {}
   let fn = () => {}
   let config
+  let fetchParam = data.src
   if (type === 'ics') {
     fn = fetchAndParseIcal
+    fetchParam = data.events
+  } else if (type === 'ics-raw') {
+    fn = parseIcal
   } else if (type === 'blockstack-user') {
     config = { decrypt: false, username: data.user }
     fn = fetchFromBlockstack
@@ -319,7 +323,7 @@ export function importCalendarEvents(calendar, user, defaultEvents) {
     fn = fetchFromBlockstack
   }
 
-  return fn(data.src, config)
+  return fn(fetchParam, config)
     .then(objectToArray)
     .then(events => {
       if (!events && type === 'private' && name === 'default') {
@@ -358,15 +362,13 @@ function applyCalendarDefaults(calendar, user) {
 }
 
 function fetchAndParseIcal(src) {
-  if (src.startsWith('http')) {
-    return fetch(src)
-      .then(result => result.text())
-      .then(iCalParseEvents)
-  }
+  return fetch(src)
+    .then(result => result.text())
+    .then(iCalParseEvents)
+}
 
-  return new Promise(resolve => {
-    return resolve(iCalParseEvents(src))
-  })
+function parseIcal(events) {
+  return Promise.resolve(iCalParseEvents(events))
 }
 
 export function handleIntentsInQueryString(
