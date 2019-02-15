@@ -110,7 +110,7 @@ class AddDeleteSetting extends Component {
     const showDelete = d.name !== 'default' || d.type !== 'private'
     return (
       <div key={i} className="d-inline-block">
-        <div style={{ display: 'inline-block', width: '80%' }}>
+        <div style={{ display: 'inline-block' }}>
           {ItemRenderer && (
             <ItemRenderer
               item={d}
@@ -146,7 +146,7 @@ class AddDeleteSetting extends Component {
     } = this.state
     return (
       <div className="settings">
-        <Card style={{ width: '80%' }}>
+        <Card style={{}}>
           <Card.Header>{addTitle}</Card.Header>
           <Card.Body>
             {renderAdd()}
@@ -161,7 +161,7 @@ class AddDeleteSetting extends Component {
           </Card.Body>
         </Card>
 
-        <Card style={{ width: '80%' }}>
+        <Card style={{}}>
           <Card.Header>{listTitle}</Card.Header>
           <Card.Body>
             <div>
