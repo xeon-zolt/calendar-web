@@ -14,7 +14,7 @@ export function createReducer(asyncReducers) {
 }
 
 export function createInitialStore(initialState) {
-  let store = createStore(createReducer({ events }), applyMiddleware(thunk))
+  const store = createStore(createReducer({ events }), applyMiddleware(thunk))
   store.asyncReducers = {}
   return store
 }
