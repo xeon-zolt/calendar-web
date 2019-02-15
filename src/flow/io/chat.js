@@ -9,7 +9,8 @@ import {
 import { createClient } from 'matrix-js-sdk'
 
 export class UserSessionChat {
-  constructor() {
+  constructor(selfRoomId) {
+    this.selfRoomId = selfRoomId
     this.matrixClient = createClient('https://openintents.modular.im')
   }
 
@@ -63,10 +64,42 @@ export class UserSessionChat {
     }
   }
 
-  createNewRoom(name, topic) {
+  createNewRoom(name, topic, guests, ownerIdentityAddress) {
+    console.log('createNewRoom', { name, topic, guests, ownerIdentityAddress })
     const matrix = this.matrixClient
     return this.login().then(() => {
-      return matrix.createRoom({ visibility: 'private', name, topic })
+      let invitePromises
+      if (guests) {
+        invitePromises = guests.map(g => {
+          return this.lookupProfile(g).then(
+            guestProfile => {
+              return this.addressToAccount(guestProfile.identityAddress)
+            },
+            error => {
+              console.log('failed to lookup guest', g, error)
+            }
+          )
+        })
+      } else {
+        invitePromises = []
+      }
+      return Promise.all(invitePromises).then(
+        invite => {
+          if (ownerIdentityAddress) {
+            invite.push(this.addressToAccount(ownerIdentityAddress))
+          }
+          console.log('creating room', { invite })
+          return matrix.createRoom({
+            visibility: 'private',
+            name,
+            topic,
+            invite,
+          })
+        },
+        error => {
+          console.log('failed to resolve guests ', error)
+        }
+      )
     })
   }
 
@@ -120,6 +153,34 @@ export class UserSessionChat {
     })
   }
 
+  sendMessageToSelf(content) {
+    const matrixClient = this.matrixClient
+    return this.login().then(() => {
+      console.log('logged in')
+      return this.getSelfRoom().then(
+        ({ selfRoomId }) => {
+          console.log('self room id', selfRoomId)
+          return matrixClient.joinRoom(selfRoomId, {}).then(
+            data => {
+              console.log('data join', data)
+              return matrixClient
+                .sendEvent(selfRoomId, 'm.room.message', content, '')
+                .then(
+                  res => {
+                    console.log('msg sent', res)
+                    return Promise.resolve(res)
+                  },
+                  error => console.log('failed to send', error)
+                )
+            },
+            error => console.log('failed to join', error)
+          )
+        },
+        error => console.log('failed to get self room', error)
+      )
+    })
+  }
+
   /**
    * Private Methods
    **/
@@ -147,6 +208,15 @@ export class UserSessionChat {
           initial_device_display_name: deviceDisplayName,
         })
       })
+    }
+  }
+
+  getSelfRoom() {
+    if (this.selfRoomId) {
+      return Promise.resolve({ selfRoomId: this.selfRoomId })
+    } else {
+      console.log('no self room id')
+      return Promise.reject(new Error('No room for user notifications defined'))
     }
   }
 
@@ -190,6 +260,6 @@ export class UserSessionChat {
   }
 }
 
-export function createSessionChat() {
-  return new UserSessionChat()
+export function createSessionChat(selfRoomId) {
+  return new UserSessionChat(selfRoomId)
 }

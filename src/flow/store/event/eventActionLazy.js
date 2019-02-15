@@ -60,7 +60,7 @@ function initializeChatAction(chat) {
 
 export function initializeChat() {
   return async (dispatch, getState) => {
-    let chat = createSessionChat()
+    let chat = createSessionChat('!qHeYqGwvgntCYiGzgv:openintents.modular.im')
     dispatch(initializeChatAction(chat))
   }
 }
@@ -311,7 +311,7 @@ export function deleteEvent(event) {
 export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState()
-    let { allEvents, calendars } = state.events
+    let { allEvents, calendars, userSessionChat } = state.events
     console.log('calendars', calendars)
     const privateCalendar = calendars.find(
       c => c.type === 'private' && c.name === 'default'
@@ -331,7 +331,7 @@ export function addEvent(event) {
     }
 
     // Add reminder to notify user
-    addReminder(event)
+    addReminder(event, userSessionChat)
 
     window.history.pushState({}, 'OI Calendar', '/')
     delete state.currentEvent
@@ -342,7 +342,7 @@ export function addEvent(event) {
 
 export function updateEvent(event) {
   return async (dispatch, getState) => {
-    let { allEvents } = getState().events
+    let { allEvents, userSessionChat } = getState().events
     let eventInfo = event
     eventInfo.uid = eventInfo.uid || uuid()
     allEvents[eventInfo.uid] = eventInfo
@@ -354,7 +354,7 @@ export function updateEvent(event) {
     saveEvents('default', allEvents)
 
     // Add reminder to notify user
-    addReminder(event)
+    addReminder(event, userSessionChat)
 
     dispatch(setEventsAction(allEvents))
   }
@@ -394,18 +394,25 @@ export function createConferencingRoomAction(status, url) {
   return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
 }
 
-export function createConferencingRoom(eventDetail) {
+export function createConferencingRoom(eventDetail, guests) {
   return async (dispatch, getState) => {
     dispatch(createConferencingRoomAction('adding', null))
-    const { userSessionChat } = getState().events
-    userSessionChat.createNewRoom(eventDetail.name).then(room => {
-      dispatch(
-        createConferencingRoomAction(
-          'added',
-          'https://chat.openintents.org/#/room/' + room.room_id
-        )
+    const { userSessionChat, user } = getState().events
+    userSessionChat
+      .createNewRoom(
+        eventDetail.name,
+        'All about this event',
+        guests,
+        user.identityAddress
       )
-    })
+      .then(room => {
+        dispatch(
+          createConferencingRoomAction(
+            'added',
+            'https://chat.openintents.org/#/room/' + room.room_id
+          )
+        )
+      })
   }
 }
 
