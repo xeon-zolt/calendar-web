@@ -1,26 +1,42 @@
-// view
 import React, { Component } from 'react'
-import { Grid, Row, Col } from 'react-bootstrap'
+import { Container, Row, Col } from 'react-bootstrap'
+
+// views
 import { AppHeader, AppFooter } from '../components/branding/AppHeaderAndFooter'
 import AppMenu from '../components/app-menu/AppMenu'
 import Calendar from '../components/event-calendar/EventCalendar'
 import Settings from '../components/settings/Settings'
+
 import { connectToStore } from './_FN'
+
 // style
 import './etc/App.css'
+
 // flow
-import registerServiceWorker from '../flow/io/registerServiceWorker'
 import connectCalendar from '../flow/connect/connectEventCalendar'
 import connectAppMenu from '../flow/connect/connectAppMenu'
 import connectSettings from '../flow/connect/connectSettings'
 import connectApp from '../flow/connect/connectApp'
+
+// Store
 import { createInitialStore } from '../flow/store/storeManager'
 import { Export } from '../components/export/Export'
 
-let store = createInitialStore()
-registerServiceWorker()
+// Font Awesome
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faMinus, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+
+library.add([faMinus, faPlus, faTrashAlt])
+
+const store = createInitialStore()
 
 export class DynamicApp extends Component {
+  componentDidMount() {
+    import('./LazyLoaded').then(({ initializeLazy }) => {
+      initializeLazy(store)
+    })
+  }
+
   render() {
     const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store)
     const ConnectedSettings = connectToStore(Settings, connectSettings, store)
@@ -28,11 +44,10 @@ export class DynamicApp extends Component {
     const { views, showSettings, showFiles, files } = this.props
     const { UserProfile } = views
 
-    //
     return (
       <div className="App">
         <header className="App-header">
-          <Grid>
+          <Container>
             <Row>
               <Col sm={1} xs={6}>
                 <AppHeader />
@@ -44,7 +59,7 @@ export class DynamicApp extends Component {
                 <ConnectedAppMenu />
               </Col>
             </Row>
-          </Grid>
+          </Container>
         </header>
         {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
         {showFiles && <Export files={files} />}
@@ -54,13 +69,8 @@ export class DynamicApp extends Component {
       </div>
     )
   }
-  componentDidMount() {
-    import('./LazyLoaded').then(({ initializeLazy }) => {
-      initializeLazy(store)
-      // this.forceUpdate();
-    })
-  }
 }
 
 const ConnectedDynamicApp = connectToStore(DynamicApp, connectApp, store)
+
 export default <ConnectedDynamicApp />

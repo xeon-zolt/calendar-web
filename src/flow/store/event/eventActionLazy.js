@@ -18,6 +18,9 @@ import {
   SHOW_INSTRUCTIONS,
   SET_LOADING_CALENDARS,
   SET_ERROR,
+  CREATE_CONFERENCING_ROOM,
+  REMOVE_CONFERENCING_ROOM,
+  VERIFY_NEW_CALENDAR,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -43,6 +46,9 @@ import {
 } from './calendarActionLazy'
 
 import { setCurrentEvent } from './eventAction'
+
+// Reminders
+import { addReminder } from '../../../reminder'
 
 // #########################
 // Chat
@@ -109,7 +115,8 @@ export function initializeEvents() {
     dispatch(initializeCalendars())
       .then(calendars => {
         dispatch(setLoadingCalendars(0, calendars.length))
-        const allEventsPromise = loadCalendarEvents(calendars, dispatch)
+        const user = getState().auth.user
+        const allEventsPromise = loadCalendarEvents(calendars, user, dispatch)
         return allEventsPromise
       })
       .then(allEvents => {
@@ -232,7 +239,7 @@ function setLoadingCalendars(index, length) {
   return { type: SET_LOADING_CALENDARS, payload: { index, length } }
 }
 
-function loadCalendarEvents(calendars, dispatch) {
+function loadCalendarEvents(calendars, user, dispatch) {
   const calendarCount = calendars.length
   const allCalendars = []
   var promises = calendars.map(function(calendar, index) {
@@ -240,7 +247,7 @@ function loadCalendarEvents(calendars, dispatch) {
       dispatch(setLoadingCalendars(index, calendarCount))
       return {}
     } else {
-      return importCalendarEvents(calendar, defaultEvents).then(
+      return importCalendarEvents(calendar, user, defaultEvents).then(
         events => {
           const calendarEvents = { name: calendar.name, events }
           allCalendars.push(calendarEvents)
@@ -257,8 +264,9 @@ function loadCalendarEvents(calendars, dispatch) {
           dispatch(setLoadingCalendars(index, calendarCount))
           let msg
           if (
-            calendar.name &&
-            calendar.name.startsWith('https://calendar.google.com/')
+            calendar.data &&
+            calendar.data.src &&
+            calendar.data.src.startsWith('https://calendar.google.com/')
           ) {
             msg =
               'Failed to load a Google calendar. Have you enabled CORS calls?'
@@ -303,14 +311,28 @@ export function deleteEvent(event) {
 export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState()
-    let { allEvents } = state.events
+    let { allEvents, calendars } = state.events
+    console.log('calendars', calendars)
+    const privateCalendar = calendars.find(
+      c => c.type === 'private' && c.name === 'default'
+    )
+    if (privateCalendar) {
+      event.hexColor = privateCalendar.hexColor
+    }
     event.calendarName = 'default'
     event.uid = uuid()
+
     allEvents[event.uid] = event
+
+    // Save and Publish Events to Blockstack
     saveEvents('default', allEvents)
     if (event.public) {
       publishEvents(event, updatePublicEvent)
     }
+
+    // Add reminder to notify user
+    addReminder(event)
+
     window.history.pushState({}, 'OI Calendar', '/')
     delete state.currentEvent
     delete state.currentEventType
@@ -321,7 +343,7 @@ export function addEvent(event) {
 export function updateEvent(event) {
   return async (dispatch, getState) => {
     let { allEvents } = getState().events
-    var eventInfo = event
+    let eventInfo = event
     eventInfo.uid = eventInfo.uid || uuid()
     allEvents[eventInfo.uid] = eventInfo
     if (eventInfo.public) {
@@ -330,6 +352,10 @@ export function updateEvent(event) {
       publishEvents(eventInfo.uid, removePublicEvent)
     }
     saveEvents('default', allEvents)
+
+    // Add reminder to notify user
+    addReminder(event)
+
     dispatch(setEventsAction(allEvents))
   }
 }
@@ -361,5 +387,86 @@ export function showAllCalendars() {
   return async (dispatch, getState) => {
     window.history.pushState({}, 'OI Calendar', '/')
     dispatch(showAllCalendarsAction())
+  }
+}
+
+export function createConferencingRoomAction(status, url) {
+  return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
+}
+
+export function createConferencingRoom() {
+  return async (dispatch, getState) => {
+    dispatch(createConferencingRoomAction('adding', null))
+    setTimeout(() => {
+      dispatch(
+        createConferencingRoomAction(
+          'added',
+          'https://chat.openintents.org/#/room/#oi-calendar:openintents.modular.im'
+        )
+      )
+    }, 1000)
+  }
+}
+
+export function removeConferencingRoomAction(status) {
+  return { type: REMOVE_CONFERENCING_ROOM, payload: { status } }
+}
+
+export function removeConferencingRoom(url) {
+  console.log('removeConferencingRoom')
+  return async (dispatch, getState) => {
+    dispatch(removeConferencingRoomAction('removing'))
+    setTimeout(() => dispatch(removeConferencingRoomAction('removed')), 1000)
+  }
+}
+
+export function setCalendarVerificationStatus(payload) {
+  return { type: VERIFY_NEW_CALENDAR, payload }
+}
+
+export function verifyNewCalendar(calendar) {
+  console.log('verifyCalendar')
+  return async (dispatch, getState) => {
+    if (calendar == null) {
+      setCalendarVerificationStatus({ status: '' })
+      return
+    }
+
+    dispatch(
+      setCalendarVerificationStatus({
+        calendar,
+        status: 'pending',
+      })
+    )
+
+    importCalendarEvents(calendar, getState().auth.user, defaultEvents).then(
+      events => {
+        console.log('import ok')
+        dispatch(
+          setCalendarVerificationStatus({
+            status: 'ok',
+            calendar,
+            eventsCount: Object.keys(events).length,
+          })
+        )
+      },
+      error => {
+        const msg = 'failed to verify calendar'
+        console.log(msg, error)
+        dispatch(setCalendarVerificationStatus({ status: 'error', error }))
+      }
+    )
+  }
+}
+
+export function clearVerifyCalendar() {
+  console.log('clearVerifyCalendar')
+  return async (dispatch, getState) => {
+    dispatch(
+      setCalendarVerificationStatus({
+        status: '',
+        clearShowSettingsAddCalendarUrl: true,
+      })
+    )
   }
 }

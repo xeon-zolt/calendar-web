@@ -12,12 +12,15 @@ import { iCalParseEvents, icsFromEvents } from './ical'
 import { parseQueryString, encodeQueryString } from './queryString'
 
 import { getUserAppFileUrl } from 'blockstack/lib/storage'
+import { defaultCalendars } from './eventDefaults'
 
 // ################
 // Contacts
 // ################
 export function fetchContactData() {
-  return fetchFromBlockstack('Contacts')
+  return fetchFromBlockstack('Contacts').then(contacts => {
+    return contacts || {}
+  })
 }
 
 export function publishContacts(contacts) {
@@ -243,8 +246,14 @@ function fetchFromBlockstack(src, config, privateKey, errorData) {
         return str
       },
       error => {
-        console.error(errorData)
-        console.error(error)
+        console.error(
+          'failed to fetch ',
+          src,
+          config,
+          !!privateKey,
+          error,
+          errorData
+        )
         return Promise.reject(
           new Error(`Couldn't fetch from fetchFromBlockstack`)
         )
@@ -282,6 +291,13 @@ export function publishCalendars(calendars) {
   if (!Array.isArray(calendars)) {
     calendars = Object.values(calendars || {})
   }
+  const privateCalendarIndex = calendars.findIndex(
+    c => c.type === 'private' && c.name === 'default'
+  )
+  if (privateCalendarIndex < 0) {
+    console.log('adding calendar', defaultCalendars[0])
+    calendars.splice(0, 0, defaultCalendars[0])
+  }
   putOnBlockstack('Calendars', calendars)
 }
 
@@ -290,12 +306,16 @@ export function publishCalendars(calendars) {
 // :NOTE: As there is no more reliance on any knowledge of how these evens are managed
 // by the app, all import functions could be moved to a separate file
 // ###########################################################################
-export function importCalendarEvents(calendar, defaultEvents) {
+export function importCalendarEvents(calendar, user, defaultEvents) {
   const { type, data, name } = calendar || {}
   let fn = () => {}
   let config
+
   if (type === 'ics') {
     fn = fetchAndParseIcal
+  } else if (type === 'ics-raw') {
+    fn = fetchFromIcsRaw
+    config = { events: data.events }
   } else if (type === 'blockstack-user') {
     config = { decrypt: false, username: data.user }
     fn = fetchFromBlockstack
@@ -311,7 +331,7 @@ export function importCalendarEvents(calendar, defaultEvents) {
         events = Object.values(defaultEvents)
       }
       return (events || [])
-        .map(applyCalendarDefaults(calendar))
+        .map(applyCalendarDefaults(calendar, user))
         .reduce((acc, d) => {
           acc[d.uid] = d
           return acc
@@ -319,7 +339,7 @@ export function importCalendarEvents(calendar, defaultEvents) {
     })
 }
 
-function applyCalendarDefaults(calendar) {
+function applyCalendarDefaults(calendar, user) {
   const { hexColor, mode, name: calendarName } = calendar
   const eventDefaults = {
     mode: mode,
@@ -327,6 +347,14 @@ function applyCalendarDefaults(calendar) {
   }
   const eventOverrides = {
     hexColor: guaranteeHexColor(hexColor),
+  }
+  if (
+    calendar.type === 'blockstack-user' &&
+    calendar.data &&
+    user &&
+    calendar.data.user === user.username
+  ) {
+    eventOverrides.mode = undefined
   }
   return d => {
     return { ...eventDefaults, uid: uuid(), ...d, ...eventOverrides }
@@ -337,6 +365,10 @@ function fetchAndParseIcal(src) {
   return fetch(src)
     .then(result => result.text())
     .then(iCalParseEvents)
+}
+
+function fetchFromIcsRaw(src, config) {
+  return Promise.resolve(iCalParseEvents(config.events))
 }
 
 export function handleIntentsInQueryString(
@@ -426,8 +458,8 @@ export function loadPublicCalendar(calendarName, username) {
   })
 }
 
-function publishCalendar(events, filepath, contentType) {
-  putOnBlockstack(filepath, JSON.stringify(events), {
+function publishCalendar(eventsString, filepath, contentType) {
+  putOnBlockstack(filepath, eventsString, {
     encrypt: false,
     contentType,
   }).then(
@@ -452,7 +484,11 @@ export function publishEvents(param, updatePublicEvents) {
       publicEvents
     )
     if (republish) {
-      publishCalendar(newPublicEvents, publicEventPath, 'text/json')
+      publishCalendar(
+        JSON.stringify(newPublicEvents),
+        publicEventPath,
+        'text/json'
+      )
       var ics = icsFromEvents(newPublicEvents)
       publishCalendar(ics, publicEventPath + '.ics', 'text/calendar')
     } else {
@@ -474,7 +510,19 @@ export function saveEvents(calendarName, allEvents) {
 }
 
 export function fetchPreferences() {
-  return fetchFromBlockstack('Preferences')
+  return fetchFromBlockstack('Preferences').then(
+    prefs => {
+      if (prefs) {
+        return prefs
+      } else {
+        return {}
+      }
+    },
+    () => {
+      // TODO check for 404 and only then return empty object, otherwise preferences are overwritten
+      return {}
+    }
+  )
 }
 
 export function fetchIcsUrl(calendarName) {

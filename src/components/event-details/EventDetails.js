@@ -1,11 +1,15 @@
 import React, { Component } from 'react'
-
-import { Modal, Button, ProgressBar } from 'react-bootstrap'
+import PropTypes from 'prop-types'
+import { Modal, Button, FormCheck, Row, Col, Container } from 'react-bootstrap'
 import moment from 'moment'
 
-import '../../css/datetime.css'
+import SendInvitesModal from './SendInvitesModal'
 
-var Datetime = require('react-datetime')
+// Styles
+import '../../css/datetime.css'
+import '../../css/EventDetails.css'
+
+const Datetime = require('react-datetime')
 
 const guestsStringToArray = function(guestsString) {
   if (!guestsString || !guestsString.length) {
@@ -23,72 +27,25 @@ function checkHasGuests(str) {
   return guests.filter(g => g.length > 0).length > 0
 }
 
-class SendInvitesModal extends Component {
-  constructor(props) {
-    super(props)
-    console.log('SendInvitesModal')
-    this.state = { sending: true, profiles: undefined }
-
-    var { guests } = props
-    if (typeof guests !== 'string') {
-      guests = ''
-    }
-    const guestList = guests.toLowerCase().split(/[,\s]+/g)
-    console.log('dispatch load guest list', guestList)
-
-    props.loadGuestList(guestList, ({ profiles, contacts }) => {
-      console.log('profiles', profiles)
-      this.setState({ profiles })
-    })
-  }
-
-  render() {
-    const {
-      title,
-      handleInvitesHide,
-      sending,
-      inviteError,
-      inviteErrorMsg,
-      sendInvites,
-      GuestList,
-    } = this.props
-
-    const { profiles } = this.state
-    return (
-      <Modal show onHide={handleInvitesHide}>
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title">{title}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          Send invites according to their Blockstack settings:
-          {GuestList && <GuestList guests={profiles} />}
-          {sending && !inviteError && <ProgressBar active now={50} />}
-          {inviteError && inviteErrorMsg}
-          <Modal.Footer>
-            <Button bsStyle="success" onClick={() => sendInvites(profiles)}>
-              Send
-            </Button>
-            <Button onClick={handleInvitesHide}>Close</Button>
-          </Modal.Footer>
-        </Modal.Body>
-      </Modal>
-    )
-  }
-}
-
 class EventDetails extends Component {
   constructor(props) {
     super(props)
+
+    const { eventDetail, inviteError, inviteSuccess, showModal } = props
+
     this.state = {
-      showModal: this.props.showModal,
-      showInvitesModal:
-        (!!this.props.inviteSuccess && !this.props.inviteSuccess) ||
-        !!this.props.inviteError,
+      showModal: showModal,
+      showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
       sending: false,
+      endDateOrDuration:
+        eventDetail && eventDetail.duration ? 'duration' : 'endDate',
+      addingConferencing: false,
+      removingConferencing: false,
     }
 
     this.bound = [
       'handleDataChange',
+      'handlleEndDateOrDurationChange',
       'handleInvitesHide',
       'handleClose',
       'popInvitesModal',
@@ -96,6 +53,9 @@ class EventDetails extends Component {
       'addEvent',
       'updateEvent',
       'deleteEvent',
+      'updateEndDateFromDuration',
+      'addConferencing',
+      'removeConferencing',
     ].reduce((acc, d) => {
       acc[d] = this[d].bind(this)
       delete this[d]
@@ -108,6 +68,7 @@ class EventDetails extends Component {
     const { unsetCurrentEvent } = this.props
     unsetCurrentEvent()
   }
+
   componentWillReceiveProps(nextProps) {
     const { showInvitesModal, sending } = this.state
     console.log('nextProp', nextProps)
@@ -134,13 +95,53 @@ class EventDetails extends Component {
     }
 
     eventDetail[ref] = val
+
+    if (ref === 'allDay' && val) {
+      this.handlleEndDateOrDurationChange(e, 'endDate')
+    }
+
     this.setState({ eventDetail })
+  }
+
+  handlleEndDateOrDurationChange(e, ref) {
+    var { eventDetail } = this.props
+
+    if (ref === 'duration') {
+      eventDetail['duration'] = eventDetail.duration
+        ? eventDetail.duration
+        : '00:00'
+    } else {
+      eventDetail['duration'] = null
+    }
+
+    this.setState({
+      endDateOrDuration: ref,
+      eventDetail,
+    })
+  }
+
+  updateEndDateFromDuration() {
+    const { eventDetail } = this.props
+
+    if (eventDetail.duration) {
+      eventDetail['calculatedEndTime'] = moment(eventDetail.start).add(
+        moment.duration(eventDetail.duration)
+      )
+      eventDetail['end'] = null
+    }
   }
 
   addEvent() {
     const { addEvent, eventDetail } = this.props
-    const { popInvitesModal, handleClose } = this.bound
+    const {
+      popInvitesModal,
+      handleClose,
+      updateEndDateFromDuration,
+    } = this.bound
     const { guests, noInvites } = eventDetail
+
+    updateEndDateFromDuration()
+
     console.log('add event', eventDetail, checkHasGuests(guests))
     if (noInvites || !checkHasGuests(guests)) {
       addEvent(eventDetail)
@@ -164,8 +165,11 @@ class EventDetails extends Component {
 
   updateEvent(eventDetail) {
     console.log('[updateEvent]', eventDetail)
-    const { handleClose } = this.bound
+    const { handleClose, updateEndDateFromDuration } = this.bound
     const { updateEvent } = this.props
+
+    updateEndDateFromDuration()
+
     updateEvent(eventDetail)
     handleClose()
   }
@@ -194,9 +198,21 @@ class EventDetails extends Component {
     sendInvites(eventDetail, guests, eventType)
   }
 
+  addConferencing() {
+    const { createConferencingRoom } = this.props
+    console.log('add conferencing')
+    createConferencingRoom()
+  }
+
+  removeConferencing() {
+    const { removeConferencingRoom } = this.props
+    console.log('remove conferencing')
+    removeConferencingRoom()
+  }
+
   render() {
     console.log('[EVENDETAILS.render]', this.props)
-    const { showInvitesModal, sending } = this.state
+    const { showInvitesModal, sending, endDateOrDuration } = this.state
     const { handleClose } = this.bound
     const {
       views,
@@ -204,16 +220,21 @@ class EventDetails extends Component {
       eventType,
       eventDetail,
       loadGuestList,
+      addingConferencing,
+      removingConferencing,
     } = this.props
     const { GuestList } = views
     const {
       handleDataChange,
+      handlleEndDateOrDurationChange,
       handleInvitesHide,
       popInvitesModal,
       sendInvites,
       addEvent,
       updateEvent,
       deleteEvent,
+      addConferencing,
+      removeConferencing,
     } = this.bound
     const hasGuests = checkHasGuests(eventDetail.guests)
 
@@ -233,117 +254,238 @@ class EventDetails extends Component {
         )
       }
     }
+
+    function renderEndComponent() {
+      return eventDetail.allDay ? (
+        <Datetime
+          value={eventDetail.end}
+          dateFormat="MM-DD-YYYY"
+          timeFormat={false}
+          onChange={e => handleDataChange(e, 'end')}
+        />
+      ) : (
+        <Datetime
+          value={eventDetail.end}
+          onChange={e => handleDataChange(e, 'end')}
+        />
+      )
+    }
+
+    function renderDurationComponent() {
+      return (
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Enter the Event Duration"
+          ref="duration"
+          value={eventDetail.duration || ''}
+          onChange={e => handleDataChange(e, 'duration')}
+        />
+      )
+    }
+
     return (
       <Modal show onHide={handleClose}>
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <label> Event Name </label>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter the Event Name"
-            ref="title"
-            value={eventDetail.title || ''}
-            onChange={e => handleDataChange(e, 'title')}
-          />
+          <Container fluid>
+            <Row>
+              <Col xs={12}>
+                <label> Event Name </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Enter the Event Name"
+                  ref="title"
+                  value={eventDetail.title || ''}
+                  onChange={e => handleDataChange(e, 'title')}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <label> Start Date </label>
+                {eventDetail.allDay ? (
+                  <Datetime
+                    value={eventDetail.start}
+                    dateFormat="MM-DD-YYYY"
+                    timeFormat={false}
+                    onChange={e => handleDataChange(e, 'start')}
+                  />
+                ) : (
+                  <Datetime
+                    value={eventDetail.start}
+                    onChange={e => handleDataChange(e, 'start')}
+                  />
+                )}
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12} sm={8}>
+                {endDateOrDuration === 'endDate' ? (
+                  <div>
+                    <label> End Date </label>
+                    {renderEndComponent()}
+                  </div>
+                ) : (
+                  <div>
+                    <label> Duration </label>
+                    {renderDurationComponent()}
+                  </div>
+                )}
+              </Col>
+              <Col xs={12} sm={4}>
+                <FormCheck
+                  type="radio"
+                  name="endDateOrDuration"
+                  checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
+                  onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
+                >
+                  Use End Date
+                </FormCheck>
+                <FormCheck
+                  type="radio"
+                  name="endDateOrDuration"
+                  checked={endDateOrDuration === 'duration' ? 'checked' : ''}
+                  onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
+                  disabled={eventDetail.allDay}
+                >
+                  Use Duration
+                </FormCheck>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <div className="reminder-container">
+                  <label> Set Reminder </label>
 
-          <label> Start Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.start}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.start}
-              onChange={e => handleDataChange(e, 'start')}
-            />
-          )}
+                  <div className="reminder-group">
+                    <input
+                      type="number"
+                      className="form-control"
+                      placeholder="10"
+                      ref="reminderTime"
+                      value={eventDetail.reminderTime}
+                      onChange={e => handleDataChange(e, 'reminderTime')}
+                    />
 
-          <label> End Date </label>
-          {eventDetail.allDay ? (
-            <Datetime
-              value={eventDetail.end}
-              dateFormat="MM-DD-YYYY"
-              timeFormat={false}
-              onChange={e => handleDataChange(e, 'end')}
-            />
-          ) : (
-            <Datetime
-              value={eventDetail.end}
-              onChange={e => handleDataChange(e, 'end')}
-            />
-          )}
-
-          <label> Event Notes </label>
-          <textarea
-            className="form-control"
-            placeholder="Event Notes"
-            ref="notes"
-            value={eventDetail.notes || ''}
-            onChange={e => handleDataChange(e, 'notes')}
-          />
-
-          <label> Guests (experimental)</label>
-          <textarea
-            className="form-control"
-            placeholder="bob.id, alice.id.blockstack,.."
-            ref="guests"
-            value={eventDetail.guests || ''}
-            onChange={e => handleDataChange(e, 'guests')}
-          />
-
-          <label> Event Color </label>
-          <input
-            type="color"
-            value={eventDetail.hexColor || ''}
-            onChange={e => handleDataChange(e, 'hexColor')}
-            style={{ marginRight: '20px', marginLeft: '5px' }}
-          />
-
-          <input
-            type="checkBox"
-            name="all_Day"
-            value={eventDetail.allDay}
-            checked={eventDetail.allDay}
-            onChange={e => handleDataChange(e, 'allDay')}
-          />
-          <label> All Day </label>
-          <input
-            type="checkBox"
-            name="public"
-            value={eventDetail.public}
-            checked={eventDetail.public}
-            onChange={e => handleDataChange(e, 'public')}
-          />
-          <label> Public </label>
+                    <select
+                      value={eventDetail.reminderTimeUnit}
+                      onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+                    >
+                      <option value="minutes">Minutes</option>
+                      <option value="hours">Hours</option>
+                    </select>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <label> Event Notes </label>
+                <textarea
+                  className="form-control"
+                  placeholder="Event Notes"
+                  ref="notes"
+                  value={eventDetail.notes || ''}
+                  onChange={e => handleDataChange(e, 'notes')}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col sm={8} xs={12}>
+                <label> Guests (experimental)</label>
+                <textarea
+                  className="form-control"
+                  placeholder="bob.id, alice.id.blockstack,.."
+                  ref="guests"
+                  value={eventDetail.guests || ''}
+                  onChange={e => handleDataChange(e, 'guests')}
+                />
+              </Col>
+              <Col sm={4} xs={12}>
+                <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                  {!eventDetail.url ? (
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => addConferencing()}
+                      disabled={addingConferencing}
+                    >
+                      {addingConferencing
+                        ? 'Adding conferencing...'
+                        : 'Add conferencing'}
+                    </Button>
+                  ) : (
+                    <div>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => removeConferencing()}
+                        disabled={removingConferencing}
+                      >
+                        {removingConferencing
+                          ? 'Removing conferencing...'
+                          : 'Remove conferencing'}
+                      </Button>
+                      <Button
+                        variant="linkUrl"
+                        href={eventDetail.url}
+                        target="_blank"
+                      >
+                        Open conferencing
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12}>
+                <input
+                  type="checkBox"
+                  name="all_Day"
+                  value={eventDetail.allDay}
+                  checked={eventDetail.allDay}
+                  onChange={e => handleDataChange(e, 'allDay')}
+                />
+                <label> All Day </label>
+                <input
+                  type="checkBox"
+                  name="public"
+                  value={eventDetail.public}
+                  checked={eventDetail.public}
+                  onChange={e => handleDataChange(e, 'public')}
+                />
+                <label> Public </label>
+              </Col>
+            </Row>
+          </Container>
         </Modal.Body>
         <Modal.Footer>
           {eventType === 'add' && (
-            <Button bsStyle="success" onClick={() => addEvent()}>
+            <Button variant="success" onClick={addEvent}>
               Add
             </Button>
           )}
           {eventType === 'edit' && (
             <React.Fragment>
               <Button
-                bsStyle="warning"
+                variant="warning"
                 disabled={!hasGuests}
                 onClick={() => popInvitesModal(eventDetail)}
               >
                 Send Invites
               </Button>
               <Button
-                bsStyle="warning"
+                variant="warning"
                 onClick={() => updateEvent(eventDetail)}
               >
                 Update
               </Button>
-              <Button bsStyle="danger" onClick={() => deleteEvent(eventDetail)}>
+              <Button variant="danger" onClick={() => deleteEvent(eventDetail)}>
                 Delete
               </Button>
             </React.Fragment>
@@ -368,6 +510,13 @@ class EventDetails extends Component {
       </Modal>
     )
   }
+}
+
+EventDetails.propTypes = {
+  eventDetail: PropTypes.object,
+  inviteError: PropTypes.object,
+  inviteSuccess: PropTypes.bool,
+  showModal: PropTypes.bool,
 }
 
 export default EventDetails

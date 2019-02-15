@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import {
-  Panel,
-  Grid,
+  Card,
+  Container,
   Row,
   Col,
   ProgressBar,
@@ -11,7 +11,9 @@ import {
 } from 'react-bootstrap'
 import BigCalendar from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
+
 import { uuid } from '../../flow/io/eventFN'
+
 let localizer = BigCalendar.momentLocalizer(moment)
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
 
@@ -76,11 +78,7 @@ class EventCalendar extends Component {
     var bgColor = event && event.hexColor ? event.hexColor : '#265985'
     var style = {
       backgroundColor: bgColor,
-      borderRadius: '5px',
-      opacity: 1,
-      color: 'white',
-      border: '0px',
-      display: 'block',
+      borderColor: 'white',
     }
     return {
       style: style,
@@ -92,7 +90,11 @@ class EventCalendar extends Component {
   }
 
   getEventEnd(eventInfo) {
-    return eventInfo ? new Date(eventInfo.end) : new Date()
+    return eventInfo && (eventInfo.end || eventInfo.calculatedEndTime)
+      ? eventInfo.end
+        ? new Date(eventInfo.end)
+        : new Date(eventInfo.calculatedEndTime)
+      : new Date()
   }
 
   render() {
@@ -141,7 +143,6 @@ class EventCalendar extends Component {
           {currentCalendarLength && (
             <ProgressBar
               style={{ height: 8 }}
-              active
               now={currentCalendarIndex + 1}
               max={currentCalendarLength}
             />
@@ -165,7 +166,7 @@ class EventCalendar extends Component {
           endAccessor={this.getEventEnd}
         />
         {showError && (
-          <Alert bsStyle="danger" onDismiss={this.handleDismissError}>
+          <Alert variant="danger" dismissible>
             {error}
             <p>
               <Button onClick={() => showSettingsAddCalendar()}>
@@ -185,8 +186,8 @@ class EventCalendar extends Component {
           showGeneralInstructions &&
           !myPublicCalendar &&
           !publicCalendar && (
-            <Panel>
-              <Panel.Heading>
+            <Card>
+              <Card.Header>
                 Instructions
                 <button
                   type="button"
@@ -196,9 +197,9 @@ class EventCalendar extends Component {
                   <span aria-hidden="true">×</span>
                   <span className="sr-only">Close</span>
                 </button>
-              </Panel.Heading>
-              <Panel.Body>
-                <Grid style={{ width: '100%' }}>
+              </Card.Header>
+              <Card.Body>
+                <Container style={{ width: '100%' }}>
                   <Row style={{ textAlign: 'left' }}>
                     <Col md={6}>
                       <strong>To add an event: </strong> Click or long-press on
@@ -235,16 +236,14 @@ class EventCalendar extends Component {
                       />
                     </Col>
                   </Row>
-                </Grid>
-              </Panel.Body>
-            </Panel>
+                </Container>
+              </Card.Body>
+            </Card>
           )}
         {!signedIn && (
-          <Panel>
-            <Panel.Heading>
-              Private, Encrypted Calendar in the Cloud
-            </Panel.Heading>
-            <Panel.Body>
+          <Card>
+            <Card.Header>Private, Encrypted Calendar in the Cloud</Card.Header>
+            <Card.Body>
               <strong>To learn about Blockstack: </strong> A good starting point
               is{' '}
               <a href="https://docs.blockstack.org">
@@ -253,13 +252,13 @@ class EventCalendar extends Component {
               .<br />
               <strong>I have already a Blockstack ID:</strong> Just sign in
               using the blockstack button above!
-            </Panel.Body>
-          </Panel>
+            </Card.Body>
+          </Card>
         )}
         {eventModal && !inviteSuccess && <EventDetails />}
         {(myPublicCalendar || publicCalendar) && (
-          <Panel>
-            <Panel.Heading>
+          <Card>
+            <Card.Header>
               Public Calendar {myPublicCalendar}
               {publicCalendar}
               <button
@@ -270,9 +269,9 @@ class EventCalendar extends Component {
                 <span aria-hidden="true">×</span>
                 <span className="sr-only">Close</span>
               </button>
-            </Panel.Heading>
+            </Card.Header>
             {myPublicCalendar && events.length > 0 && (
-              <Panel.Body>
+              <Card.Body>
                 Share this url: <a href={shareUrl}>{shareUrl}</a>
                 {myPublicCalendarIcsUrl && (
                   <span>
@@ -280,20 +279,20 @@ class EventCalendar extends Component {
                     or <a href={myPublicCalendarIcsUrl}> as .ics file</a>
                   </span>
                 )}
-              </Panel.Body>
+              </Card.Body>
             )}
             {myPublicCalendar && events.length === 0 && (
-              <Panel.Body>
+              <Card.Body>
                 No public events yet. Start publishing your events!
-              </Panel.Body>
+              </Card.Body>
             )}
             {publicCalendar && events.length > 0 && signedIn && (
-              <Panel.Body>
+              <Card.Body>
                 <a href={shareUrl}>Add to my calandars</a>
-              </Panel.Body>
+              </Card.Body>
             )}
-            <Panel.Body>{calendarView}</Panel.Body>
-          </Panel>
+            <Card.Body>{calendarView}</Card.Body>
+          </Card>
         )}
         {!myPublicCalendar && !publicCalendar && calendarView}
       </div>

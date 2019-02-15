@@ -32,6 +32,7 @@ export const SET_CALENDARS = 'calendar.SET_CALENDARS'
 export const ADD_CALENDAR = 'calendar.ADD_CALENDAR'
 export const SET_PUBLIC_CALENDAR_EVENTS = 'calendar.SET_PUBLIC_CALENDAR_EVENTS'
 export const SET_LOADING_CALENDARS = 'calendar.SET_LOADING_CALENDARS'
+export const VERIFY_NEW_CALENDAR = 'calendar.VERIFY_NEW_CALENDAR'
 
 // Settings
 export const SHOW_SETTINGS = 'settings.SHOW_SETTINGS'
@@ -44,6 +45,9 @@ export const SHOW_FILES = 'settings.SHOW_FILES'
 
 // FILES
 export const SET_FILES = 'files.SET_FILES'
+
+export const CREATE_CONFERENCING_ROOM = 'rooms.CREATE_CONFERENCING_ROOM'
+export const REMOVE_CONFERENCING_ROOM = 'rooms.REMOVE_CONFERENCING_ROOM'
 
 // App
 export const SET_ERROR = 'app.SET_ERROR'

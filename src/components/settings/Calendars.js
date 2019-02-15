@@ -1,6 +1,18 @@
 import React, { Component } from 'react'
 import AddDeleteSetting from './AddDeleteSetting'
-import { uuid } from '../../flow/io/eventFN'
+import { uuid, guaranteeHexColor } from '../../flow/io/eventFN'
+import {
+  Button,
+  Card,
+  Row,
+  Col,
+  DropdownButton,
+  Dropdown,
+  Alert,
+  // Alert,
+} from 'react-bootstrap'
+
+const DropdownItem = Dropdown.Item
 
 class CalendarItem extends Component {
   constructor(props) {
@@ -27,7 +39,6 @@ class CalendarItem extends Component {
 
   onColorChange(event) {
     const hexColor = event.target.value
-    console.log('onColorChange', event.target.value)
     const { item: calendar, idx, onChangeItem } = this.props
     onChangeItem(calendar, { hexColor }, idx)
     this.setState({ hexColor })
@@ -75,7 +86,15 @@ export default class Calendars extends AddDeleteSetting {
     this.state.ItemRenderer = CalendarItem
     this.state.addTitle = 'Add Calendar from url'
     this.state.listTitle = 'Calendars'
+    this.state.calendarName = ''
+    this.state.calendarEvents = 0
     this.state.showFollow = false
+    this.state.hexColor = ''
+    this.state.isVerified = false
+    this.state.menuItems = [
+      // 'https://5c609074a2c02d0007d39068--upbeat-wing-158214.netlify.com/?intent=view&name=public%40friedger.id',
+      'https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics',
+    ]
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
       let newItem
 
@@ -112,7 +131,8 @@ export default class Calendars extends AddDeleteSetting {
         newItem = {
           uid: uuid(),
           type,
-          name: valueOfAdd,
+          name: this.state.calendarName || valueOfAdd,
+          hexColor: this.state.hexColor,
           mode: 'read-only',
           data,
         }
@@ -141,5 +161,254 @@ export default class Calendars extends AddDeleteSetting {
       delete this[d]
       return acc
     }, {})
+  }
+
+  handleSelect = (eventKey, event) => {
+    const { verifyNewCalendar } = this.props
+    const { addValueToItem } = this.state
+
+    this.setState({
+      hexColor: guaranteeHexColor(null),
+    })
+
+    addValueToItem(this.state.menuItems[eventKey], ({ item, error }) => {
+      if (error) {
+        this.setState({
+          valueOfAdd: this.state.menuItems[eventKey],
+          errorOfAdd: (error || '').toString(),
+        })
+      } else {
+        verifyNewCalendar(item)
+      }
+    })
+  }
+
+  renderOrSeparator = () => (
+    <Row style={{ padding: '5px' }}>
+      <Col sm={12} style={{ textAlign: 'center' }}>
+        or
+      </Col>
+    </Row>
+  )
+
+  handleVerifyButton = () => {
+    const { verifyNewCalendar } = this.props
+    const { valueOfAdd, addValueToItem } = this.state
+
+    this.setState({
+      hexColor: guaranteeHexColor(null),
+    })
+
+    addValueToItem(valueOfAdd, ({ item, error }) => {
+      if (error) {
+        this.setState({
+          valueOfAdd,
+          errorOfAdd: (error || '').toString(),
+        })
+      } else {
+        verifyNewCalendar(item)
+      }
+    })
+  }
+
+  handleCalendarNameChange = event => {
+    this.setState({ calendarName: event.target.value })
+  }
+
+  onColorChange = event => {
+    const hexColor = event.target.value
+    console.log('onColorChange', event.target.value)
+    this.setState({ hexColor })
+  }
+
+  handleFileInputChange = event => {
+    const { verifyNewCalendar } = this.props
+
+    console.log('selected files', event.target.files[0])
+    if (event.target.files[0]) {
+      let file = event.target.files[0]
+
+      let fileReader = new FileReader()
+      fileReader.onloadend = e => {
+        console.log('read file complete')
+
+        let calendar = {
+          uid: uuid(),
+          type: 'ics-raw',
+          name: this.state.calendarName,
+          hexColor: this.state.hexColor,
+          mode: '',
+          data: {
+            events: fileReader.result,
+          },
+        }
+
+        verifyNewCalendar(calendar)
+      }
+
+      fileReader.readAsText(file)
+    }
+  }
+
+  handleAddCalendarClick = event => {
+    const { verifiedNewCalendarData, addItem } = this.props
+
+    if (verifiedNewCalendarData.status === 'ok') {
+      let calendar = Object.assign({}, verifiedNewCalendarData.calendar)
+      calendar.name = this.state.calendarName
+      calendar.hexColor = this.state.hexColor
+
+      addItem(calendar)
+    }
+  }
+
+  render() {
+    const {
+      items: itemList,
+      user,
+      calendars,
+      verifiedNewCalendarData,
+    } = this.props
+    const { renderItem } = this.bound
+    const {
+      valueOfAdd,
+      addTitle,
+      listTitle,
+      renderAdd,
+      errorOfAdd,
+    } = this.state
+
+    const canAddCalendar =
+      verifiedNewCalendarData.status === 'ok' &&
+      this.state.calendarName != null &&
+      this.state.calendarName.trim() !== ''
+
+    return (
+      <div className="settings">
+        <Card style={{}}>
+          <Card.Header>{addTitle}</Card.Header>
+          <Card.Body>
+            <Row>
+              <Col md={6} sm={12}>
+                <Row style={{ padding: '5px' }}>
+                  {renderAdd()}{' '}
+                  <Button
+                    onClick={this.handleVerifyButton}
+                    disabled={!valueOfAdd}
+                  >
+                    Verify
+                  </Button>
+                </Row>
+                {verifiedNewCalendarData.status === 'error' && (
+                  <Row style={{ padding: '5px' }}>
+                    <Col sm={12} style={{ textAlign: 'center' }}>
+                      <Alert style={{ marginBottom: '0px' }} bsStyle="danger">
+                        Failed to verify calendar
+                      </Alert>
+                    </Col>
+                  </Row>
+                )}
+                {this.renderOrSeparator()}
+                <Row style={{ padding: '5px' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
+                    <label>
+                      Upload .ics calendar file:
+                      <br />
+                      <input
+                        id="fileInputIcs"
+                        type="file"
+                        onChange={this.handleFileInputChange}
+                      />
+                    </label>
+                  </Col>
+                </Row>
+                {this.renderOrSeparator()}
+                <Row style={{ padding: '5px' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
+                    <DropdownButton
+                      title="Choose from list..."
+                      id="document-type"
+                      onSelect={this.handleSelect}
+                    >
+                      {this.state.menuItems.map((opt, i) => (
+                        <DropdownItem key={i} eventKey={i}>
+                          {opt}
+                        </DropdownItem>
+                      ))}
+                    </DropdownButton>
+                  </Col>
+                </Row>
+              </Col>
+              <Col md={6} sm={12}>
+                <Row style={{ padding: '5px' }}>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Calendar name"
+                    onChange={this.handleCalendarNameChange}
+                    disabled={verifiedNewCalendarData.status !== 'ok'}
+                  />
+                </Row>
+                <Row style={{ padding: '5px' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
+                    <input
+                      type="color"
+                      value={this.state.hexColor}
+                      onChange={this.onColorChange}
+                      style={{
+                        marginRight: '20px',
+                        marginLeft: '5px',
+                        width: '50%',
+                        height: '44px',
+                      }}
+                      disabled={verifiedNewCalendarData.status !== 'ok'}
+                    />
+                  </Col>
+                </Row>
+                <Row style={{ padding: '5px' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
+                    <Alert style={{ marginBottom: '0px' }}>
+                      Calendar{' '}
+                      <span style={{ fontWeight: 'bold' }}>
+                        {this.state.calendarName}
+                      </span>{' '}
+                      has{' '}
+                      <span style={{ fontWeight: 'bold' }}>
+                        {verifiedNewCalendarData.eventsCount}
+                      </span>{' '}
+                      events
+                    </Alert>
+                  </Col>
+                </Row>
+
+                <Row style={{ padding: '5px' }}>
+                  <Col sm={12} style={{ textAlign: 'center' }}>
+                    <Button
+                      onClick={this.handleAddCalendarClick}
+                      disabled={!canAddCalendar}
+                      style={{ margin: 8 }}
+                    >
+                      Add Calendar
+                    </Button>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+            <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
+          </Card.Body>
+        </Card>
+
+        <Card style={{}}>
+          <Card.Header>{listTitle}</Card.Header>
+          <Card.Body>
+            <div>
+              {(itemList || []).map((v, k) =>
+                renderItem(v, k, user, calendars)
+              )}
+            </div>
+          </Card.Body>
+        </Card>
+      </div>
+    )
   }
 }

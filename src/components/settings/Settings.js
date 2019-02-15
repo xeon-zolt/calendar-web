@@ -8,8 +8,12 @@ class SettingsPage extends Component {
   render() {
     const { CalendarsContent, ContactsContent, handleHide } = this.props
     return (
-      <div className="text-left" style={{ marginLeft: 100 }}>
+      <div
+        className="bodyContainer"
+        style={{ textAlign: 'left', marginTop: '10px' }}
+      >
         <h4>Settings</h4>
+
         {CalendarsContent}
         {ContactsContent}
         <Button onClick={handleHide}>Done</Button>
@@ -35,6 +39,8 @@ export default class Settings extends Component {
       followContact,
       unfollowContact,
       user,
+      verifyNewCalendar,
+      verifiedNewCalendarData,
     } = this.props
     const CalendarsContent = (
       <div>
@@ -45,6 +51,8 @@ export default class Settings extends Component {
           setItemData={setCalendarData}
           valueOfAdd={addCalendarUrl}
           user={user}
+          verifyNewCalendar={verifyNewCalendar}
+          verifiedNewCalendarData={verifiedNewCalendarData}
         />
       </div>
     )

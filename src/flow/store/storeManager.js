@@ -15,7 +15,7 @@ export function createReducer(asyncReducers) {
 }
 
 export function createInitialStore(initialState) {
-  let store = createStore(
+  const store = createStore(
     createReducer({ events, gaia }),
     applyMiddleware(thunk)
   )

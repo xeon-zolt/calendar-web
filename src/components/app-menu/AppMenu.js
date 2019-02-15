@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Nav, NavItem } from 'react-bootstrap'
+import { Nav } from 'react-bootstrap'
 
 export default class AppMenu extends Component {
   constructor(props) {
@@ -45,21 +45,30 @@ export default class AppMenu extends Component {
     const { username, signedIn } = this.props
     const { activeKey } = this.state
     const hasPublicCalendar = !!username
+
     return (
       signedIn && (
         <div style={{ margin: '4px' }}>
           <Nav
-            bsStyle="pills"
+            variant="pills"
             onSelect={onSelect}
             activeKey={activeKey}
-            justified
+            justify
           >
-            <NavItem eventKey="all">My Events</NavItem>
-            <NavItem eventKey="publicCalendar" disabled={!hasPublicCalendar}>
-              My Public Calendar
-            </NavItem>
-            <NavItem eventKey="settings">Settings</NavItem>
-            <NavItem eventKey="showFiles">Files</NavItem>
+            <Nav.Item>
+              <Nav.Link eventKey="all">My Events</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="publicCalendar" disabled={!hasPublicCalendar}>
+                My Public Calendar
+              </Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="settings">Settings</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="showFiles">My Files</Nav.Link>
+            </Nav.Item>
           </Nav>
         </div>
       )

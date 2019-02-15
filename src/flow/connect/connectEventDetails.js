@@ -8,6 +8,8 @@ import {
   deleteEvent,
   updateEvent,
   saveAllEvents,
+  createConferencingRoom,
+  removeConferencingRoom,
 } from '../../flow/store/event/eventActionLazy'
 
 import {
@@ -21,6 +23,8 @@ const eventDefaults = {
   end: moment(),
   allDay: false,
   hexColor: '#265985',
+  reminderTime: 10,
+  reminderTimeUnit: 'minutes',
 }
 
 export default connect(
@@ -30,6 +34,8 @@ export default connect(
     const { currentEvent, currentEventType } = state.events
     const inviteError = state.events.inviteError
     const inviteSuccess = state.events.inviteSuccess
+    const addingConferencing = state.events.addingConferencing
+    const removingConferencing = state.events.removingConferencing
 
     return {
       inviteError,
@@ -37,6 +43,8 @@ export default connect(
       views: { GuestList },
       eventDetail: Object.assign({}, eventDefaults, currentEvent),
       eventType: currentEventType,
+      addingConferencing,
+      removingConferencing,
     }
   },
   (dispatch, redux) => {
@@ -67,6 +75,8 @@ export default connect(
         dispatch(addEvent(obj))
       },
       updateEvent: obj => dispatch(updateEvent(obj)),
+      createConferencingRoom: () => dispatch(createConferencingRoom()),
+      removeConferencingRoom: obj => dispatch(removeConferencingRoom(obj)),
     }
   }
 )
