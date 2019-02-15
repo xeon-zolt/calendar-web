@@ -17,6 +17,7 @@ export function iCalParseEvents(icsContent, formatEvent) {
   try {
     var jCal = parse(icsContent)
     var comp = new Component(jCal)
+    console.log('comp', comp)
     var vevents = comp.getAllSubcomponents('vevent')
     return vevents.map(eventFromIcal)
   } catch (e) {

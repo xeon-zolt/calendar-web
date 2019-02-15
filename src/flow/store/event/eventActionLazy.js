@@ -441,15 +441,11 @@ export function verifyNewCalendar(calendar) {
 
     importCalendarEvents(calendar, getState().auth.user, defaultEvents).then(
       events => {
-        const calendarEvents = {
-          name: calendar.name,
-          events,
-        }
-        console.log('import ok', calendarEvents)
+        console.log('import ok')
         dispatch(
           setCalendarVerificationStatus({
             status: 'ok',
-            calendarEvents,
+            calendar,
             eventsCount: Object.keys(events).length,
           })
         )
