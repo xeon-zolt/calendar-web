@@ -510,7 +510,19 @@ export function saveEvents(calendarName, allEvents) {
 }
 
 export function fetchPreferences() {
-  return fetchFromBlockstack('Preferences')
+  return fetchFromBlockstack('Preferences').then(
+    prefs => {
+      if (prefs) {
+        return prefs
+      } else {
+        return {}
+      }
+    },
+    () => {
+      // TODO check for 404 and only then return empty object, otherwise preferences are overwritten
+      return {}
+    }
+  )
 }
 
 export function fetchIcsUrl(calendarName) {
