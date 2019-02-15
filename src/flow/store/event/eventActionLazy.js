@@ -439,7 +439,7 @@ export function verifyNewCalendar(calendar) {
       })
     )
 
-    importCalendarEvents(calendar, defaultEvents).then(
+    importCalendarEvents(calendar, getState().auth.user, defaultEvents).then(
       events => {
         const calendarEvents = {
           name: calendar.name,
