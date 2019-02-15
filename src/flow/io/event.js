@@ -311,11 +311,12 @@ export function importCalendarEvents(calendar, user, defaultEvents) {
   let fn = () => {}
   let config
   let fetchParam = data.src
+
   if (type === 'ics') {
     fn = fetchAndParseIcal
-    fetchParam = data.events
   } else if (type === 'ics-raw') {
     fn = parseIcal
+    fetchParam = data.events
   } else if (type === 'blockstack-user') {
     config = { decrypt: false, username: data.user }
     fn = fetchFromBlockstack
