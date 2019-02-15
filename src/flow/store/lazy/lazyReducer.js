@@ -5,7 +5,8 @@ let initialState = {}
 export default function reduce(state = initialState, action = {}) {
   // console.log("LazyReducer", state);
   let newState = state
-  let { type, payload } = action
+  const { type, payload } = action
+
   switch (type) {
     case SET_LAZY_VIEW:
       newState = { ...state, ...payload }

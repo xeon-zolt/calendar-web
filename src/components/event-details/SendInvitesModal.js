@@ -45,7 +45,7 @@ class SendInvitesModal extends React.Component {
           {sending && !inviteError && <ProgressBar active now={50} />}
           {inviteError && inviteErrorMsg}
           <Modal.Footer>
-            <Button bsStyle="success" onClick={() => sendInvites(profiles)}>
+            <Button variant="success" onClick={() => sendInvites(profiles)}>
               Send
             </Button>
             <Button onClick={handleInvitesHide}>Close</Button>
