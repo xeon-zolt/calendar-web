@@ -249,7 +249,7 @@ class EventCalendar extends Component {
               using the blockstack button above!
             </div>
             <div class="col-md-2" style={{padding: '10px'}}>
-              <img src='blockstack.png' height="30" style={{verticalAlign: 'middle'}} />
+              <img src='blockstack.png' alt='' height="30" style={{verticalAlign: 'middle'}} />
             </div>
             <div class="col-md-5">
               <strong>To learn about Blockstack: </strong> A good starting point
