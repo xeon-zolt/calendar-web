@@ -358,9 +358,15 @@ function applyCalendarDefaults(calendar, user) {
 }
 
 function fetchAndParseIcal(src) {
-  return fetch(src)
-    .then(result => result.text())
-    .then(iCalParseEvents)
+  if (src.startsWith('http')) {
+    return fetch(src)
+      .then(result => result.text())
+      .then(iCalParseEvents)
+  }
+
+  return new Promise(resolve => {
+    return resolve(iCalParseEvents(src))
+  })
 }
 
 export function handleIntentsInQueryString(

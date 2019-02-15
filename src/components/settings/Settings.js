@@ -8,8 +8,12 @@ class SettingsPage extends Component {
   render() {
     const { CalendarsContent, ContactsContent, handleHide } = this.props
     return (
-      <div className="text-left" style={{ marginLeft: 100 }}>
+      <div
+        className="bodyContainer"
+        style={{ textAlign: 'left', marginTop: '10px' }}
+      >
         <h4>Settings</h4>
+
         {CalendarsContent}
         {ContactsContent}
         <Button onClick={handleHide}>Done</Button>

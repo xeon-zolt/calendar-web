@@ -115,7 +115,7 @@ class AddDeleteSetting extends Component {
     const showDelete = d.name !== 'default' || d.type !== 'private'
     return (
       <div key={i} className="d-inline-block">
-        <div style={{ display: 'inline-block', width: '80%' }}>
+        <div style={{ display: 'inline-block' }}>
           {ItemRenderer && (
             <ItemRenderer
               item={d}
@@ -147,7 +147,7 @@ class AddDeleteSetting extends Component {
     } = this.state
     return (
       <div className="settings">
-        <Panel style={{ width: '80%' }}>
+        <Panel style={{}}>
           <Panel.Heading>{addTitle}</Panel.Heading>
           <Panel.Body>
             {renderAdd()}
@@ -162,7 +162,7 @@ class AddDeleteSetting extends Component {
           </Panel.Body>
         </Panel>
 
-        <Panel style={{ width: '80%' }}>
+        <Panel style={{}}>
           <Panel.Heading>{listTitle}</Panel.Heading>
           <Panel.Body>
             <div>

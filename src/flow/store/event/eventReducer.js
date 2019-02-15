@@ -236,17 +236,6 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         verifiedNewCalendarData: payload,
       }
-      if (
-        payload.calendar &&
-        payload.calendar.data &&
-        payload.calendar.data.src
-      ) {
-        newState['showSettingsAddCalendarUrl'] = payload.calendar.data.src
-      }
-
-      if (payload.clearShowSettingsAddCalendarUrl) {
-        newState['showSettingsAddCalendarUrl'] = null
-      }
       break
     default:
       newState = state
