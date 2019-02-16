@@ -32,6 +32,9 @@ export default class AppMenu extends Component {
         this.props.showAllEvents()
         this.setState({ activeKey: 'all' })
         break
+      case 'showFiles':
+        this.props.showFiles()
+        break
       default:
         console.warn('invalid menu item ', eventKey)
         break
@@ -62,6 +65,9 @@ export default class AppMenu extends Component {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="settings">Settings</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="showFiles">My Files</Nav.Link>
             </Nav.Item>
           </Nav>
         </div>

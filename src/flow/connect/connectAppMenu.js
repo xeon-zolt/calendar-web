@@ -4,6 +4,7 @@ import {
   showMyPublicCalendar,
   showAllCalendars,
 } from '../store/event/eventActionLazy'
+import { showFiles } from '../store/gaia/filesAction'
 import { setCurrentEvent } from '../store/event/eventAction'
 
 export default connect(
@@ -39,6 +40,9 @@ export default connect(
       },
       showAllEvents: () => {
         dispatch(showAllCalendars())
+      },
+      showFiles: () => {
+        dispatch(showFiles())
       },
     }
   }
