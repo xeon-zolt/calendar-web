@@ -442,7 +442,7 @@ export function createConferencingRoom(eventDetail, guests) {
     const { userSessionChat, user } = getState().events
     userSessionChat
       .createNewRoom(
-        eventDetail.name,
+        eventDetail.title,
         'All about this event',
         guests,
         user.identityAddress
