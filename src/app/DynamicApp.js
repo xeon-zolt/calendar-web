@@ -20,7 +20,7 @@ import connectApp from '../flow/connect/connectApp'
 
 // Store
 import { createInitialStore } from '../flow/store/storeManager'
-import { Export } from '../components/export/Export'
+import { Files } from '../components/export/Export'
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -62,7 +62,7 @@ export class DynamicApp extends Component {
           </Container>
         </header>
         {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
-        {showFiles && <Export files={files} />}
+        {showFiles && <Files files={files} />}
         <footer>
           <AppFooter />
         </footer>

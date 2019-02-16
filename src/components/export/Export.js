@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 
-import { Button, Glyphicon, Panel } from 'react-bootstrap'
+import { Button, Card } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const File = props => {
   const { url, name, ics } = props
@@ -17,21 +18,22 @@ const File = props => {
   )
 }
 
-export class Export extends Component {
+export class Files extends Component {
   render() {
     const { files } = this.props
+    console.log('files', files)
     return (
-      <Panel style={{ margin: '10px' }}>
-        <Panel.Heading>
+      <Card style={{ margin: '10px' }}>
+        <Card.Heading>
           <label variant="title">
             Your remote files on {files.appBucketUrl}
           </label>
           <Button variant="contained" size="small">
-            <Glyphicon glyph="refresh" />
+            <FontAwesomeIcon glyph="refresh" />
             Refresh
           </Button>
-        </Panel.Heading>
-        <Panel.Body>
+        </Card.Heading>
+        <Card.Body>
           <label variant="display1">Calendar Files</label>
 
           {files.calendarListFile && (
@@ -67,8 +69,8 @@ export class Export extends Component {
               })}
             </div>
           )}
-        </Panel.Body>
-      </Panel>
+        </Card.Body>
+      </Card>
     )
   }
 }
