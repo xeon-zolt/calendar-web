@@ -75,12 +75,7 @@ class EventCalendar extends Component {
   eventStyle(event, start, end, isSelected) {
     var bgColor = event && event.hexColor ? event.hexColor : '#265985'
     var style = {
-      backgroundColor: bgColor,
-      borderRadius: '5px',
-      opacity: 1,
-      color: 'white',
-      border: '0px',
-      display: 'block',
+      backgroundColor: bgColor
     }
     return {
       style: style,
@@ -165,6 +160,7 @@ class EventCalendar extends Component {
           endAccessor={this.getEventEnd}
         />
         {showError && (
+          <div style={{ position:'fixed', bottom:'10px', right:'10px', zIndex:'10' }}>
           <Alert bsStyle="danger" onDismiss={this.handleDismissError}>
             {error}
             <p>
@@ -175,6 +171,7 @@ class EventCalendar extends Component {
               <Button onClick={markErrorAsRead}>Hide this message</Button>
             </p>
           </Alert>
+          </div>
         )}
       </div>
     )
@@ -199,6 +196,7 @@ class EventCalendar extends Component {
               </Panel.Heading>
               <Panel.Body>
                 <Grid style={{ width: '100%' }}>
+                  <div style={{ padding: '20px' }}>
                   <Row style={{ textAlign: 'left' }}>
                     <Col md={6}>
                       <strong>To add an event: </strong> Click or long-press on
@@ -210,7 +208,7 @@ class EventCalendar extends Component {
                       the event you wish to update or delete!
                     </Col>
                   </Row>
-                  <Row style={{ textAlign: 'left' }}>
+                  <Row style={{ padding: '20px' }}>
                     <Col xs={12} sm={2} style={{ textAlign: 'center' }}>
                       <img
                         src="/images/gcalendar.png"
@@ -219,11 +217,11 @@ class EventCalendar extends Component {
                         alt="Google Calendar"
                       />
                     </Col>
-                    <Col xs={12} sm={10}>
+                    <Col xs={12} sm={10} style={{ textAlign: 'left' }}>
                       <strong>Move from Google Calendar</strong>: Done in a
                       minute! Follow the{' '}
                       <a href="https://github.com/friedger/oi-calendar">
-                        2-steps tutorial
+                        2-step tutorial
                       </a>
                       .
                       <br />
@@ -235,6 +233,7 @@ class EventCalendar extends Component {
                       />
                     </Col>
                   </Row>
+                  </div>
                 </Grid>
               </Panel.Body>
             </Panel>
@@ -245,14 +244,21 @@ class EventCalendar extends Component {
               Private, Encrypted Calendar in the Cloud
             </Panel.Heading>
             <Panel.Body>
+            <div class="col-md-5">
+              <strong>I have already a Blockstack ID:</strong> Just sign in
+              using the blockstack button above!
+            </div>
+            <div class="col-md-2" style={{padding: '10px'}}>
+              <img src='blockstack.png' alt='' height="30" style={{verticalAlign: 'middle'}} />
+            </div>
+            <div class="col-md-5">
               <strong>To learn about Blockstack: </strong> A good starting point
               is{' '}
               <a href="https://docs.blockstack.org">
                 Blockstack's documentation
               </a>
               .<br />
-              <strong>I have already a Blockstack ID:</strong> Just sign in
-              using the blockstack button above!
+            </div>
             </Panel.Body>
           </Panel>
         )}
