@@ -8,7 +8,6 @@
 }
 
 .App-header {
-	background-color: #558ed5;
 	padding: 1px;
 	color: white;
 }
@@ -128,17 +127,17 @@ h1,
 	position: absolute;
 }
 
-.nav-pills li.active a {
-	background-color: #e0e0e0;
-	color: #558ed5;
+.nav-pills .nav-link {
+	padding: 6px 20px 6px 20px !important;
 }
 
-.nav-pills li a {
-	color: #ffffff;
-}
-
-.nav-pills li a:hover {
+.nav-pills .nav-link.active {
 	background-color: #337ab7;
+	color: #ffffff !important;
+}
+
+.nav-pills .nav-link:hover:not(.active) {
+	background-color: #e0e0e0;
 }
 
 @keyframes App-logo-spin {

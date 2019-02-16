@@ -24,9 +24,9 @@ export default class AppMenu extends Component {
         this.props.showSettings()
         this.setState({ activeKey: 'settings' })
         break
-      case 'publicCalendar':
+      case 'public':
         this.props.showMyPublicCalendar('public@' + this.props.username)
-        this.setState({ activeKey: 'publicCalendar' })
+        this.setState({ activeKey: 'public' })
         break
       case 'all':
         this.props.showAllEvents()
@@ -48,19 +48,14 @@ export default class AppMenu extends Component {
 
     return (
       signedIn && (
-        <div style={{ margin: '4px' }}>
-          <Nav
-            variant="pills"
-            onSelect={onSelect}
-            activeKey={activeKey}
-            justify
-          >
+        <div style={{ margin: '4px 30px 0 0' }}>
+          <Nav variant="pills" onSelect={onSelect} activeKey={activeKey}>
             <Nav.Item>
-              <Nav.Link eventKey="all">My Events</Nav.Link>
+              <Nav.Link eventKey="all">Events</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey="publicCalendar" disabled={!hasPublicCalendar}>
-                My Public Calendar
+              <Nav.Link eventKey="public" disabled={!hasPublicCalendar}>
+                Public
               </Nav.Link>
             </Nav.Item>
             <Nav.Item>

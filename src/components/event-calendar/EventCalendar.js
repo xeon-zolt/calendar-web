@@ -142,6 +142,8 @@ class EventCalendar extends Component {
         <div style={{ height: 8 }}>
           {currentCalendarLength && (
             <ProgressBar
+              animated
+              variant="success"
               style={{ height: 8 }}
               now={currentCalendarIndex + 1}
               max={currentCalendarLength}
