@@ -450,6 +450,7 @@ class EventDetails extends Component {
                   value={eventDetail.allDay}
                   checked={eventDetail.allDay}
                   onChange={e => handleDataChange(e, 'allDay')}
+                  style={{ marginRight: '5px', marginLeft: '5px' }}
                 />
                 <label> All Day </label>
                 <input
@@ -458,6 +459,7 @@ class EventDetails extends Component {
                   value={eventDetail.public}
                   checked={eventDetail.public}
                   onChange={e => handleDataChange(e, 'public')}
+                  style={{ marginRight: '5px', marginLeft: '5px' }}
                 />
                 <label> Public </label>
               </Col>
