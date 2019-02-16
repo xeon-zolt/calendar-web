@@ -18,21 +18,28 @@ const File = props => {
   )
 }
 
-export class Files extends Component {
+export default class Files extends Component {
   render() {
     const { files } = this.props
     console.log('files', files)
+    if (!files.calendars) {
+      return (
+        <Card style={{ margin: '10px' }}>
+          <Card.Header>Loading</Card.Header>
+        </Card>
+      )
+    }
     return (
       <Card style={{ margin: '10px' }}>
-        <Card.Heading>
+        <Card.Header>
           <label variant="title">
             Your remote files on {files.appBucketUrl}
           </label>
           <Button variant="contained" size="small">
-            <FontAwesomeIcon glyph="refresh" />
+            <FontAwesomeIcon icon="plus" />
             Refresh
           </Button>
-        </Card.Heading>
+        </Card.Header>
         <Card.Body>
           <label variant="display1">Calendar Files</label>
 
@@ -44,6 +51,7 @@ export class Files extends Component {
             <File name="Contact List File" url={files.contactFileList} />
           )}
           {Object.keys(files.calendars).map(k => {
+            console.log(files.calendars[k])
             return (
               <File
                 key={k}

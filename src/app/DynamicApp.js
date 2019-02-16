@@ -20,7 +20,7 @@ import connectApp from '../flow/connect/connectApp'
 
 // Store
 import { createInitialStore } from '../flow/store/storeManager'
-import { Files } from '../components/export/Export'
+import Files from '../components/export/Export'
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
