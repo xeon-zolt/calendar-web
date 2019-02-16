@@ -166,16 +166,25 @@ class EventCalendar extends Component {
           endAccessor={this.getEventEnd}
         />
         {showError && (
-          <Alert variant="danger" dismissible>
-            {error}
-            <p>
-              <Button onClick={() => showSettingsAddCalendar()}>
-                Go to settings
-              </Button>
-              <span> or </span>
-              <Button onClick={markErrorAsRead}>Hide this message</Button>
-            </p>
-          </Alert>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '10px',
+              right: '10px',
+              zIndex: '10',
+            }}
+          >
+            <Alert variant="danger" dismissible>
+              {error}
+              <p>
+                <Button onClick={() => showSettingsAddCalendar()}>
+                  Go to settings
+                </Button>
+                <span> or </span>
+                <Button onClick={markErrorAsRead}>Hide this message</Button>
+              </p>
+            </Alert>
+          </div>
         )}
       </div>
     )
@@ -200,42 +209,45 @@ class EventCalendar extends Component {
               </Card.Header>
               <Card.Body>
                 <Container style={{ width: '100%' }}>
-                  <Row style={{ textAlign: 'left' }}>
-                    <Col md={6}>
-                      <strong>To add an event: </strong> Click or long-press on
-                      the day you want to add an event or drag up to the day you
-                      want to add the event for multiple day event! <br />
-                    </Col>
-                    <Col md={6}>
-                      <strong>To update and delete an event:</strong> Click on
-                      the event you wish to update or delete!
-                    </Col>
-                  </Row>
-                  <Row style={{ textAlign: 'left' }}>
-                    <Col xs={12} sm={2} style={{ textAlign: 'center' }}>
-                      <img
-                        src="/images/gcalendar.png"
-                        width="48px"
-                        height="48px"
-                        alt="Google Calendar"
-                      />
-                    </Col>
-                    <Col xs={12} sm={10}>
-                      <strong>Move from Google Calendar</strong>: Done in a
-                      minute! Follow the{' '}
-                      <a href="https://github.com/friedger/oi-calendar">
-                        2-steps tutorial
-                      </a>
-                      .
-                      <br />
-                      <input
-                        style={{ width: '100%' }}
-                        type="text"
-                        placeholder="Paste url like https://calendar.google..../basic.ics"
-                        onKeyPress={handleAddCalendarByUrl}
-                      />
-                    </Col>
-                  </Row>
+                  <div style={{ padding: '20px' }}>
+                    <Row style={{ textAlign: 'left' }}>
+                      <Col md={6}>
+                        <strong>To add an event: </strong> Click or long-press
+                        on the day you want to add an event or drag up to the
+                        day you want to add the event for multiple day event!{' '}
+                        <br />
+                      </Col>
+                      <Col md={6}>
+                        <strong>To update and delete an event:</strong> Click on
+                        the event you wish to update or delete!
+                      </Col>
+                    </Row>
+                    <Row style={{ padding: '20px' }}>
+                      <Col xs={12} sm={2} style={{ textAlign: 'center' }}>
+                        <img
+                          src="/images/gcalendar.png"
+                          width="48px"
+                          height="48px"
+                          alt="Google Calendar"
+                        />
+                      </Col>
+                      <Col xs={12} sm={10} style={{ textAlign: 'left' }}>
+                        <strong>Move from Google Calendar</strong>: Done in a
+                        minute! Follow the{' '}
+                        <a href="https://github.com/friedger/oi-calendar">
+                          2-step tutorial
+                        </a>
+                        .
+                        <br />
+                        <input
+                          style={{ width: '100%' }}
+                          type="text"
+                          placeholder="Paste url like https://calendar.google..../basic.ics"
+                          onKeyPress={handleAddCalendarByUrl}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
                 </Container>
               </Card.Body>
             </Card>
@@ -244,14 +256,26 @@ class EventCalendar extends Component {
           <Card>
             <Card.Header>Private, Encrypted Calendar in the Cloud</Card.Header>
             <Card.Body>
-              <strong>To learn about Blockstack: </strong> A good starting point
-              is{' '}
-              <a href="https://docs.blockstack.org">
-                Blockstack's documentation
-              </a>
-              .<br />
-              <strong>I have already a Blockstack ID:</strong> Just sign in
-              using the blockstack button above!
+              <div className="col-md-5">
+                <strong>I have already a Blockstack ID:</strong> Just sign in
+                using the blockstack button above!
+              </div>
+              <div className="col-md-2" style={{ padding: '10px' }}>
+                <img
+                  src="blockstack.png"
+                  alt=""
+                  height="30"
+                  style={{ verticalAlign: 'middle' }}
+                />
+              </div>
+              <div className="col-md-5">
+                <strong>To learn about Blockstack: </strong> A good starting
+                point is{' '}
+                <a href="https://docs.blockstack.org">
+                  Blockstack's documentation
+                </a>
+                .<br />
+              </div>
             </Card.Body>
           </Card>
         )}
