@@ -117,7 +117,7 @@ BlockstackSignInButton.defaultProps = {
   signInBtnText: 'Sign In with Blockstack',
   includeBlockstackLogo: true,
   defaultStyle: null,
-  style: {},
+  style: { padding: '8.5px' },
   signInStyle: {},
   signOutStyle: {},
   imageStyle: {},

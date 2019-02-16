@@ -23,6 +23,7 @@ import {
   CREATE_CONFERENCING_ROOM,
   REMOVE_CONFERENCING_ROOM,
   VERIFY_NEW_CALENDAR,
+  SHOW_FILES,
 } from '../ActionTypes'
 
 let initialState = {
@@ -188,6 +189,12 @@ export default function reduce(state = initialState, action = {}) {
         showInstructions: { general: payload.show },
       }
       break
+    case SHOW_FILES:
+      newState = {
+        ...state,
+        showFiles: { all: action.payload.show },
+      }
+      break
     case AUTH_SIGN_OUT:
       newState = initialState
       break
@@ -236,18 +243,8 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         verifiedNewCalendarData: payload,
       }
-      if (
-        payload.calendar &&
-        payload.calendar.data &&
-        payload.calendar.data.src
-      ) {
-        newState['showSettingsAddCalendarUrl'] = payload.calendar.data.src
-      }
-
-      if (payload.clearShowSettingsAddCalendarUrl) {
-        newState['showSettingsAddCalendarUrl'] = null
-      }
       break
+
     default:
       newState = state
       break

@@ -65,7 +65,7 @@ class GuestList extends Component {
           <br />
           {JSON.stringify(guests)}
           <ProgressBar
-            active
+            animated
             now={((numberOfGuestsLoaded + 1) * 100) / (numberOfGuests + 1)}
           />
         </div>

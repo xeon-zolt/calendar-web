@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import moment from 'moment'
 import {
-  Panel,
-  Grid,
+  Card,
+  Container,
   Row,
   Col,
   ProgressBar,
@@ -143,7 +143,6 @@ class EventCalendar extends Component {
           {currentCalendarLength && (
             <ProgressBar
               style={{ height: 8 }}
-              active
               now={currentCalendarIndex + 1}
               max={currentCalendarLength}
             />
@@ -167,16 +166,25 @@ class EventCalendar extends Component {
           endAccessor={this.getEventEnd}
         />
         {showError && (
-          <Alert bsStyle="danger" onDismiss={this.handleDismissError}>
-            {error}
-            <p>
-              <Button onClick={() => showSettingsAddCalendar()}>
-                Go to settings
-              </Button>
-              <span> or </span>
-              <Button onClick={markErrorAsRead}>Hide this message</Button>
-            </p>
-          </Alert>
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '10px',
+              right: '10px',
+              zIndex: '10',
+            }}
+          >
+            <Alert variant="danger" dismissible>
+              {error}
+              <p>
+                <Button onClick={() => showSettingsAddCalendar()}>
+                  Go to settings
+                </Button>
+                <span> or </span>
+                <Button onClick={markErrorAsRead}>Hide this message</Button>
+              </p>
+            </Alert>
+          </div>
         )}
       </div>
     )
@@ -187,8 +195,8 @@ class EventCalendar extends Component {
           showGeneralInstructions &&
           !myPublicCalendar &&
           !publicCalendar && (
-            <Panel>
-              <Panel.Heading>
+            <Card>
+              <Card.Header>
                 Instructions
                 <button
                   type="button"
@@ -198,70 +206,83 @@ class EventCalendar extends Component {
                   <span aria-hidden="true">×</span>
                   <span className="sr-only">Close</span>
                 </button>
-              </Panel.Heading>
-              <Panel.Body>
-                <Grid style={{ width: '100%' }}>
-                  <Row style={{ textAlign: 'left' }}>
-                    <Col md={6}>
-                      <strong>To add an event: </strong> Click or long-press on
-                      the day you want to add an event or drag up to the day you
-                      want to add the event for multiple day event! <br />
-                    </Col>
-                    <Col md={6}>
-                      <strong>To update and delete an event:</strong> Click on
-                      the event you wish to update or delete!
-                    </Col>
-                  </Row>
-                  <Row style={{ textAlign: 'left' }}>
-                    <Col xs={12} sm={2} style={{ textAlign: 'center' }}>
-                      <img
-                        src="/images/gcalendar.png"
-                        width="48px"
-                        height="48px"
-                        alt="Google Calendar"
-                      />
-                    </Col>
-                    <Col xs={12} sm={10}>
-                      <strong>Move from Google Calendar</strong>: Done in a
-                      minute! Follow the{' '}
-                      <a href="https://github.com/friedger/oi-calendar">
-                        2-steps tutorial
-                      </a>
-                      .
-                      <br />
-                      <input
-                        style={{ width: '100%' }}
-                        type="text"
-                        placeholder="Paste url like https://calendar.google..../basic.ics"
-                        onKeyPress={handleAddCalendarByUrl}
-                      />
-                    </Col>
-                  </Row>
-                </Grid>
-              </Panel.Body>
-            </Panel>
+              </Card.Header>
+              <Card.Body>
+                <Container style={{ width: '100%' }}>
+                  <div style={{ padding: '20px' }}>
+                    <Row style={{ textAlign: 'left' }}>
+                      <Col md={6}>
+                        <strong>To add an event: </strong> Click or long-press
+                        on the day you want to add an event or drag up to the
+                        day you want to add the event for multiple day event!{' '}
+                        <br />
+                      </Col>
+                      <Col md={6}>
+                        <strong>To update and delete an event:</strong> Click on
+                        the event you wish to update or delete!
+                      </Col>
+                    </Row>
+                    <Row style={{ padding: '20px' }}>
+                      <Col xs={12} sm={2} style={{ textAlign: 'center' }}>
+                        <img
+                          src="/images/gcalendar.png"
+                          width="48px"
+                          height="48px"
+                          alt="Google Calendar"
+                        />
+                      </Col>
+                      <Col xs={12} sm={10} style={{ textAlign: 'left' }}>
+                        <strong>Move from Google Calendar</strong>: Done in a
+                        minute! Follow the{' '}
+                        <a href="https://github.com/friedger/oi-calendar">
+                          2-step tutorial
+                        </a>
+                        .
+                        <br />
+                        <input
+                          style={{ width: '100%' }}
+                          type="text"
+                          placeholder="Paste url like https://calendar.google..../basic.ics"
+                          onKeyPress={handleAddCalendarByUrl}
+                        />
+                      </Col>
+                    </Row>
+                  </div>
+                </Container>
+              </Card.Body>
+            </Card>
           )}
         {!signedIn && (
-          <Panel>
-            <Panel.Heading>
-              Private, Encrypted Calendar in the Cloud
-            </Panel.Heading>
-            <Panel.Body>
-              <strong>To learn about Blockstack: </strong> A good starting point
-              is{' '}
-              <a href="https://docs.blockstack.org">
-                Blockstack's documentation
-              </a>
-              .<br />
-              <strong>I have already a Blockstack ID:</strong> Just sign in
-              using the blockstack button above!
-            </Panel.Body>
-          </Panel>
+          <Card>
+            <Card.Header>Private, Encrypted Calendar in the Cloud</Card.Header>
+            <Card.Body>
+              <div className="col-md-5">
+                <strong>I have already a Blockstack ID:</strong> Just sign in
+                using the blockstack button above!
+              </div>
+              <div className="col-md-2" style={{ padding: '10px' }}>
+                <img
+                  src="blockstack.png"
+                  alt=""
+                  height="30"
+                  style={{ verticalAlign: 'middle' }}
+                />
+              </div>
+              <div className="col-md-5">
+                <strong>To learn about Blockstack: </strong> A good starting
+                point is{' '}
+                <a href="https://docs.blockstack.org">
+                  Blockstack's documentation
+                </a>
+                .<br />
+              </div>
+            </Card.Body>
+          </Card>
         )}
         {eventModal && !inviteSuccess && <EventDetails />}
         {(myPublicCalendar || publicCalendar) && (
-          <Panel>
-            <Panel.Heading>
+          <Card>
+            <Card.Header>
               Public Calendar {myPublicCalendar}
               {publicCalendar}
               <button
@@ -272,9 +293,9 @@ class EventCalendar extends Component {
                 <span aria-hidden="true">×</span>
                 <span className="sr-only">Close</span>
               </button>
-            </Panel.Heading>
+            </Card.Header>
             {myPublicCalendar && events.length > 0 && (
-              <Panel.Body>
+              <Card.Body>
                 Share this url: <a href={shareUrl}>{shareUrl}</a>
                 {myPublicCalendarIcsUrl && (
                   <span>
@@ -282,20 +303,20 @@ class EventCalendar extends Component {
                     or <a href={myPublicCalendarIcsUrl}> as .ics file</a>
                   </span>
                 )}
-              </Panel.Body>
+              </Card.Body>
             )}
             {myPublicCalendar && events.length === 0 && (
-              <Panel.Body>
+              <Card.Body>
                 No public events yet. Start publishing your events!
-              </Panel.Body>
+              </Card.Body>
             )}
             {publicCalendar && events.length > 0 && signedIn && (
-              <Panel.Body>
+              <Card.Body>
                 <a href={shareUrl}>Add to my calandars</a>
-              </Panel.Body>
+              </Card.Body>
             )}
-            <Panel.Body>{calendarView}</Panel.Body>
-          </Panel>
+            <Card.Body>{calendarView}</Card.Body>
+          </Card>
         )}
         {!myPublicCalendar && !publicCalendar && calendarView}
       </div>

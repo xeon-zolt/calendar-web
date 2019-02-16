@@ -1,11 +1,6 @@
 import React, { Component } from 'react'
-import {
-  Button,
-  Glyphicon,
-  Panel,
-  OverlayTrigger,
-  Tooltip,
-} from 'react-bootstrap'
+import { Button, Card, OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 class AddDeleteSetting extends Component {
   constructor(props) {
@@ -83,8 +78,8 @@ class AddDeleteSetting extends Component {
       return (
         <OverlayTrigger placement="left" overlay={tooltip}>
           <div style={{ display: 'inline-block', margin: '16px' }}>
-            <Glyphicon
-              glyph="minus-sign"
+            <FontAwesomeIcon
+              icon="minus"
               onClick={onUnfollowItem}
               data-idx={i}
             />
@@ -97,7 +92,7 @@ class AddDeleteSetting extends Component {
       return (
         <OverlayTrigger placement="left" overlay={tooltip}>
           <div style={{ display: 'inline-block', margin: '16px' }}>
-            <Glyphicon glyph="plus-sign" onClick={onFollowItem} data-idx={i} />
+            <FontAwesomeIcon icon="plus" onClick={onFollowItem} data-idx={i} />
           </div>
         </OverlayTrigger>
       )
@@ -115,7 +110,7 @@ class AddDeleteSetting extends Component {
     const showDelete = d.name !== 'default' || d.type !== 'private'
     return (
       <div key={i} className="d-inline-block">
-        <div style={{ display: 'inline-block', width: '80%' }}>
+        <div style={{ display: 'inline-block' }}>
           {ItemRenderer && (
             <ItemRenderer
               item={d}
@@ -128,7 +123,11 @@ class AddDeleteSetting extends Component {
         {showFollow && this.renderUnFollowButton(follows, i, d.username)}
         {showDelete && (
           <div style={{ display: 'inline-block', margin: '16px' }}>
-            <Glyphicon glyph="trash" onClick={onDeleteItem} data-idx={i} />
+            <FontAwesomeIcon
+              icon="trash-alt"
+              onClick={onDeleteItem}
+              data-idx={i}
+            />
           </div>
         )}
       </div>
@@ -147,9 +146,9 @@ class AddDeleteSetting extends Component {
     } = this.state
     return (
       <div className="settings">
-        <Panel style={{ width: '80%' }}>
-          <Panel.Heading>{addTitle}</Panel.Heading>
-          <Panel.Body>
+        <Card style={{}}>
+          <Card.Header>{addTitle}</Card.Header>
+          <Card.Body>
             {renderAdd()}
             <Button
               onClick={onAddItem}
@@ -159,19 +158,19 @@ class AddDeleteSetting extends Component {
               Add
             </Button>
             <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
 
-        <Panel style={{ width: '80%' }}>
-          <Panel.Heading>{listTitle}</Panel.Heading>
-          <Panel.Body>
+        <Card style={{}}>
+          <Card.Header>{listTitle}</Card.Header>
+          <Card.Body>
             <div>
               {(itemList || []).map((v, k) =>
                 renderItem(v, k, user, calendars)
               )}
             </div>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       </div>
     )
   }

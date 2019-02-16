@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Modal, Button, Radio, Grid, Row, Col } from 'react-bootstrap'
+import { Modal, Button, FormCheck, Row, Col, Container } from 'react-bootstrap'
 import moment from 'moment'
 
 import SendInvitesModal from './SendInvitesModal'
@@ -291,7 +291,7 @@ class EventDetails extends Component {
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Grid fluid>
+          <Container fluid>
             <Row>
               <Col xs={12}>
                 <label> Event Name </label>
@@ -338,21 +338,23 @@ class EventDetails extends Component {
                 )}
               </Col>
               <Col xs={12} sm={4}>
-                <Radio
+                <FormCheck
+                  type="radio"
                   name="endDateOrDuration"
                   checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
                   onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
                 >
                   Use End Date
-                </Radio>
-                <Radio
+                </FormCheck>
+                <FormCheck
+                  type="radio"
                   name="endDateOrDuration"
                   checked={endDateOrDuration === 'duration' ? 'checked' : ''}
                   onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
                   disabled={eventDetail.allDay}
                 >
                   Use Duration
-                </Radio>
+                </FormCheck>
               </Col>
             </Row>
             <Row>
@@ -408,8 +410,8 @@ class EventDetails extends Component {
                 <div style={{ marginTop: '10px', marginBottom: '10px' }}>
                   {!eventDetail.url ? (
                     <Button
-                      bsStyle="primary"
-                      bsSize="small"
+                      variant="primary"
+                      size="sm"
                       onClick={() => addConferencing()}
                       disabled={addingConferencing}
                     >
@@ -420,8 +422,8 @@ class EventDetails extends Component {
                   ) : (
                     <div>
                       <Button
-                        bsStyle="danger"
-                        bsSize="small"
+                        variant="danger"
+                        size="sm"
                         onClick={() => removeConferencing()}
                         disabled={removingConferencing}
                       >
@@ -430,7 +432,7 @@ class EventDetails extends Component {
                           : 'Remove conferencing'}
                       </Button>
                       <Button
-                        bsStyle="linkUrl"
+                        variant="linkUrl"
                         href={eventDetail.url}
                         target="_blank"
                       >
@@ -449,6 +451,7 @@ class EventDetails extends Component {
                   value={eventDetail.allDay}
                   checked={eventDetail.allDay}
                   onChange={e => handleDataChange(e, 'allDay')}
+                  style={{ marginRight: '5px', marginLeft: '5px' }}
                 />
                 <label> All Day </label>
                 <input
@@ -457,34 +460,35 @@ class EventDetails extends Component {
                   value={eventDetail.public}
                   checked={eventDetail.public}
                   onChange={e => handleDataChange(e, 'public')}
+                  style={{ marginRight: '5px', marginLeft: '5px' }}
                 />
                 <label> Public </label>
               </Col>
             </Row>
-          </Grid>
+          </Container>
         </Modal.Body>
         <Modal.Footer>
           {eventType === 'add' && (
-            <Button bsStyle="success" onClick={addEvent}>
+            <Button variant="success" onClick={addEvent}>
               Add
             </Button>
           )}
           {eventType === 'edit' && (
             <React.Fragment>
               <Button
-                bsStyle="warning"
+                variant="warning"
                 disabled={!hasGuests}
                 onClick={() => popInvitesModal(eventDetail)}
               >
                 Send Invites
               </Button>
               <Button
-                bsStyle="warning"
+                variant="warning"
                 onClick={() => updateEvent(eventDetail)}
               >
                 Update
               </Button>
-              <Button bsStyle="danger" onClick={() => deleteEvent(eventDetail)}>
+              <Button variant="danger" onClick={() => deleteEvent(eventDetail)}>
                 Delete
               </Button>
             </React.Fragment>

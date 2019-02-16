@@ -3,14 +3,16 @@ import AddDeleteSetting from './AddDeleteSetting'
 import { uuid, guaranteeHexColor } from '../../flow/io/eventFN'
 import {
   Button,
-  Panel,
+  Card,
   Row,
   Col,
   DropdownButton,
-  MenuItem,
+  Dropdown,
   Alert,
   // Alert,
 } from 'react-bootstrap'
+
+const DropdownItem = Dropdown.Item
 
 class CalendarItem extends Component {
   constructor(props) {
@@ -162,7 +164,23 @@ export default class Calendars extends AddDeleteSetting {
   }
 
   handleSelect = (eventKey, event) => {
-    this.setState({ valueOfAdd: this.state.menuItems[eventKey] })
+    const { verifyNewCalendar } = this.props
+    const { addValueToItem } = this.state
+
+    this.setState({
+      hexColor: guaranteeHexColor(null),
+    })
+
+    addValueToItem(this.state.menuItems[eventKey], ({ item, error }) => {
+      if (error) {
+        this.setState({
+          valueOfAdd: this.state.menuItems[eventKey],
+          errorOfAdd: (error || '').toString(),
+        })
+      } else {
+        verifyNewCalendar(item)
+      }
+    })
   }
 
   renderOrSeparator = () => (
@@ -203,6 +221,47 @@ export default class Calendars extends AddDeleteSetting {
     this.setState({ hexColor })
   }
 
+  handleFileInputChange = event => {
+    const { verifyNewCalendar } = this.props
+
+    console.log('selected files', event.target.files[0])
+    if (event.target.files[0]) {
+      let file = event.target.files[0]
+
+      let fileReader = new FileReader()
+      fileReader.onloadend = e => {
+        console.log('read file complete')
+
+        let calendar = {
+          uid: uuid(),
+          type: 'ics-raw',
+          name: this.state.calendarName,
+          hexColor: this.state.hexColor,
+          mode: '',
+          data: {
+            events: fileReader.result,
+          },
+        }
+
+        verifyNewCalendar(calendar)
+      }
+
+      fileReader.readAsText(file)
+    }
+  }
+
+  handleAddCalendarClick = event => {
+    const { verifiedNewCalendarData, addItem } = this.props
+
+    if (verifiedNewCalendarData.status === 'ok') {
+      let calendar = Object.assign({}, verifiedNewCalendarData.calendar)
+      calendar.name = this.state.calendarName
+      calendar.hexColor = this.state.hexColor
+
+      addItem(calendar)
+    }
+  }
+
   render() {
     const {
       items: itemList,
@@ -210,7 +269,7 @@ export default class Calendars extends AddDeleteSetting {
       calendars,
       verifiedNewCalendarData,
     } = this.props
-    const { renderItem, onAddItem } = this.bound
+    const { renderItem } = this.bound
     const {
       valueOfAdd,
       addTitle,
@@ -219,11 +278,16 @@ export default class Calendars extends AddDeleteSetting {
       errorOfAdd,
     } = this.state
 
+    const canAddCalendar =
+      verifiedNewCalendarData.status === 'ok' &&
+      this.state.calendarName != null &&
+      this.state.calendarName.trim() !== ''
+
     return (
       <div className="settings">
-        <Panel style={{ width: '80%' }}>
-          <Panel.Heading>{addTitle}</Panel.Heading>
-          <Panel.Body>
+        <Card style={{}}>
+          <Card.Header>{addTitle}</Card.Header>
+          <Card.Body>
             <Row>
               <Col md={6} sm={12}>
                 <Row style={{ padding: '5px' }}>
@@ -235,10 +299,27 @@ export default class Calendars extends AddDeleteSetting {
                     Verify
                   </Button>
                 </Row>
+                {verifiedNewCalendarData.status === 'error' && (
+                  <Row style={{ padding: '5px' }}>
+                    <Col sm={12} style={{ textAlign: 'center' }}>
+                      <Alert style={{ marginBottom: '0px' }} bsStyle="danger">
+                        Failed to verify calendar
+                      </Alert>
+                    </Col>
+                  </Row>
+                )}
                 {this.renderOrSeparator()}
                 <Row style={{ padding: '5px' }}>
                   <Col sm={12} style={{ textAlign: 'center' }}>
-                    <Button disabled>Upload file...</Button>
+                    <label>
+                      Upload .ics calendar file:
+                      <br />
+                      <input
+                        id="fileInputIcs"
+                        type="file"
+                        onChange={this.handleFileInputChange}
+                      />
+                    </label>
                   </Col>
                 </Row>
                 {this.renderOrSeparator()}
@@ -250,9 +331,9 @@ export default class Calendars extends AddDeleteSetting {
                       onSelect={this.handleSelect}
                     >
                       {this.state.menuItems.map((opt, i) => (
-                        <MenuItem key={i} eventKey={i}>
+                        <DropdownItem key={i} eventKey={i}>
                           {opt}
-                        </MenuItem>
+                        </DropdownItem>
                       ))}
                     </DropdownButton>
                   </Col>
@@ -303,10 +384,8 @@ export default class Calendars extends AddDeleteSetting {
                 <Row style={{ padding: '5px' }}>
                   <Col sm={12} style={{ textAlign: 'center' }}>
                     <Button
-                      onClick={onAddItem}
-                      disabled={
-                        !valueOfAdd || verifiedNewCalendarData.status !== 'ok'
-                      }
+                      onClick={this.handleAddCalendarClick}
+                      disabled={!canAddCalendar}
                       style={{ margin: 8 }}
                     >
                       Add Calendar
@@ -316,19 +395,19 @@ export default class Calendars extends AddDeleteSetting {
               </Col>
             </Row>
             <span style={{ paddingLeft: 16 }}>{errorOfAdd}</span>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
 
-        <Panel style={{ width: '80%' }}>
-          <Panel.Heading>{listTitle}</Panel.Heading>
-          <Panel.Body>
+        <Card style={{}}>
+          <Card.Header>{listTitle}</Card.Header>
+          <Card.Body>
             <div>
               {(itemList || []).map((v, k) =>
                 renderItem(v, k, user, calendars)
               )}
             </div>
-          </Panel.Body>
-        </Panel>
+          </Card.Body>
+        </Card>
       </div>
     )
   }
