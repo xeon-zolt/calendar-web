@@ -6,15 +6,8 @@ const storage = window.localStorage
 let remindersArray
 
 // Add reminder to localStorage
-export const addReminder = (event, userSessionChat) => {
+export const addReminder = (event, guests, userSessionChat) => {
   let reminders = getReminders()
-
-  const guests = [
-    {
-      name: 'fmdroid.id',
-      identityAddress: '1Jx33eh9Ew9XJCZcCB3pcETHzUiVQhHz3x',
-    },
-  ]
 
   const uid = event.uid
   let eventData = {

@@ -43,6 +43,8 @@ class Reminder {
     const msg = `${this.title} takes place ${moment
       .utc()
       .to(moment.utc(this.start))}`
+
+    // web notification
     if (Notification.permission !== 'granted') {
       Notification.requestPermission()
     } else {
@@ -55,52 +57,88 @@ class Reminder {
         window.location.href = `/?intent=view&uid=${this.uid}`
       }
     }
+
+    // matrix notifcation
     if (this.userSessionChat) {
       const springRolePromises = this.guests.map(g => {
         return fetch(
           `https://beta.springrole.com/blockstack/${g.identityAddress}`
-        ).then(response => {
-          if (response.ok) {
-            return g
-          } else {
+        ).then(
+          response => {
+            if (response.ok) {
+              return g
+            } else {
+              return undefined
+            }
+          },
+          () => {
             return undefined
           }
-        })
+        )
       })
-      Promise.all(springRolePromises).then(springRoleGuests => {
-        let message
-
-        springRoleGuests = springRoleGuests.filter(g => !!g)
-        if (springRoleGuests.length > 0) {
-          const links = springRoleGuests.map(
-            g =>
-              `<a href="https://beta.springrole.com/blockstack/${
-                g.identityAddress
-              }">${g.name}</a>`
-          )
-          const names = this.guests.map(g => g.name)
-          message = {
-            msgtype: 'm.text',
-            body: `${msg}. Read more about your guests here: ${names.join(
-              ', '
-            )}`,
-            format: 'org.matrix.custom.html',
-            formatted_body: `${msg}. Read more about your guests here: ${links.join(
-              ', '
-            )}`,
+      console.log('springrole promises', springRolePromises)
+      Promise.all(springRolePromises)
+        .then(
+          springRoleGuests => {
+            let message
+            springRoleGuests = springRoleGuests.filter(g => !!g)
+            if (springRoleGuests.length > 0) {
+              const links = springRoleGuests.map(
+                g =>
+                  `<a href="https://beta.springrole.com/blockstack/${
+                    g.identityAddress
+                  }">${nameOf(g)}</a>`
+              )
+              const names = this.guests.map(g => nameOf(g))
+              message = {
+                msgtype: 'm.text',
+                body: `${msg}. Read more about your guests here: ${names.join(
+                  ', '
+                )}`,
+                format: 'org.matrix.custom.html',
+                formatted_body: `${msg}. Read more about your guests here: ${links.join(
+                  ', '
+                )}`,
+              }
+            } else {
+              message = simpleMatrixMessage(msg, this.uid)
+            }
+            return message
+          },
+          error => {
+            console.log('failed to handle reminder', error)
+            return simpleMatrixMessage(msg, this.uid)
           }
-        } else {
-          message = {
-            msgtype: 'm.text',
-            body: `${msg}`,
-            format: 'org.matrix.custom.html',
-            formatted_body: `${msg}`,
+        )
+        .then(
+          message => {
+            console.log('send message to self', message)
+            this.userSessionChat.sendMessageToSelf(message)
+          },
+          error => {
+            console.log('err reminder', error)
           }
-          this.userSessionChat.sendMessageToSelf(message)
-        }
-      })
+        )
     }
   }
 }
 
 export default Reminder
+
+function nameOf(guest) {
+  if (guest.name) {
+    return guest.name
+  } else {
+    return guest.username
+  }
+}
+function simpleMatrixMessage(msg, uid) {
+  return {
+    msgtype: 'm.text',
+    body: `${msg}`,
+    format: 'org.matrix.custom.html',
+    formatted_body: `<a href="${
+      window.location.origin
+    }/?intent=view&uid=${uid}">${msg}</a>`,
+  }
+}

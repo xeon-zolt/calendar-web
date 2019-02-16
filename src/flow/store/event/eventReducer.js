@@ -63,6 +63,7 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         currentEvent: payload.currentEvent,
         currentEventType: payload.currentEventType,
+        currentEventUid: payload.currentEventUid,
       }
       break
 
@@ -71,6 +72,7 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         currentEvent: undefined,
         currentEventType: undefined,
+        currentEventUid: undefined,
         inviteSuccess: undefined,
         inviteError: undefined,
       }
