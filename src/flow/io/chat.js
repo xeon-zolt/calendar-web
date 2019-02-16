@@ -7,9 +7,11 @@ import {
   loadUserData,
 } from 'blockstack'
 import { createClient } from 'matrix-js-sdk'
+import { savePreferences } from './event'
 
 export class UserSessionChat {
-  constructor() {
+  constructor(selfRoomId) {
+    this.selfRoomId = selfRoomId
     this.matrixClient = createClient('https://openintents.modular.im')
   }
 
@@ -63,15 +65,47 @@ export class UserSessionChat {
     }
   }
 
-  createNewRoom(name, topic) {
+  createNewRoom(name, topic, guests, ownerIdentityAddress) {
+    console.log('createNewRoom', { name, topic, guests, ownerIdentityAddress })
     const matrix = this.matrixClient
     return this.login().then(() => {
-      return matrix.createRoom({ visibility: 'private', name, topic })
+      let invitePromises
+      if (guests) {
+        invitePromises = guests.map(g => {
+          return lookupProfile(g).then(
+            guestProfile => {
+              return this.addressToAccount(guestProfile.identityAddress)
+            },
+            error => {
+              console.log('failed to lookup guest', g, error)
+            }
+          )
+        })
+      } else {
+        invitePromises = []
+      }
+      return Promise.all(invitePromises).then(
+        invite => {
+          if (ownerIdentityAddress) {
+            invite.push(this.addressToAccount(ownerIdentityAddress))
+          }
+          console.log('creating room', { invite })
+          return matrix.createRoom({
+            visibility: 'private',
+            name,
+            topic,
+            invite,
+          })
+        },
+        error => {
+          console.log('failed to resolve guests ', error)
+        }
+      )
     })
   }
 
   sendMessage(receiverName, roomId, content) {
-    return this.lookupProfile(receiverName).then(receiverProfile => {
+    return lookupProfile(receiverName).then(receiverProfile => {
       console.log('receiver', receiverProfile)
       const receiverMatrixAccount = this.addressToAccount(
         receiverProfile.identityAddress
@@ -120,6 +154,40 @@ export class UserSessionChat {
     })
   }
 
+  sendMessageToSelf(content) {
+    const matrixClient = this.matrixClient
+    return this.login().then(() => {
+      console.log('logged in')
+      return this.getSelfRoom().then(
+        ({ selfRoomId, newlyCreated }) => {
+          console.log('self room id', selfRoomId)
+          if (newlyCreated) {
+            console.log('saving selfRoomId', selfRoomId)
+            savePreferences({ selfRoomId }).finally(() => {
+              console.log('tried to save')
+            })
+          }
+          return matrixClient.joinRoom(selfRoomId, {}).then(
+            data => {
+              console.log('data join', data)
+              return matrixClient
+                .sendEvent(selfRoomId, 'm.room.message', content, '')
+                .then(
+                  res => {
+                    console.log('msg sent', res)
+                    return Promise.resolve(res)
+                  },
+                  error => console.log('failed to send', error)
+                )
+            },
+            error => console.log('failed to join', error)
+          )
+        },
+        error => console.log('failed to get self room', error)
+      )
+    })
+  }
+
   /**
    * Private Methods
    **/
@@ -150,24 +218,44 @@ export class UserSessionChat {
     }
   }
 
+  getSelfRoom() {
+    if (this.selfRoomId) {
+      return Promise.resolve({ selfRoomId: this.selfRoomId })
+    } else {
+      const userData = loadUserData()
+      return this.createNewRoom(
+        'OI Chat Reminders',
+        'Receive information about events',
+        null,
+        userData.identityAddress
+      ).then(room => {
+        console.log('Self room', room)
+        return { selfRoomId: room.room_id, newlyCreated: true }
+      })
+    }
+  }
+
   addressToAccount(address) {
     // TODO lookup home server for user
     return '@' + address.toLowerCase() + ':openintents.modular.im'
   }
+}
 
-  lookupProfile(username) {
-    if (!username) {
-      return Promise.reject(new Error('Invalid username'))
-    }
-    console.log('username', username)
-    let lookupPromise = config.network.getNameInfo(username)
-    return lookupPromise.then(responseJSON => {
+export function lookupProfile(username) {
+  if (!username) {
+    return Promise.reject(new Error('Invalid username'))
+  }
+  console.log('username', username)
+  let lookupPromise = config.network.getNameInfo(username)
+  return lookupPromise.then(
+    responseJSON => {
       if (
         responseJSON.hasOwnProperty('zonefile') &&
         responseJSON.hasOwnProperty('address')
       ) {
         let profile = {}
         profile.identityAddress = responseJSON.address
+        profile.username = username
         return resolveZoneFileToProfile(
           responseJSON.zonefile,
           responseJSON.address
@@ -181,15 +269,22 @@ export class UserSessionChat {
           return profile
         })
       } else {
-        throw new Error(
-          'Invalid zonefile lookup response: did not contain `address`' +
-            ' or `zonefile` field'
+        Promise.reject(
+          new Error(
+            'Invalid zonefile lookup response: did not contain `address`' +
+              ' or `zonefile` field'
+          )
         )
       }
-    })
-  }
+    },
+    error => {
+      return Promise.reject(
+        new Error('Failed to read profile for ' + username + ' ' + error)
+      )
+    }
+  )
 }
 
-export function createSessionChat() {
-  return new UserSessionChat()
+export function createSessionChat(selfRoomId) {
+  return new UserSessionChat(selfRoomId)
 }

@@ -75,7 +75,8 @@ export default connect(
         dispatch(addEvent(obj))
       },
       updateEvent: obj => dispatch(updateEvent(obj)),
-      createConferencingRoom: () => dispatch(createConferencingRoom()),
+      createConferencingRoom: (eventDetail, guests) =>
+        dispatch(createConferencingRoom(eventDetail, guests)),
       removeConferencingRoom: obj => dispatch(removeConferencingRoom(obj)),
     }
   }

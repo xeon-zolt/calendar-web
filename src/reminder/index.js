@@ -6,7 +6,7 @@ const storage = window.localStorage
 let remindersArray
 
 // Add reminder to localStorage
-export const addReminder = event => {
+export const addReminder = (event, guests, userSessionChat) => {
   let reminders = getReminders()
 
   const uid = event.uid
@@ -36,8 +36,19 @@ export const addReminder = event => {
     // Update event metadata
     r.title = event.title
     r.start = event.start
+    r.guests = guests
+    r.userSessionChat = userSessionChat
   } else {
-    remindersArray.push(new Reminder(timeout, event.title, uid, event.start))
+    remindersArray.push(
+      new Reminder(
+        timeout,
+        event.title,
+        uid,
+        event.start,
+        guests,
+        userSessionChat
+      )
+    )
   }
 
   reminders[uid] = eventData

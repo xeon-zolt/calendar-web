@@ -377,7 +377,8 @@ export function handleIntentsInQueryString(
   whenPrivateEvent,
   whenNewEvent,
   whenICSUrl,
-  whenPublicCalendar
+  whenViewPublicCalendar,
+  whenViewEvent
 ) {
   if (query) {
     const {
@@ -391,6 +392,7 @@ export function handleIntentsInQueryString(
       via,
       url,
       name,
+      uid,
     } = parseQueryString(query)
     if (u && e && p) {
       return loadCalendarEventFromUser(u, e, p).then(whenPrivateEvent)
@@ -401,7 +403,11 @@ export function handleIntentsInQueryString(
       } else if (intentAction === 'addics') {
         whenICSUrl(url)
       } else if (intentAction === 'view') {
-        whenPublicCalendar(name)
+        if (name) {
+          whenViewPublicCalendar(name)
+        } else {
+          whenViewEvent(uid)
+        }
       } else {
         console.log('unsupported intent ' + intentAction)
       }
@@ -533,6 +539,9 @@ export function fetchIcsUrl(calendarName) {
   return getUserAppFileUrl(path, username, window.location.origin)
 }
 
-export function savePreferences(preferences) {
-  putOnBlockstack('Preferences', preferences)
+export function savePreferences(prefAttributes) {
+  fetchPreferences().then(preferences => {
+    preferences = Object.assign(preferences, prefAttributes)
+    putOnBlockstack('Preferences', preferences)
+  })
 }

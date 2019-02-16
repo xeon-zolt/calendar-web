@@ -11,7 +11,9 @@ import '../../css/EventDetails.css'
 
 const Datetime = require('react-datetime')
 
-const guestsStringToArray = function(guestsString) {
+// TODO this should not be exported as it is only for UI
+// the eventDetail needs to hold the guests as array
+export function guestsStringToArray(guestsString) {
   if (!guestsString || !guestsString.length) {
     return []
   }
@@ -199,9 +201,10 @@ class EventDetails extends Component {
   }
 
   addConferencing() {
-    const { createConferencingRoom } = this.props
+    const { createConferencingRoom, eventDetail } = this.props
+    const { guests } = this.state
     console.log('add conferencing')
-    createConferencingRoom()
+    createConferencingRoom(eventDetail, guestsStringToArray(guests))
   }
 
   removeConferencing() {
@@ -285,7 +288,7 @@ class EventDetails extends Component {
     }
 
     return (
-      <Modal show onHide={handleClose}>
+      <Modal show onHide={handleClose} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>

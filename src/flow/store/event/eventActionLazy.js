@@ -24,7 +24,7 @@ import {
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
-import { createSessionChat } from '../../io/chat'
+import { createSessionChat, lookupProfile } from '../../io/chat'
 import { uuid } from '../../io/eventFN'
 
 import {
@@ -44,8 +44,8 @@ import {
   initializeCalendars,
   showSettingsAddCalendar,
 } from './calendarActionLazy'
-
-import { setCurrentEvent } from './eventAction'
+import { guestsStringToArray } from '../../../components/event-details/EventDetails'
+import { setCurrentEvent, setCurrentEventUid } from './eventAction'
 
 // Reminders
 import { addReminder } from '../../../reminder'
@@ -60,8 +60,20 @@ function initializeChatAction(chat) {
 
 export function initializeChat() {
   return async (dispatch, getState) => {
-    let chat = createSessionChat()
-    dispatch(initializeChatAction(chat))
+    fetchPreferences()
+      .then(
+        prefs => {
+          return prefs.selfRoomId
+        },
+        error => {
+          console.log('No chat room found for notifications', error)
+          return undefined
+        }
+      )
+      .then(selfRoomId => {
+        let chat = createSessionChat(selfRoomId)
+        dispatch(initializeChatAction(chat))
+      })
   }
 }
 
@@ -105,7 +117,8 @@ function initializeQueryString(query, username) {
       },
       eventInfo => dispatch(setCurrentEvent(eventInfo, 'add')),
       url => dispatch(showSettingsAddCalendar(url)),
-      name => dispatch(viewPublicCalendar(name))
+      name => dispatch(viewPublicCalendar(name)),
+      uid => dispatch(setCurrentEventUid(uid, 'edit'))
     )
   }
 }
@@ -120,6 +133,11 @@ export function initializeEvents() {
         return allEventsPromise
       })
       .then(allEvents => {
+        const currentEventUid = getState().events.currentEventUid
+        if (currentEventUid) {
+          const currentEvent = allEvents[currentEventUid]
+          dispatch(setCurrentEvent(currentEvent, 'edit'))
+        }
         dispatch(setLoadingCalendars(0, 0))
         dispatch(setEventsAction(allEvents))
       })
@@ -216,11 +234,8 @@ export function initializePreferences() {
 
 export function hideInstructions() {
   return async (dispatch, getState) => {
-    fetchPreferences().then(prefs => {
-      prefs.showInstructions = { general: false }
-      savePreferences(prefs)
-      dispatch(showInstructionsAction(false))
-    })
+    savePreferences({ showInstructions: { general: false } })
+    dispatch(showInstructionsAction(false))
   }
 }
 
@@ -311,7 +326,7 @@ export function deleteEvent(event) {
 export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState()
-    let { allEvents, calendars } = state.events
+    let { allEvents, calendars, userSessionChat } = state.events
     console.log('calendars', calendars)
     const privateCalendar = calendars.find(
       c => c.type === 'private' && c.name === 'default'
@@ -331,7 +346,9 @@ export function addEvent(event) {
     }
 
     // Add reminder to notify user
-    addReminder(event)
+    guestsOf(event, getState().events.contacts).then(guests => {
+      addReminder(event, guests, userSessionChat)
+    })
 
     window.history.pushState({}, 'OI Calendar', '/')
     delete state.currentEvent
@@ -340,9 +357,31 @@ export function addEvent(event) {
   }
 }
 
+/**
+ * @returns Result is a promise list like this:
+ * [
+    {
+      username: 'fmdroid.id',
+      identityAddress: '1Jx33eh9Ew9XJCZcCB3pcETHzUiVQhHz3x',
+    },
+  ]
+ */
+function guestsOf(event, contacts) {
+  const guestList = guestsStringToArray(event.guests)
+  const guestListPromises = guestList.map(g => {
+    const contact = contacts[g]
+    if (contact && contact.identityAddress) {
+      return Promise.resolve(contact)
+    } else {
+      return lookupProfile(g)
+    }
+  })
+  return Promise.all(guestListPromises)
+}
+
 export function updateEvent(event) {
   return async (dispatch, getState) => {
-    let { allEvents } = getState().events
+    let { allEvents, userSessionChat } = getState().events
     let eventInfo = event
     eventInfo.uid = eventInfo.uid || uuid()
     allEvents[eventInfo.uid] = eventInfo
@@ -354,7 +393,10 @@ export function updateEvent(event) {
     saveEvents('default', allEvents)
 
     // Add reminder to notify user
-    addReminder(event)
+    guestsOf(event, getState().events.contacts).then(guests => {
+      console.log('guests', guests)
+      addReminder(event, guests, userSessionChat)
+    })
 
     dispatch(setEventsAction(allEvents))
   }
@@ -394,17 +436,25 @@ export function createConferencingRoomAction(status, url) {
   return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
 }
 
-export function createConferencingRoom() {
+export function createConferencingRoom(eventDetail, guests) {
   return async (dispatch, getState) => {
     dispatch(createConferencingRoomAction('adding', null))
-    setTimeout(() => {
-      dispatch(
-        createConferencingRoomAction(
-          'added',
-          'https://chat.openintents.org/#/room/#oi-calendar:openintents.modular.im'
-        )
+    const { userSessionChat, user } = getState().events
+    userSessionChat
+      .createNewRoom(
+        eventDetail.name,
+        'All about this event',
+        guests,
+        user.identityAddress
       )
-    }, 1000)
+      .then(room => {
+        dispatch(
+          createConferencingRoomAction(
+            'added',
+            'https://chat.openintents.org/#/room/' + room.room_id
+          )
+        )
+      })
   }
 }
 
