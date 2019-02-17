@@ -23,9 +23,14 @@ import Files from '../components/export/Export'
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faMinus, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+import {
+  faMinus,
+  faPlus,
+  faTrashAlt,
+  faUserCircle,
+} from '@fortawesome/free-solid-svg-icons'
 
-library.add([faMinus, faPlus, faTrashAlt])
+library.add([faMinus, faPlus, faTrashAlt, faUserCircle])
 
 const store = createInitialStore()
 

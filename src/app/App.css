@@ -3,8 +3,9 @@
 }
 
 .App-logo {
-	animation: App-logo-spin infinite 20s linear;
-	height: 80px;
+	margin-right: 10px;
+	height: 40px;
+	width: 40px;
 }
 
 .App-header {
@@ -34,6 +35,10 @@ h1,
 
 .modal {
 	display: block;
+}
+
+.cursor-pointer {
+	cursor: pointer;
 }
 
 .rbc-toolbar span:first-child button:first-child {
@@ -138,15 +143,6 @@ h1,
 
 .nav-pills .nav-link:hover:not(.active) {
 	background-color: #e0e0e0;
-}
-
-@keyframes App-logo-spin {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
 }
 
 @media screen and (min-width: 1080px) {

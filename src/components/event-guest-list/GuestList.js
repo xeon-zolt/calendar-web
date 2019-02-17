@@ -55,6 +55,7 @@ class GuestList extends Component {
     const numberOfGuests = this.props.guestsCount || 1
     const numberOfGuestsLoaded = this.props.guestsLoaded || 0
     let guestView
+
     if (guests && Object.keys(guests).length > 0) {
       guestView = renderGuestList(guests)
     } else if (numberOfGuests > 0) {

@@ -1,6 +1,4 @@
 import React, { Component } from 'react'
-import AddDeleteSetting from './AddDeleteSetting'
-import { uuid, guaranteeHexColor } from '../../flow/io/eventFN'
 import {
   Button,
   Card,
@@ -9,8 +7,11 @@ import {
   DropdownButton,
   Dropdown,
   Alert,
-  // Alert,
 } from 'react-bootstrap'
+
+import AddDeleteSetting from './AddDeleteSetting'
+
+import { uuid, guaranteeHexColor } from '../../flow/io/eventFN'
 
 const DropdownItem = Dropdown.Item
 
@@ -19,11 +20,13 @@ class CalendarItem extends Component {
     super(props)
     const { type, name, disabled, hexColor } = props.item || {}
     const isPrivateDefault = type === 'private' && name === 'default'
+
     this.state = {
       disabled: disabled || false,
       hexColor: hexColor || '#000000',
       isPrivateDefault,
     }
+
     this.bound = {
       onColorChange: this.onColorChange.bind(this),
       onVisibilityChange: this.onVisibilityChange.bind(this),
@@ -126,6 +129,7 @@ export default class Calendars extends AddDeleteSetting {
           }
         }
       }
+
       if (newItem) {
         const { type, data } = newItem
         newItem = {
@@ -226,13 +230,13 @@ export default class Calendars extends AddDeleteSetting {
 
     console.log('selected files', event.target.files[0])
     if (event.target.files[0]) {
-      let file = event.target.files[0]
+      const file = event.target.files[0]
 
-      let fileReader = new FileReader()
+      const fileReader = new FileReader()
       fileReader.onloadend = e => {
         console.log('read file complete')
 
-        let calendar = {
+        const calendar = {
           uid: uuid(),
           type: 'ics-raw',
           name: this.state.calendarName,

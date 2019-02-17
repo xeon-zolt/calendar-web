@@ -9,9 +9,9 @@ const AppHeader = props => {
     <Navbar bg="light" variant="light">
       <Navbar.Brand>
         <img
+          className="App-logo"
           src="/android-chrome-192x192.png"
-          alt="logo"
-          style={{ marginRight: '10px', height: '40px', width: '40px' }}
+          alt="OI Calendar Logo"
         />
         OI Calendar
       </Navbar.Brand>
