@@ -42,6 +42,9 @@ export const SHOW_ALL_CALENDARS = 'settings.SHOW_ALL_CALENDARS'
 export const SHOW_SETTINGS_ADD_CALENDAR = 'settings.SHOW_SETTINGS_ADD_CALENDAR'
 export const SHOW_INSTRUCTIONS = 'settings.SHOW_INSTRUCTIONS'
 export const SHOW_FILES = 'settings.SHOW_FILES'
+export const SET_RICH_NOTIF_ENABLED = 'settings.SET_RICH_NOTIF_ENABLED'
+export const SET_RICH_NOTIF_EXCLUDE_GUESTS =
+  'settings.SET_RICH_NOTIF_EXCLUDE_GUESTS'
 
 // FILES
 export const SET_FILES = 'files.SET_FILES'

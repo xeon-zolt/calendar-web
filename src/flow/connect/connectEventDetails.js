@@ -36,6 +36,8 @@ export default connect(
     const inviteSuccess = state.events.inviteSuccess
     const addingConferencing = state.events.addingConferencing
     const removingConferencing = state.events.removingConferencing
+    const richNotifEnabled = state.events.richNotifEnabled
+    const richNofifExclude = state.events.richNofifExclude
 
     return {
       inviteError,
@@ -45,6 +47,8 @@ export default connect(
       eventType: currentEventType,
       addingConferencing,
       removingConferencing,
+      richNotifEnabled,
+      richNofifExclude,
     }
   },
   (dispatch, redux) => {

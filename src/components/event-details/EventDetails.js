@@ -222,6 +222,7 @@ class EventDetails extends Component {
       loadGuestList,
       addingConferencing,
       removingConferencing,
+      richNofifExclude,
     } = this.props
     const { GuestList } = views
     const {
@@ -282,6 +283,19 @@ class EventDetails extends Component {
           onChange={e => handleDataChange(e, 'duration')}
         />
       )
+    }
+
+    function getLabelForReminder() {
+      var isEnriched = false
+      let array = guestsStringToArray(eventDetail.guests)
+
+      array.forEach(e => {
+        if (!richNofifExclude.includes(e)) {
+          isEnriched = true
+        }
+      })
+
+      return isEnriched ? 'Enriched Notification' : 'Set Reminder'
     }
 
     return (
@@ -359,7 +373,7 @@ class EventDetails extends Component {
             <Row>
               <Col xs={12}>
                 <div className="reminder-container">
-                  <label> Set Reminder </label>
+                  <label> {getLabelForReminder()} </label>
 
                   <div className="reminder-group">
                     <input

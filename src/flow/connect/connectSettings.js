@@ -4,6 +4,9 @@ import {
   showAllCalendars,
   verifyNewCalendar,
   clearVerifyCalendar,
+  enableRichNotif,
+  disableRichNotif,
+  saveRichNotifExcludeGuests,
 } from '../store/event/eventActionLazy'
 
 import {
@@ -26,6 +29,8 @@ export default connect(
     const calendars = state.events.calendars
     const user = state.auth.user
     const verifiedNewCalendarData = state.events.verifiedNewCalendarData
+    const richNotifEnabled = state.events.richNotifEnabled
+    const richNofifExclude = state.events.richNofifExclude
     return {
       show,
       contacts,
@@ -33,6 +38,8 @@ export default connect(
       addCalendarUrl,
       user,
       verifiedNewCalendarData,
+      richNotifEnabled,
+      richNofifExclude,
     }
   },
   (dispatch, redux) => {
@@ -84,6 +91,15 @@ export default connect(
       },
       verifyNewCalendar: calendar => {
         dispatch(verifyNewCalendar(calendar))
+      },
+      enableRichNotif: isActive => {
+        dispatch(enableRichNotif(isActive))
+      },
+      disableRichNotif: isActive => {
+        dispatch(disableRichNotif())
+      },
+      saveRichNotifExcludeGuests: guests => {
+        dispatch(saveRichNotifExcludeGuests(guests))
       },
     }
   }
