@@ -3,10 +3,16 @@ import { Button } from 'react-bootstrap'
 
 import Calendars from './Calendars'
 import Contacts from './Contacts'
+import Notifications from './Notifications'
 
 class SettingsPage extends Component {
   render() {
-    const { CalendarsContent, ContactsContent, handleHide } = this.props
+    const {
+      CalendarsContent,
+      ContactsContent,
+      NotificationsContent,
+      handleHide,
+    } = this.props
     return (
       <div
         className="bodyContainer"
@@ -16,6 +22,7 @@ class SettingsPage extends Component {
 
         {CalendarsContent}
         {ContactsContent}
+        {NotificationsContent}
         <Button onClick={handleHide}>Done</Button>
       </div>
     )
@@ -41,6 +48,11 @@ export default class Settings extends Component {
       user,
       verifyNewCalendar,
       verifiedNewCalendarData,
+      richNotifEnabled,
+      richNofifExclude,
+      enableRichNotif,
+      disableRichNotif,
+      saveRichNotifExcludeGuests,
     } = this.props
     const CalendarsContent = (
       <div>
@@ -72,10 +84,23 @@ export default class Settings extends Component {
       </div>
     )
 
+    const NotificationsContent = (
+      <div>
+        <Notifications
+          richNotifEnabled={richNotifEnabled}
+          richNofifExclude={richNofifExclude}
+          enableRichNotif={enableRichNotif}
+          disableRichNotif={disableRichNotif}
+          saveRichNotifExcludeGuests={saveRichNotifExcludeGuests}
+        />
+      </div>
+    )
+
     return (
       <SettingsPage
         CalendarsContent={CalendarsContent}
         ContactsContent={ContactsContent}
+        NotificationsContent={NotificationsContent}
         handleHide={handleHide}
       />
     )

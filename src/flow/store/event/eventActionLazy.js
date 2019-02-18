@@ -21,6 +21,8 @@ import {
   CREATE_CONFERENCING_ROOM,
   REMOVE_CONFERENCING_ROOM,
   VERIFY_NEW_CALENDAR,
+  SET_RICH_NOTIF_ENABLED,
+  SET_RICH_NOTIF_EXCLUDE_GUESTS,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -218,6 +220,14 @@ export function showInstructionsAction(show) {
   return { type: SHOW_INSTRUCTIONS, payload: { show } }
 }
 
+function setRichNotifEnabled(isEnabled) {
+  return { type: SET_RICH_NOTIF_ENABLED, payload: { isEnabled } }
+}
+
+function setRichNotifExcludeGuests(guests) {
+  return { type: SET_RICH_NOTIF_EXCLUDE_GUESTS, payload: { guests } }
+}
+
 export function initializePreferences() {
   return async (dispatch, getState) => {
     fetchPreferences().then(preferences => {
@@ -228,6 +238,8 @@ export function initializePreferences() {
             : true
         )
       )
+      dispatch(setRichNotifEnabled(preferences.richNotifEnabled))
+      dispatch(setRichNotifExcludeGuests(preferences.richNofifExclude))
     })
   }
 }
@@ -236,6 +248,30 @@ export function hideInstructions() {
   return async (dispatch, getState) => {
     savePreferences({ showInstructions: { general: false } })
     dispatch(showInstructionsAction(false))
+  }
+}
+
+export function enableRichNotif() {
+  console.log('enableRichNotif')
+  return async (dispatch, getState) => {
+    savePreferences({ richNotifEnabled: true })
+    dispatch(setRichNotifEnabled(true))
+  }
+}
+
+export function disableRichNotif() {
+  console.log('disableRichNotif')
+  return async (dispatch, getState) => {
+    savePreferences({ richNotifEnabled: false })
+    dispatch(setRichNotifEnabled(false))
+  }
+}
+
+export function saveRichNotifExcludeGuests(guests) {
+  console.log('saveRichNotifExcludeGuests', guests)
+  return async (dispatch, getState) => {
+    savePreferences({ richNofifExclude: guests })
+    dispatch(setRichNotifExcludeGuests(guests))
   }
 }
 

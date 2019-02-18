@@ -24,6 +24,8 @@ import {
   REMOVE_CONFERENCING_ROOM,
   VERIFY_NEW_CALENDAR,
   SHOW_FILES,
+  SET_RICH_NOTIF_ENABLED,
+  SET_RICH_NOTIF_EXCLUDE_GUESTS,
 } from '../ActionTypes'
 
 let initialState = {
@@ -244,6 +246,18 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         verifiedNewCalendarData: payload,
+      }
+      break
+    case SET_RICH_NOTIF_ENABLED:
+      newState = {
+        ...state,
+        richNotifEnabled: payload.isEnabled,
+      }
+      break
+    case SET_RICH_NOTIF_EXCLUDE_GUESTS:
+      newState = {
+        ...state,
+        richNofifExclude: payload.guests,
       }
       break
 
