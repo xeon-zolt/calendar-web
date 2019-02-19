@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import { Container, Row, Col } from 'react-bootstrap'
 
 // views
 import { AppHeader, AppFooter } from '../components/branding/AppHeaderAndFooter'
@@ -10,7 +9,7 @@ import Settings from '../components/settings/Settings'
 import { connectToStore } from './_FN'
 
 // style
-import './etc/App.css'
+import './App.css'
 
 // flow
 import connectCalendar from '../flow/connect/connectEventCalendar'
@@ -24,9 +23,14 @@ import Files from '../components/export/Export'
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faMinus, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
+import {
+  faMinus,
+  faPlus,
+  faTrashAlt,
+  faUserCircle,
+} from '@fortawesome/free-solid-svg-icons'
 
-library.add([faMinus, faPlus, faTrashAlt])
+library.add([faMinus, faPlus, faTrashAlt, faUserCircle])
 
 const store = createInitialStore()
 
@@ -47,19 +51,10 @@ export class DynamicApp extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <Container>
-            <Row>
-              <Col sm={1} xs={6}>
-                <AppHeader />
-              </Col>
-              <Col sm={3} xs={6}>
-                {UserProfile && <UserProfile />}
-              </Col>
-              <Col sm={6} xs={12}>
-                <ConnectedAppMenu />
-              </Col>
-            </Row>
-          </Container>
+          <AppHeader
+            UserProfile={UserProfile}
+            ConnectedAppMenu={ConnectedAppMenu}
+          />
         </header>
         {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
         {showFiles && <Files files={files} />}

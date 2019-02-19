@@ -23,7 +23,7 @@ export default connect(
     if (events.showSettings) {
       page = 'settings'
     } else if (events.myPublicCalendarIcsUrl || events.publicCalendarEvents) {
-      page = 'publicCalendar'
+      page = 'public'
     } else {
       page = 'all'
     }

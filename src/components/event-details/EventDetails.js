@@ -302,7 +302,7 @@ class EventDetails extends Component {
     }
 
     return (
-      <Modal show onHide={handleClose} centered size="lg">
+      <Modal size="lg" show onHide={handleClose} centered>
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
@@ -357,20 +357,20 @@ class EventDetails extends Component {
                 <FormCheck
                   type="radio"
                   name="endDateOrDuration"
+                  label="Use End Date"
                   checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
                   onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
-                >
-                  Use End Date
-                </FormCheck>
+                  inline
+                />
                 <FormCheck
                   type="radio"
                   name="endDateOrDuration"
+                  label="Use Duration"
                   checked={endDateOrDuration === 'duration' ? 'checked' : ''}
                   onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
                   disabled={eventDetail.allDay}
-                >
-                  Use Duration
-                </FormCheck>
+                  inline
+                />
               </Col>
             </Row>
             <Row>

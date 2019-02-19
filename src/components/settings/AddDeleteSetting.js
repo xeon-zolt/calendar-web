@@ -44,9 +44,8 @@ class AddDeleteSetting extends Component {
     })
   }
 
-  onDeleteItem(event) {
+  onDeleteItem(idx) {
     const { items: itemList, deleteItems } = this.props
-    const { idx } = event.target.dataset
     const item = itemList[idx]
     deleteItems([item])
   }
@@ -56,22 +55,22 @@ class AddDeleteSetting extends Component {
     setItemData(item, data)
   }
 
-  onFollowItem(event) {
+  onFollowItem(idx) {
     const { items, followItem } = this.props
-    const { idx } = event.target.dataset
     const item = items[idx]
+    console.log(item)
     followItem(item)
   }
 
-  onUnfollowItem(event) {
+  onUnfollowItem(idx) {
     const { items, unfollowItem } = this.props
-    const { idx } = event.target.dataset
     const item = items[idx]
     unfollowItem(item)
   }
 
   renderUnFollowButton(follows, i, username) {
     const { onUnfollowItem, onFollowItem } = this.bound
+
     if (follows) {
       const tip = 'Remove ' + username + "'s public calendar"
       const tooltip = <Tooltip id="tooltip">{tip}</Tooltip>
@@ -79,9 +78,9 @@ class AddDeleteSetting extends Component {
         <OverlayTrigger placement="left" overlay={tooltip}>
           <div style={{ display: 'inline-block', margin: '16px' }}>
             <FontAwesomeIcon
+              className="cursor-pointer"
               icon="minus"
-              onClick={onUnfollowItem}
-              data-idx={i}
+              onClick={() => onUnfollowItem(i)}
             />
           </div>
         </OverlayTrigger>
@@ -92,7 +91,11 @@ class AddDeleteSetting extends Component {
       return (
         <OverlayTrigger placement="left" overlay={tooltip}>
           <div style={{ display: 'inline-block', margin: '16px' }}>
-            <FontAwesomeIcon icon="plus" onClick={onFollowItem} data-idx={i} />
+            <FontAwesomeIcon
+              className="cursor-pointer"
+              icon="plus"
+              onClick={() => onFollowItem(i)}
+            />
           </div>
         </OverlayTrigger>
       )
@@ -108,9 +111,10 @@ class AddDeleteSetting extends Component {
         c => c.type === 'blockstack-user' && c.data.user === d.username
       )
     const showDelete = d.name !== 'default' || d.type !== 'private'
+
     return (
-      <div key={i} className="d-inline-block">
-        <div style={{ display: 'inline-block' }}>
+      <div key={i}>
+        <div style={{ display: 'inline-block', width: '80%' }}>
           {ItemRenderer && (
             <ItemRenderer
               item={d}
@@ -124,9 +128,9 @@ class AddDeleteSetting extends Component {
         {showDelete && (
           <div style={{ display: 'inline-block', margin: '16px' }}>
             <FontAwesomeIcon
+              className="cursor-pointer"
               icon="trash-alt"
-              onClick={onDeleteItem}
-              data-idx={i}
+              onClick={() => onDeleteItem(i)}
             />
           </div>
         )}
@@ -146,7 +150,7 @@ class AddDeleteSetting extends Component {
     } = this.state
     return (
       <div className="settings">
-        <Card style={{}}>
+        <Card>
           <Card.Header>{addTitle}</Card.Header>
           <Card.Body>
             {renderAdd()}
@@ -161,7 +165,7 @@ class AddDeleteSetting extends Component {
           </Card.Body>
         </Card>
 
-        <Card style={{}}>
+        <Card>
           <Card.Header>{listTitle}</Card.Header>
           <Card.Body>
             <div>

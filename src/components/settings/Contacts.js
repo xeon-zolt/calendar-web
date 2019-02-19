@@ -1,29 +1,34 @@
 import React from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
 import AddDeleteSetting from './AddDeleteSetting'
 
 const LINK_URL_BASE = 'https://debutapp.social/'
 
 const ContactItem = props => {
   const { item, user } = props
-  var { image, username, name } = item
+  let { image, username, name } = item
   const linkUrl = LINK_URL_BASE + username
-  var avatarUrl
+  let avatarUrl
+
   if (image && image.length > 0 && image[0].contentUrl) {
     avatarUrl = image[0].contentUrl
   }
+
   if (user && user.username && user.username === username) {
     name = 'You (' + username + ')'
   }
+
   return (
-    <div>
+    <>
       {avatarUrl && (
         <img src={avatarUrl} height="16px" width="16px" alt="avatar" />
       )}
-      {!avatarUrl && <span className="glyphicon glyphicon-user" />}
+      {!avatarUrl && <FontAwesomeIcon icon="user-circle" />}
       <a style={{ marginLeft: 4 }} href={linkUrl}>
         {name || username}
       </a>
-    </div>
+    </>
   )
 }
 
