@@ -241,7 +241,6 @@ class EventDetails extends Component {
       removeConferencing,
     } = this.bound
     const hasGuests = checkHasGuests(eventDetail.guests)
-
     var inviteErrorMsg = []
     if (inviteError) {
       const error = inviteError
@@ -292,11 +291,13 @@ class EventDetails extends Component {
       var isEnriched = false
       let array = guestsStringToArray(eventDetail.guests)
 
-      array.forEach(e => {
-        if (!richNofifExclude.includes(e)) {
-          isEnriched = true
-        }
-      })
+      if (richNofifExclude) {
+        array.forEach(e => {
+          if (!richNofifExclude.includes(e)) {
+            isEnriched = true
+          }
+        })
+      }
 
       return isEnriched ? 'Enriched Notification' : 'Set Reminder'
     }
