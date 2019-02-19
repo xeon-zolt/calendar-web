@@ -121,7 +121,7 @@ export default function reduce(state = initialState, action = {}) {
     case SHOW_SETTINGS:
       newState = {
         ...state,
-        showSettings: true,
+        showPage: 'settings',
         myPublicCalendar: undefined,
         myPublicCalendarIcsUrl: undefined,
         publicCalendar: undefined,
@@ -132,7 +132,7 @@ export default function reduce(state = initialState, action = {}) {
     case SHOW_SETTINGS_ADD_CALENDAR:
       newState = {
         ...state,
-        showSettings: true,
+        showPage: 'settings',
         myPublicCalendar: undefined,
         myPublicCalendarIcsUrl: undefined,
         publicCalendar: undefined,
@@ -142,7 +142,7 @@ export default function reduce(state = initialState, action = {}) {
       break
 
     case HIDE_SETTINGS:
-      newState = { ...state, showSettings: false }
+      newState = { ...state, showPage: 'all' }
       break
     case SET_CALENDARS:
       newState = { ...state, calendars: payload }
@@ -154,7 +154,7 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: payload.icsUrl,
         publicCalendar: undefined,
         publicCalendarEvents: undefined,
-        showSettings: false,
+        showPage: 'public',
       }
       break
     case SHOW_ALL_CALENDARS:
@@ -164,7 +164,7 @@ export default function reduce(state = initialState, action = {}) {
         myPublicCalendarIcsUrl: undefined,
         publicCalendar: undefined,
         publicCalendarEvents: undefined,
-        showSettings: false,
+        showPage: 'all',
       }
       break
     case SET_PUBLIC_CALENDAR_EVENTS:
@@ -197,6 +197,7 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         showFiles: { all: action.payload.show },
+        showPage: 'files',
       }
       break
     case AUTH_SIGN_OUT:

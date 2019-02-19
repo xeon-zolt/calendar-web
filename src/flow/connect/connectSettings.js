@@ -23,7 +23,7 @@ import { uuid } from '../io/eventFN'
 
 export default connect(
   (state, redux) => {
-    const show = state.events.showSettings
+    const show = state.events.showPage === 'settings'
     const addCalendarUrl = state.events.showSettingsAddCalendarUrl
     var contacts = state.events.contacts
     const calendars = state.events.calendars

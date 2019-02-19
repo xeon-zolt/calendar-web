@@ -19,12 +19,8 @@ export default connect(
       signedIn = true
     }
 
-    var page
-    if (events.showSettings) {
-      page = 'settings'
-    } else if (events.myPublicCalendarIcsUrl || events.publicCalendarEvents) {
-      page = 'public'
-    } else {
+    var page = events.showPage
+    if (!page) {
       page = 'all'
     }
     return { username, signedIn, page }

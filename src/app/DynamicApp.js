@@ -45,7 +45,7 @@ export class DynamicApp extends Component {
     const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store)
     const ConnectedSettings = connectToStore(Settings, connectSettings, store)
     const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store)
-    const { views, showSettings, showFiles, files } = this.props
+    const { views, showPage, files } = this.props
     const { UserProfile } = views
 
     return (
@@ -56,8 +56,11 @@ export class DynamicApp extends Component {
             ConnectedAppMenu={ConnectedAppMenu}
           />
         </header>
-        {showSettings ? <ConnectedSettings /> : <ConnectedCalendar />}
-        {showFiles && <Files files={files} />}
+        {(!showPage || showPage === 'all' || showPage === 'public') && (
+          <ConnectedCalendar />
+        )}
+        {showPage === 'settings' && <ConnectedSettings />}
+        {showPage === 'files' && <Files files={files} />}
         <footer>
           <AppFooter />
         </footer>
