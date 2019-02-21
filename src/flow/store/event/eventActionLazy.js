@@ -472,13 +472,14 @@ export function createConferencingRoomAction(status, url) {
   return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
 }
 
-export function createConferencingRoom(eventDetail, guests) {
+export function createConferencingRoom(eventDetails, guests) {
   return async (dispatch, getState) => {
     dispatch(createConferencingRoomAction('adding', null))
+    setCurrentEvent(eventDetails)
     const { userSessionChat, user } = getState().events
     userSessionChat
       .createNewRoom(
-        eventDetail.title,
+        eventDetails.title,
         'All about this event',
         guests,
         user.identityAddress
@@ -498,10 +499,12 @@ export function removeConferencingRoomAction(status) {
   return { type: REMOVE_CONFERENCING_ROOM, payload: { status } }
 }
 
-export function removeConferencingRoom(url) {
+export function removeConferencingRoom(eventDetails, url) {
   console.log('removeConferencingRoom')
   return async (dispatch, getState) => {
     dispatch(removeConferencingRoomAction('removing'))
+    setCurrentEvent(eventDetails)
+    // TODO remove user from matrix room
     setTimeout(() => dispatch(removeConferencingRoomAction('removed')), 1000)
   }
 }

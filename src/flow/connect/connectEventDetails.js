@@ -25,6 +25,7 @@ const eventDefaults = {
   hexColor: '#265985',
   reminderTime: 10,
   reminderTimeUnit: 'minutes',
+  reminderEnabled: true,
 }
 
 export default connect(
@@ -43,8 +44,8 @@ export default connect(
       inviteError,
       inviteSuccess,
       views: { GuestList },
-      eventDetail: Object.assign({}, eventDefaults, currentEvent),
-      eventType: currentEventType,
+      currentEvent: Object.assign({}, eventDefaults, currentEvent),
+      editMode: currentEventType,
       addingConferencing,
       removingConferencing,
       richNotifEnabled,
@@ -60,8 +61,8 @@ export default connect(
         const contacts = redux.store.getState().events.contacts
         loadGuestList(guests, contacts, asyncReturn)
       },
-      updateCurrentEvent: eventDetail => {
-        dispatch(setCurrentEvent(eventDetail))
+      updateCurrentEvent: eventDetails => {
+        dispatch(setCurrentEvent(eventDetails))
       },
       sendInvites: (eventInfo, guests, actionType) =>
         dispatch(sendInvites(eventInfo, guests)).then(() => {
@@ -79,8 +80,9 @@ export default connect(
         dispatch(addEvent(obj))
       },
       updateEvent: obj => dispatch(updateEvent(obj)),
-      createConferencingRoom: (eventDetail, guests) =>
-        dispatch(createConferencingRoom(eventDetail, guests)),
+      createConferencingRoom: (eventDetails, guests) => {
+        dispatch(createConferencingRoom(eventDetails, guests))
+      },
       removeConferencingRoom: obj => dispatch(removeConferencingRoom(obj)),
     }
   }

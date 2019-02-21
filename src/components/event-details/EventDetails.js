@@ -12,7 +12,7 @@ import '../../css/EventDetails.css'
 const Datetime = require('react-datetime')
 
 // TODO this should not be exported as it is only for UI
-// the eventDetail needs to hold the guests as array
+// the eventDetails needs to hold the guests as array
 export function guestsStringToArray(guestsString) {
   if (!guestsString || !guestsString.length) {
     return []
@@ -33,21 +33,22 @@ class EventDetails extends Component {
   constructor(props) {
     super(props)
 
-    const { eventDetail, inviteError, inviteSuccess, showModal } = props
+    const { currentEvent, inviteError, inviteSuccess, showModal } = props
 
     this.state = {
       showModal: showModal,
       showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
       sending: false,
+      eventDetails: currentEvent,
       endDateOrDuration:
-        eventDetail && eventDetail.duration ? 'duration' : 'endDate',
+        currentEvent && currentEvent.duration ? 'duration' : 'endDate',
       addingConferencing: false,
       removingConferencing: false,
     }
 
     this.bound = [
       'handleDataChange',
-      'handlleEndDateOrDurationChange',
+      'handleEndDateOrDurationChange',
       'handleInvitesHide',
       'handleClose',
       'popInvitesModal',
@@ -84,9 +85,9 @@ class EventDetails extends Component {
   }
 
   handleDataChange(e, ref) {
-    var { eventDetail } = this.props
+    var { eventDetails } = this.state
     var val = ''
-    if (ref !== 'allDay' && ref !== 'public') {
+    if (ref !== 'allDay' && ref !== 'public' && ref !== 'reminderEnabled') {
       if (ref === 'start' || ref === 'end') {
         val = new Date(moment(e))
       } else {
@@ -96,60 +97,61 @@ class EventDetails extends Component {
       val = e.target.checked
     }
 
-    eventDetail[ref] = val
+    eventDetails[ref] = val
 
     if (ref === 'allDay' && val) {
-      this.handlleEndDateOrDurationChange(e, 'endDate')
+      this.handleEndDateOrDurationChange(e, 'endDate')
     }
 
-    this.setState({ eventDetail })
+    this.setState({ eventDetails })
   }
 
-  handlleEndDateOrDurationChange(e, ref) {
-    var { eventDetail } = this.props
+  handleEndDateOrDurationChange(e, ref) {
+    var { eventDetails } = this.state
 
     if (ref === 'duration') {
-      eventDetail['duration'] = eventDetail.duration
-        ? eventDetail.duration
+      eventDetails['duration'] = eventDetails.duration
+        ? eventDetails.duration
         : '00:00'
     } else {
-      eventDetail['duration'] = null
+      eventDetails['duration'] = null
     }
 
     this.setState({
       endDateOrDuration: ref,
-      eventDetail,
+      eventDetails,
     })
   }
 
   updateEndDateFromDuration() {
-    const { eventDetail } = this.props
+    const { eventDetails } = this.state
 
-    if (eventDetail.duration) {
-      eventDetail['calculatedEndTime'] = moment(eventDetail.start).add(
-        moment.duration(eventDetail.duration)
+    if (eventDetails.duration) {
+      eventDetails['calculatedEndTime'] = moment(eventDetails.start).add(
+        moment.duration(eventDetails.duration)
       )
-      eventDetail['end'] = null
+      eventDetails['end'] = null
     }
   }
 
   addEvent() {
-    const { addEvent, eventDetail } = this.props
+    const { addEvent } = this.props
+    const { eventDetails } = this.state
     const {
       popInvitesModal,
       handleClose,
       updateEndDateFromDuration,
     } = this.bound
-    const { guests, noInvites } = eventDetail
+    const { guests, noInvites } = eventDetails
 
     updateEndDateFromDuration()
 
-    console.log('add event', eventDetail, checkHasGuests(guests))
+    console.log('add event', eventDetails, checkHasGuests(guests))
     if (noInvites || !checkHasGuests(guests)) {
-      addEvent(eventDetail)
+      addEvent(eventDetails)
       handleClose()
     } else {
-      popInvitesModal(eventDetail)
+      popInvitesModal(eventDetails)
     }
   }
 
@@ -165,21 +167,21 @@ class EventDetails extends Component {
     handleClose()
   }
 
-  updateEvent(eventDetail) {
-    console.log('[updateEvent]', eventDetail)
+  updateEvent(eventDetails) {
+    console.log('[updateEvent]', eventDetails)
     const { handleClose, updateEndDateFromDuration } = this.bound
     const { updateEvent } = this.props
 
     updateEndDateFromDuration()
 
-    updateEvent(eventDetail)
+    updateEvent(eventDetails)
     handleClose()
   }
 
-  popInvitesModal(eventDetail) {
+  popInvitesModal(eventDetails) {
     const { loadGuestList } = this.props
     this.setState({ showInvitesModal: true })
-    const guestsString = eventDetail.guests
+    const guestsString = eventDetails.guests
     const guests = guestsStringToArray(guestsString)
     loadGuestList(guests, ({ profiles, contacts }) => {
       this.setState({ guests: profiles })
@@ -187,41 +189,47 @@ class EventDetails extends Component {
   }
 
   handleInvitesHide() {
-    const { eventDetail, inviteError, unsetInviteError } = this.props
+    const { eventDetails, inviteError, unsetInviteError } = this.props
     this.setState({ showInvitesModal: false })
     unsetInviteError()
-    eventDetail.noInvites = !inviteError
+    eventDetails.noInvites = !inviteError
   }
 
   sendInvites() {
-    const { sendInvites, eventType, eventDetail } = this.props
+    const { sendInvites, editMode, eventDetails } = this.props
     const { guests } = this.state
     this.setState({ sending: true })
-    sendInvites(eventDetail, guests, eventType)
+    sendInvites(eventDetails, guests, editMode)
   }
 
   addConferencing() {
-    const { createConferencingRoom, eventDetail } = this.props
+    const { createConferencingRoom } = this.props
+    const { eventDetails } = this.state
     const { guests } = this.state
     console.log('add conferencing')
-    createConferencingRoom(eventDetail, guestsStringToArray(guests))
+    createConferencingRoom(eventDetails, guestsStringToArray(guests))
   }
 
   removeConferencing() {
     const { removeConferencingRoom } = this.props
+    const { eventDetails } = this.state
     console.log('remove conferencing')
-    removeConferencingRoom()
+    removeConferencingRoom(eventDetails, eventDetails.url)
   }
 
   render() {
     console.log('[EVENDETAILS.render]', this.props)
-    const { showInvitesModal, sending, endDateOrDuration } = this.state
+    const {
+      showInvitesModal,
+      sending,
+      endDateOrDuration,
+      eventDetails,
+    } = this.state
     const { handleClose } = this.bound
     const {
       views,
       inviteError,
-      eventType,
-      eventDetail,
+      editMode,
       loadGuestList,
       addingConferencing,
       removingConferencing,
@@ -230,7 +238,7 @@ class EventDetails extends Component {
     const { GuestList } = views
     const {
       handleDataChange,
-      handlleEndDateOrDurationChange,
+      handleEndDateOrDurationChange,
       handleInvitesHide,
       popInvitesModal,
       sendInvites,
@@ -240,7 +248,7 @@ class EventDetails extends Component {
       addConferencing,
       removeConferencing,
     } = this.bound
-    const hasGuests = checkHasGuests(eventDetail.guests)
+    const hasGuests = checkHasGuests(eventDetails.guests)
     var inviteErrorMsg = []
     if (inviteError) {
       const error = inviteError
@@ -259,16 +267,16 @@ class EventDetails extends Component {
     }
 
     function renderEndComponent() {
-      return eventDetail.allDay ? (
+      return eventDetails.allDay ? (
         <Datetime
-          value={eventDetail.end}
+          value={eventDetails.end}
           dateFormat="MM-DD-YYYY"
           timeFormat={false}
           onChange={e => handleDataChange(e, 'end')}
         />
       ) : (
         <Datetime
-          value={eventDetail.end}
+          value={eventDetails.end}
           onChange={e => handleDataChange(e, 'end')}
         />
       )
@@ -281,7 +289,7 @@ class EventDetails extends Component {
           className="form-control"
           placeholder="Enter the Event Duration"
           ref="duration"
-          value={eventDetail.duration || ''}
+          value={eventDetails.duration || ''}
           onChange={e => handleDataChange(e, 'duration')}
         />
       )
@@ -289,7 +297,7 @@ class EventDetails extends Component {
 
     function getLabelForReminder() {
       var isEnriched = false
-      let array = guestsStringToArray(eventDetail.guests)
+      let array = guestsStringToArray(eventDetails.guests)
 
       if (richNofifExclude) {
         array.forEach(e => {
@@ -303,7 +311,7 @@ class EventDetails extends Component {
     }
 
     return (
-      <Modal size="lg" show onHide={handleClose} centered>
+      <Modal size="lg" show onHide={handleClose} centered animation={false}>
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">Event Details</Modal.Title>
         </Modal.Header>
@@ -317,7 +325,7 @@ class EventDetails extends Component {
                   className="form-control"
                   placeholder="Enter the Event Name"
                   ref="title"
-                  value={eventDetail.title || ''}
+                  value={eventDetails.title || ''}
                   onChange={e => handleDataChange(e, 'title')}
                 />
               </Col>
@@ -325,16 +333,16 @@ class EventDetails extends Component {
             <Row>
               <Col xs={12}>
                 <label> Start Date </label>
-                {eventDetail.allDay ? (
+                {eventDetails.allDay ? (
                   <Datetime
-                    value={eventDetail.start}
+                    value={eventDetails.start}
                     dateFormat="MM-DD-YYYY"
                     timeFormat={false}
                     onChange={e => handleDataChange(e, 'start')}
                   />
                 ) : (
                   <Datetime
-                    value={eventDetail.start}
+                    value={eventDetails.start}
                     onChange={e => handleDataChange(e, 'start')}
                   />
                 )}
@@ -360,7 +368,7 @@ class EventDetails extends Component {
                   name="endDateOrDuration"
                   label="Use End Date"
                   checked={endDateOrDuration === 'endDate' ? 'checked' : ''}
-                  onChange={e => handlleEndDateOrDurationChange(e, 'endDate')}
+                  onChange={e => handleEndDateOrDurationChange(e, 'endDate')}
                   inline
                 />
                 <FormCheck
@@ -368,8 +376,8 @@ class EventDetails extends Component {
                   name="endDateOrDuration"
                   label="Use Duration"
                   checked={endDateOrDuration === 'duration' ? 'checked' : ''}
-                  onChange={e => handlleEndDateOrDurationChange(e, 'duration')}
-                  disabled={eventDetail.allDay}
+                  onChange={e => handleEndDateOrDurationChange(e, 'duration')}
+                  disabled={eventDetails.allDay}
                   inline
                 />
               </Col>
@@ -377,19 +385,27 @@ class EventDetails extends Component {
             <Row>
               <Col xs={12}>
                 <label> {getLabelForReminder()} </label>
-
+                <input
+                  type="checkBox"
+                  name="reminderEnabled"
+                  value={eventDetails.reminderEnabled}
+                  checked={eventDetails.reminderEnabled}
+                  onChange={e => handleDataChange(e, 'reminderEnabled')}
+                  style={{ marginRight: '5px', marginLeft: '5px' }}
+                />
+                <label> Enabled </label>
                 <div className="reminder-group">
                   <input
                     type="number"
                     className="form-control"
                     placeholder="10"
                     ref="reminderTime"
-                    value={eventDetail.reminderTime}
+                    value={eventDetails.reminderTime}
                     onChange={e => handleDataChange(e, 'reminderTime')}
                   />
 
                   <select
-                    value={eventDetail.reminderTimeUnit}
+                    value={eventDetails.reminderTimeUnit}
                     onChange={e => handleDataChange(e, 'reminderTimeUnit')}
                   >
                     <option value="minutes">Minutes</option>
@@ -405,7 +421,7 @@ class EventDetails extends Component {
                   className="form-control"
                   placeholder="Event Notes"
                   ref="notes"
-                  value={eventDetail.notes || ''}
+                  value={eventDetails.notes || ''}
                   onChange={e => handleDataChange(e, 'notes')}
                 />
               </Col>
@@ -417,13 +433,13 @@ class EventDetails extends Component {
                   className="form-control"
                   placeholder="bob.id, alice.id.blockstack,.."
                   ref="guests"
-                  value={eventDetail.guests || ''}
+                  value={eventDetails.guests || ''}
                   onChange={e => handleDataChange(e, 'guests')}
                 />
               </Col>
               <Col sm={4} xs={12}>
                 <div style={{ marginTop: '10px', marginBottom: '10px' }}>
-                  {!eventDetail.url ? (
+                  {!eventDetails.url ? (
                     <Button
                       variant="primary"
                       size="sm"
@@ -448,7 +464,7 @@ class EventDetails extends Component {
                       </Button>
                       <Button
                         variant="linkUrl"
-                        href={eventDetail.url}
+                        href={eventDetails.url}
                         target="_blank"
                       >
                         Open conferencing
@@ -463,8 +479,8 @@ class EventDetails extends Component {
                 <input
                   type="checkBox"
                   name="all_Day"
-                  value={eventDetail.allDay}
-                  checked={eventDetail.allDay}
+                  value={eventDetails.allDay}
+                  checked={eventDetails.allDay}
                   onChange={e => handleDataChange(e, 'allDay')}
                   style={{ marginRight: '5px', marginLeft: '5px' }}
                 />
@@ -472,8 +488,8 @@ class EventDetails extends Component {
                 <input
                   type="checkBox"
                   name="public"
-                  value={eventDetail.public}
-                  checked={eventDetail.public}
+                  value={eventDetails.public}
+                  checked={eventDetails.public}
                   onChange={e => handleDataChange(e, 'public')}
                   style={{ marginRight: '5px', marginLeft: '5px' }}
                 />
@@ -483,27 +499,30 @@ class EventDetails extends Component {
           </Container>
         </Modal.Body>
         <Modal.Footer>
-          {eventType === 'add' && (
+          {editMode === 'add' && (
             <Button variant="success" onClick={addEvent}>
               Add
             </Button>
           )}
-          {eventType === 'edit' && (
+          {editMode === 'edit' && (
             <React.Fragment>
               <Button
                 variant="warning"
                 disabled={!hasGuests}
-                onClick={() => popInvitesModal(eventDetail)}
+                onClick={() => popInvitesModal(eventDetails)}
               >
                 Send Invites
               </Button>
               <Button
                 variant="warning"
-                onClick={() => updateEvent(eventDetail)}
+                onClick={() => updateEvent(eventDetails)}
               >
                 Update
               </Button>
-              <Button variant="danger" onClick={() => deleteEvent(eventDetail)}>
+              <Button
+                variant="danger"
+                onClick={() => deleteEvent(eventDetails)}
+              >
                 Delete
               </Button>
             </React.Fragment>
@@ -513,8 +532,8 @@ class EventDetails extends Component {
 
         {showInvitesModal && (
           <SendInvitesModal
-            guests={eventDetail.guests}
-            title={eventDetail.title}
+            guests={eventDetails.guests}
+            title={eventDetails.title}
             showInvitesModal={showInvitesModal}
             handleInvitesHide={handleInvitesHide}
             sending={sending}
@@ -531,7 +550,7 @@ class EventDetails extends Component {
 }
 
 EventDetails.propTypes = {
-  eventDetail: PropTypes.object,
+  currentEvent: PropTypes.object,
   inviteError: PropTypes.object,
   inviteSuccess: PropTypes.bool,
   showModal: PropTypes.bool,

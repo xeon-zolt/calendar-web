@@ -1,9 +1,9 @@
 import { SET_CURRENT_EVENT, UNSET_CURRENT_EVENT } from '../ActionTypes'
 
-export function setCurrentEvent(eventDetail, eventType) {
+export function setCurrentEvent(eventDetails, eventType) {
   return {
     type: SET_CURRENT_EVENT,
-    payload: { currentEvent: eventDetail, currentEventType: eventType },
+    payload: { currentEvent: eventDetails, currentEventType: eventType },
   }
 }
 
