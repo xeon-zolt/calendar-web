@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Form, Card } from 'react-bootstrap'
-
+import { Form, Card, ProgressBar } from 'react-bootstrap'
+import { renderMatrixError } from '../event-details/EventDetails'
 const guestsStringToArray = function(guestsString) {
   if (!guestsString || !guestsString.length) {
     return []
@@ -35,7 +35,15 @@ export default class Notifications extends Component {
   }
 
   renderBody = () => {
-    const { richNotifEnabled, richNofifExclude } = this.state
+    const {
+      richNotifEnabled,
+      richNofifExclude,
+      checkingMatrixConsent,
+    } = this.state
+    const { richNotifError } = this.props
+    const richNotifErrorMsg = richNotifError
+      ? renderMatrixError('Rich notifications not allowed.', richNotifError)
+      : []
     return (
       <Form>
         <Form.Group controlId="formBasicChecbox">
@@ -55,6 +63,13 @@ export default class Notifications extends Component {
             onBlur={this.handleExcludedGuestsChange}
           />
         </Form.Group>
+        {checkingMatrixConsent && (
+          <>
+            Connecting to OI Chat ..
+            <ProgressBar animated now={50} />
+          </>
+        )}
+        {richNotifError && <>{richNotifErrorMsg}</>}
       </Form>
     )
   }

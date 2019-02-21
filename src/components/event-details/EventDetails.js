@@ -4,6 +4,7 @@ import { Modal, Button, FormCheck, Row, Col, Container } from 'react-bootstrap'
 import moment from 'moment'
 
 import SendInvitesModal from './SendInvitesModal'
+import RemindersModal from './RemindersModal'
 
 // Styles
 import '../../css/datetime.css'
@@ -19,6 +20,24 @@ export function guestsStringToArray(guestsString) {
   }
   const guests = guestsString.split(/[,\s]+/g)
   return guests.filter(g => g.length > 0).map(g => g.toLowerCase())
+}
+
+export function renderMatrixError(topicMsg, error) {
+  console.log('matrix error', error)
+  if (error.errcode === 'M_CONSENT_NOT_GIVEN') {
+    var linkUrl = error.data.consent_uri
+    return (
+      <div>
+        {topicMsg} Please review and accept{' '}
+        <a target="_blank" rel="noopener noreferrer" href={linkUrl}>
+          the T&amp;C of your chat provider
+        </a>{' '}
+        openintents.modular.im (OI Chat)
+      </div>
+    )
+  } else {
+    return <div>{error.message}</div>
+  }
 }
 
 function checkHasGuests(str) {
@@ -38,6 +57,7 @@ class EventDetails extends Component {
     this.state = {
       showModal: showModal,
       showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
+      showRemindersModal: false,
       sending: false,
       eventDetails: currentEvent,
       endDateOrDuration:
@@ -50,6 +70,7 @@ class EventDetails extends Component {
       'handleDataChange',
       'handleEndDateOrDurationChange',
       'handleInvitesHide',
+      'handleRemindersHide',
       'handleClose',
       'popInvitesModal',
       'sendInvites',
@@ -103,6 +124,10 @@ class EventDetails extends Component {
       this.handleEndDateOrDurationChange(e, 'endDate')
     }
 
+    if (ref === 'reminderEnabled') {
+      this.handleRemindersEnabled(val)
+    }
+
     this.setState({ eventDetails })
   }
 
@@ -121,6 +146,13 @@ class EventDetails extends Component {
       endDateOrDuration: ref,
       eventDetails,
     })
+  }
+
+  handleRemindersEnabled(val) {
+    console.log('notif permission', Notification.permission)
+    if (val && Notification.permission !== 'granted') {
+      this.setState({ showRemindersModal: true })
+    }
   }
 
   updateEndDateFromDuration() {
@@ -195,6 +227,10 @@ class EventDetails extends Component {
     eventDetails.noInvites = !inviteError
   }
 
+  handleRemindersHide() {
+    this.setState({ showRemindersModal: false })
+  }
+
   sendInvites() {
     const { sendInvites, editMode, eventDetails } = this.props
     const { guests } = this.state
@@ -221,6 +257,7 @@ class EventDetails extends Component {
     console.log('[EVENDETAILS.render]', this.props)
     const {
       showInvitesModal,
+      showRemindersModal,
       sending,
       endDateOrDuration,
       eventDetails,
@@ -233,6 +270,7 @@ class EventDetails extends Component {
       loadGuestList,
       addingConferencing,
       removingConferencing,
+      richNotifEnabled,
       richNofifExclude,
     } = this.props
     const { GuestList } = views
@@ -240,6 +278,7 @@ class EventDetails extends Component {
       handleDataChange,
       handleEndDateOrDurationChange,
       handleInvitesHide,
+      handleRemindersHide,
       popInvitesModal,
       sendInvites,
       addEvent,
@@ -251,19 +290,10 @@ class EventDetails extends Component {
     const hasGuests = checkHasGuests(eventDetails.guests)
     var inviteErrorMsg = []
     if (inviteError) {
-      const error = inviteError
-      if (error.errcode === 'M_CONSENT_NOT_GIVEN') {
-        var linkUrl = error.consent_uri
-        inviteErrorMsg = (
-          <div>
-            Sending not possible. Please review and accept{' '}
-            <a target="_blank" rel="noopener noreferrer" href={linkUrl}>
-              the T&amp;C of your chat provider
-            </a>{' '}
-            openintents.modular.im (OI Chat)
-          </div>
-        )
-      }
+      inviteErrorMsg = renderMatrixError(
+        'Sending invites not possible.',
+        inviteError
+      )
     }
 
     function renderEndComponent() {
@@ -297,17 +327,21 @@ class EventDetails extends Component {
 
     function getLabelForReminder() {
       var isEnriched = false
-      let array = guestsStringToArray(eventDetails.guests)
+      if (richNotifEnabled) {
+        let array = guestsStringToArray(eventDetails.guests)
 
-      if (richNofifExclude) {
-        array.forEach(e => {
-          if (!richNofifExclude.includes(e)) {
-            isEnriched = true
-          }
-        })
+        if (richNofifExclude) {
+          array.forEach(e => {
+            if (!richNofifExclude.includes(e)) {
+              isEnriched = true
+            }
+          })
+        }
       }
 
-      return isEnriched ? 'Enriched Notification' : 'Set Reminder'
+      return isEnriched
+        ? 'Set Reminder with Enriched Notification'
+        : 'Set Reminder'
     }
 
     return (
@@ -544,6 +578,9 @@ class EventDetails extends Component {
             loadGuestList={loadGuestList}
           />
         )}
+        {showRemindersModal && (
+          <RemindersModal handleRemindersHide={handleRemindersHide} />
+        )}
       </Modal>
     )
   }
@@ -554,6 +591,7 @@ EventDetails.propTypes = {
   inviteError: PropTypes.object,
   inviteSuccess: PropTypes.bool,
   showModal: PropTypes.bool,
+  richNotifEnabled: PropTypes.bool,
 }
 
 export default EventDetails

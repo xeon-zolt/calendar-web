@@ -42,7 +42,7 @@ class SendInvitesModal extends React.Component {
         <Modal.Body>
           Send invites according to their Blockstack settings:
           {GuestList && <GuestList guests={profiles} />}
-          {sending && !inviteError && <ProgressBar active now={50} />}
+          {sending && !inviteError && <ProgressBar animated now={50} />}
           {inviteError && inviteErrorMsg}
           <Modal.Footer>
             <Button variant="success" onClick={() => sendInvites(profiles)}>

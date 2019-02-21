@@ -25,6 +25,7 @@ import {
   VERIFY_NEW_CALENDAR,
   SHOW_FILES,
   SET_RICH_NOTIF_ENABLED,
+  SET_RICH_NOTIF_ERROR,
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
 } from '../ActionTypes'
 
@@ -249,10 +250,17 @@ export default function reduce(state = initialState, action = {}) {
         verifiedNewCalendarData: payload,
       }
       break
+    case SET_RICH_NOTIF_ERROR:
+      newState = {
+        ...state,
+        richNotifError: payload.error,
+      }
+      break
     case SET_RICH_NOTIF_ENABLED:
       newState = {
         ...state,
         richNotifEnabled: payload.isEnabled,
+        richNotifError: payload.error,
       }
       break
     case SET_RICH_NOTIF_EXCLUDE_GUESTS:

@@ -23,6 +23,7 @@ import {
   VERIFY_NEW_CALENDAR,
   SET_RICH_NOTIF_ENABLED,
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
+  SET_RICH_NOTIF_ERROR,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -220,14 +221,17 @@ export function showInstructionsAction(show) {
   return { type: SHOW_INSTRUCTIONS, payload: { show } }
 }
 
-function setRichNotifEnabled(isEnabled) {
-  return { type: SET_RICH_NOTIF_ENABLED, payload: { isEnabled } }
+function setRichNotifEnabled(isEnabled, error) {
+  return { type: SET_RICH_NOTIF_ENABLED, payload: { isEnabled, error } }
 }
 
 function setRichNotifExcludeGuests(guests) {
   return { type: SET_RICH_NOTIF_EXCLUDE_GUESTS, payload: { guests } }
 }
 
+function unsetRichNotifError() {
+  return { type: SET_RICH_NOTIF_ERROR, payload: { error: null } }
+}
 export function initializePreferences() {
   return async (dispatch, getState) => {
     fetchPreferences().then(preferences => {
@@ -254,16 +258,41 @@ export function hideInstructions() {
 export function enableRichNotif() {
   console.log('enableRichNotif')
   return async (dispatch, getState) => {
+    const { userSessionChat } = getState().events
+    dispatch(unsetRichNotifError())
     savePreferences({ richNotifEnabled: true })
-    dispatch(setRichNotifEnabled(true))
+    userSessionChat
+      .sendMessageToSelf(msg('Rich notifications have been enabled!'))
+      .then(
+        res => {
+          console.log('rich notif enabeld', res)
+          dispatch(setRichNotifEnabled(true))
+        },
+        error => {
+          console.log('failed to enabled rich notif', error)
+          dispatch(setRichNotifEnabled(false, error))
+        }
+      )
   }
 }
 
 export function disableRichNotif() {
   console.log('disableRichNotif')
   return async (dispatch, getState) => {
+    const { userSessionChat } = getState().events
+    dispatch(unsetRichNotifError())
     savePreferences({ richNotifEnabled: false })
+    userSessionChat.sendMessageToSelf(
+      msg('Rich notifications have been disabled!')
+    )
     dispatch(setRichNotifEnabled(false))
+  }
+}
+
+function msg(text) {
+  return {
+    msgtype: 'm.text',
+    body: `${text}`,
   }
 }
 

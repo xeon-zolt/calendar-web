@@ -31,6 +31,8 @@ export default connect(
     const verifiedNewCalendarData = state.events.verifiedNewCalendarData
     const richNotifEnabled = state.events.richNotifEnabled
     const richNofifExclude = state.events.richNofifExclude
+    const richNotifError = state.events.richNotifError
+    console.log(state.events)
     return {
       show,
       contacts,
@@ -40,6 +42,7 @@ export default connect(
       verifiedNewCalendarData,
       richNotifEnabled,
       richNofifExclude,
+      richNotifError,
     }
   },
   (dispatch, redux) => {
@@ -92,10 +95,10 @@ export default connect(
       verifyNewCalendar: calendar => {
         dispatch(verifyNewCalendar(calendar))
       },
-      enableRichNotif: isActive => {
-        dispatch(enableRichNotif(isActive))
+      enableRichNotif: () => {
+        dispatch(enableRichNotif())
       },
-      disableRichNotif: isActive => {
+      disableRichNotif: () => {
         dispatch(disableRichNotif())
       },
       saveRichNotifExcludeGuests: guests => {

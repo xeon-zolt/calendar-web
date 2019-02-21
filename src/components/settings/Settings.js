@@ -50,6 +50,7 @@ export default class Settings extends Component {
       verifiedNewCalendarData,
       richNotifEnabled,
       richNofifExclude,
+      richNotifError,
       enableRichNotif,
       disableRichNotif,
       saveRichNotifExcludeGuests,
@@ -89,6 +90,7 @@ export default class Settings extends Component {
         <Notifications
           richNotifEnabled={richNotifEnabled}
           richNofifExclude={richNofifExclude}
+          richNotifError={richNotifError}
           enableRichNotif={enableRichNotif}
           disableRichNotif={disableRichNotif}
           saveRichNotifExcludeGuests={saveRichNotifExcludeGuests}

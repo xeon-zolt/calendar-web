@@ -177,13 +177,22 @@ export class UserSessionChat {
                     console.log('msg sent', res)
                     return Promise.resolve(res)
                   },
-                  error => console.log('failed to send', error)
+                  error => {
+                    console.log('failed to send', error)
+                    return Promise.reject(error)
+                  }
                 )
             },
-            error => console.log('failed to join', error)
+            error => {
+              console.log('failed to join', error)
+              return Promise.reject(error)
+            }
           )
         },
-        error => console.log('failed to get self room', error)
+        error => {
+          console.log('failed to get self room', error)
+          return Promise.reject(error)
+        }
       )
     })
   }
