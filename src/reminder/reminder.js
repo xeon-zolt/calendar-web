@@ -62,7 +62,7 @@ class Reminder {
     if (this.userSessionChat) {
       const springRolePromises = this.guests.map(g => {
         return fetch(
-          `https://beta.springrole.com/blockstack/${g.identityAddress}`
+          `https://springrole.com/blockstack/${g.identityAddress}`
         ).then(
           response => {
             if (response.ok) {
@@ -85,7 +85,7 @@ class Reminder {
             if (springRoleGuests.length > 0) {
               const links = springRoleGuests.map(
                 g =>
-                  `<a href="https://beta.springrole.com/blockstack/${
+                  `<a href="https://springrole.com/blockstack/${
                     g.identityAddress
                   }">${nameOf(g)}</a>`
               )
@@ -119,6 +119,8 @@ class Reminder {
             console.log('err reminder', error)
           }
         )
+    } else {
+      console.log('no usersession :-(')
     }
   }
 }
