@@ -34,11 +34,10 @@ export let defaultCalendars = [
   {
     uid: uuids[2],
     type: 'ics',
-    name: 'holidays',
+    name: 'US Holidays',
     mode: 'read-only',
     data: {
-      src:
-        'https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics',
+      src: 'https://www.calendarlabs.com/ical-calendar/ics/76/US_Holidays.ics',
     },
     hexColor: '#FF851B',
   },
