@@ -24,6 +24,7 @@ import {
   SET_RICH_NOTIF_ENABLED,
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
   SET_RICH_NOTIF_ERROR,
+  SET_CHAT_STATUS,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -232,6 +233,7 @@ function setRichNotifExcludeGuests(guests) {
 function unsetRichNotifError() {
   return { type: SET_RICH_NOTIF_ERROR, payload: { error: null } }
 }
+
 export function initializePreferences() {
   return async (dispatch, getState) => {
     fetchPreferences().then(preferences => {
@@ -260,17 +262,21 @@ export function enableRichNotif() {
   return async (dispatch, getState) => {
     const { userSessionChat } = getState().events
     dispatch(unsetRichNotifError())
-    savePreferences({ richNotifEnabled: true })
+    dispatch(setChatStatus('checking'))
     userSessionChat
       .sendMessageToSelf(msg('Rich notifications have been enabled!'))
       .then(
         res => {
           console.log('rich notif enabeld', res)
+          savePreferences({ richNotifEnabled: true })
           dispatch(setRichNotifEnabled(true))
+          dispatch(setChatStatus(null))
         },
         error => {
           console.log('failed to enabled rich notif', error)
+          savePreferences({ richNotifEnabled: false })
           dispatch(setRichNotifEnabled(false, error))
+          dispatch(setChatStatus(null))
         }
       )
   }
@@ -410,10 +416,12 @@ export function addEvent(event) {
       publishEvents(event, updatePublicEvent)
     }
 
-    // Add reminder to notify user
-    guestsOf(event, getState().events.contacts).then(guests => {
-      addReminder(event, guests, userSessionChat)
-    })
+    if (event.reminderEnabled) {
+      // Add reminder to notify user
+      guestsOf(event, getState().events.contacts).then(guests => {
+        addReminder(event, guests, userSessionChat)
+      })
+    }
 
     window.history.pushState({}, 'OI Calendar', '/')
     delete state.currentEvent
@@ -457,11 +465,13 @@ export function updateEvent(event) {
     }
     saveEvents('default', allEvents)
 
-    // Add reminder to notify user
-    guestsOf(event, getState().events.contacts).then(guests => {
-      console.log('guests', guests)
-      addReminder(event, guests, userSessionChat)
-    })
+    if (event.reminderEnabled) {
+      // Add reminder to notify user
+      guestsOf(event, getState().events.contacts).then(guests => {
+        console.log('guests', guests)
+        addReminder(event, guests, userSessionChat)
+      })
+    }
 
     dispatch(setEventsAction(allEvents))
   }
@@ -497,6 +507,10 @@ export function showAllCalendars() {
   }
 }
 
+function setChatStatus(status) {
+  return { type: SET_CHAT_STATUS, payload: { status } }
+}
+
 export function createConferencingRoomAction(status, url) {
   return { type: CREATE_CONFERENCING_ROOM, payload: { status, url } }
 }
@@ -513,14 +527,20 @@ export function createConferencingRoom(eventDetails, guests) {
         guests,
         user.identityAddress
       )
-      .then(room => {
-        dispatch(
-          createConferencingRoomAction(
-            'added',
-            'https://chat.openintents.org/#/room/' + room.room_id
+      .then(
+        room => {
+          dispatch(
+            createConferencingRoomAction(
+              'added',
+              'https://chat.openintents.org/#/room/' + room.room_id
+            )
           )
-        )
-      })
+        },
+        error => {
+          console.log('failed to create conferencing room', error)
+          dispatch(setChatStatus('failedToCreateConferencingRoom', error))
+        }
+      )
   }
 }
 

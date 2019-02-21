@@ -35,12 +35,9 @@ export default class Notifications extends Component {
   }
 
   renderBody = () => {
-    const {
-      richNotifEnabled,
-      richNofifExclude,
-      checkingMatrixConsent,
-    } = this.state
-    const { richNotifError } = this.props
+    const { richNotifEnabled, richNofifExclude } = this.state
+    const { richNotifError, chatStatus } = this.props
+    const checkingChatStatus = chatStatus === 'checking'
     const richNotifErrorMsg = richNotifError
       ? renderMatrixError('Rich notifications not allowed.', richNotifError)
       : []
@@ -63,7 +60,7 @@ export default class Notifications extends Component {
             onBlur={this.handleExcludedGuestsChange}
           />
         </Form.Group>
-        {checkingMatrixConsent && (
+        {checkingChatStatus && (
           <>
             Connecting to OI Chat ..
             <ProgressBar animated now={50} />

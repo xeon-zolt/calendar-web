@@ -27,6 +27,7 @@ import {
   SET_RICH_NOTIF_ENABLED,
   SET_RICH_NOTIF_ERROR,
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
+  SET_CHAT_STATUS,
 } from '../ActionTypes'
 
 let initialState = {
@@ -269,7 +270,12 @@ export default function reduce(state = initialState, action = {}) {
         richNofifExclude: payload.guests,
       }
       break
-
+    case SET_CHAT_STATUS:
+      newState = {
+        ...state,
+        chatStatus: payload.status,
+      }
+      break
     default:
       newState = state
       break

@@ -23,7 +23,6 @@ export function guestsStringToArray(guestsString) {
 }
 
 export function renderMatrixError(topicMsg, error) {
-  console.log('matrix error', error)
   if (error.errcode === 'M_CONSENT_NOT_GIVEN') {
     var linkUrl = error.data.consent_uri
     return (
@@ -336,6 +335,8 @@ class EventDetails extends Component {
               isEnriched = true
             }
           })
+        } else {
+          isEnriched = true
         }
       }
 

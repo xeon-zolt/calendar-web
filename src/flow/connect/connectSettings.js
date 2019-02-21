@@ -26,12 +26,15 @@ export default connect(
     const show = state.events.showPage === 'settings'
     const addCalendarUrl = state.events.showSettingsAddCalendarUrl
     var contacts = state.events.contacts
-    const calendars = state.events.calendars
     const user = state.auth.user
-    const verifiedNewCalendarData = state.events.verifiedNewCalendarData
-    const richNotifEnabled = state.events.richNotifEnabled
-    const richNofifExclude = state.events.richNofifExclude
-    const richNotifError = state.events.richNotifError
+    const {
+      calendars,
+      verifiedNewCalendarData,
+      richNotifEnabled,
+      richNofifExclude,
+      richNotifError,
+      chatStatus,
+    } = state.events
     console.log(state.events)
     return {
       show,
@@ -43,6 +46,7 @@ export default connect(
       richNotifEnabled,
       richNofifExclude,
       richNotifError,
+      chatStatus,
     }
   },
   (dispatch, redux) => {

@@ -51,6 +51,7 @@ export default class Settings extends Component {
       richNotifEnabled,
       richNofifExclude,
       richNotifError,
+      chatStatus,
       enableRichNotif,
       disableRichNotif,
       saveRichNotifExcludeGuests,
@@ -94,6 +95,7 @@ export default class Settings extends Component {
           enableRichNotif={enableRichNotif}
           disableRichNotif={disableRichNotif}
           saveRichNotifExcludeGuests={saveRichNotifExcludeGuests}
+          chatStatus={chatStatus}
         />
       </div>
     )
