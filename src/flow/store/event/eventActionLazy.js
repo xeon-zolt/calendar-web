@@ -52,7 +52,7 @@ import { guestsStringToArray } from '../../../components/event-details/EventDeta
 import { setCurrentEvent, setCurrentEventUid } from './eventAction'
 
 // Reminders
-import { addReminder } from '../../../reminder'
+import { addReminder, initReminders } from '../../../reminder'
 
 // #########################
 // Chat
@@ -76,6 +76,7 @@ export function initializeChat() {
       )
       .then(selfRoomId => {
         let chat = createSessionChat(selfRoomId)
+        initReminders(chat)
         dispatch(initializeChatAction(chat))
       })
   }

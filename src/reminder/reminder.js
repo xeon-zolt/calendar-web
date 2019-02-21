@@ -11,6 +11,7 @@ class Reminder {
   title = ''
   uid = ''
   start = null
+  guests = null
 
   constructor(timeout, title, uid, start, guests, userSessionChat) {
     /**

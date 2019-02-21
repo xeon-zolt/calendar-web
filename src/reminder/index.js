@@ -13,6 +13,7 @@ export const addReminder = (event, guests, userSessionChat) => {
   let eventData = {
     start: event.start,
     title: event.title,
+    guests: event.guests,
   }
 
   const reminder = new Date(event.start)
@@ -71,7 +72,7 @@ export const setReminders = reminders => {
 }
 
 // Get `Reminder` Array from localStorage
-export const initReminders = () => {
+export const initReminders = userSessionChat => {
   const reminders = getReminders()
   let delUid = []
 
@@ -90,7 +91,9 @@ export const initReminders = () => {
       timeout,
       reminders[key].title,
       key,
-      reminders[key].start
+      reminders[key].start,
+      reminders[key].guests,
+      userSessionChat
     )
   })
 
