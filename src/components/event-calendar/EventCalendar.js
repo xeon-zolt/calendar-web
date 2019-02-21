@@ -192,7 +192,7 @@ class EventCalendar extends Component {
     )
 
     return (
-      <div className="bodyContainer">
+      <div className="body-container">
         {signedIn &&
           showGeneralInstructions &&
           !myPublicCalendar &&

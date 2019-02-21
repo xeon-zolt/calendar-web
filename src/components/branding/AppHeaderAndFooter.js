@@ -6,7 +6,7 @@ const AppHeader = props => {
   const { ConnectedAppMenu, UserProfile } = props
 
   return (
-    <Navbar bg="light" variant="light">
+    <Navbar bg="light" expand="lg" variant="light">
       <Navbar.Brand>
         <img
           className="App-logo"
@@ -15,10 +15,13 @@ const AppHeader = props => {
         />
         OI Calendar
       </Navbar.Brand>
-      <Nav className="ml-auto">
-        <ConnectedAppMenu />
-        {UserProfile && <UserProfile />}
-      </Nav>
+      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+      <Navbar.Collapse id="responsive-navbar-nav">
+        <Nav className="ml-auto">
+          <ConnectedAppMenu />
+          {UserProfile && <UserProfile />}
+        </Nav>
+      </Navbar.Collapse>
     </Navbar>
   )
 }

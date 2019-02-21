@@ -376,27 +376,25 @@ class EventDetails extends Component {
             </Row>
             <Row>
               <Col xs={12}>
-                <div className="reminder-container">
-                  <label> {getLabelForReminder()} </label>
+                <label> {getLabelForReminder()} </label>
 
-                  <div className="reminder-group">
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="10"
-                      ref="reminderTime"
-                      value={eventDetail.reminderTime}
-                      onChange={e => handleDataChange(e, 'reminderTime')}
-                    />
+                <div className="reminder-group">
+                  <input
+                    type="number"
+                    className="form-control"
+                    placeholder="10"
+                    ref="reminderTime"
+                    value={eventDetail.reminderTime}
+                    onChange={e => handleDataChange(e, 'reminderTime')}
+                  />
 
-                    <select
-                      value={eventDetail.reminderTimeUnit}
-                      onChange={e => handleDataChange(e, 'reminderTimeUnit')}
-                    >
-                      <option value="minutes">Minutes</option>
-                      <option value="hours">Hours</option>
-                    </select>
-                  </div>
+                  <select
+                    value={eventDetail.reminderTimeUnit}
+                    onChange={e => handleDataChange(e, 'reminderTimeUnit')}
+                  >
+                    <option value="minutes">Minutes</option>
+                    <option value="hours">Hours</option>
+                  </select>
                 </div>
               </Col>
             </Row>

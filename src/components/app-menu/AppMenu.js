@@ -32,14 +32,16 @@ export default class AppMenu extends Component {
         this.props.showAllEvents()
         this.setState({ activeKey: 'all' })
         break
-      case 'showFiles':
+      case 'files':
         this.props.showFiles()
+        this.setState({ activeKey: 'files' })
         break
       default:
         console.warn('invalid menu item ', eventKey)
         break
     }
   }
+
   render() {
     const { onSelect } = this.bound
     const { username, signedIn } = this.props
@@ -48,7 +50,7 @@ export default class AppMenu extends Component {
 
     return (
       signedIn && (
-        <div style={{ margin: '4px 30px 0 0' }}>
+        <div className="App-menu">
           <Nav variant="pills" onSelect={onSelect} activeKey={activeKey}>
             <Nav.Item>
               <Nav.Link eventKey="all">Events</Nav.Link>
@@ -62,7 +64,7 @@ export default class AppMenu extends Component {
               <Nav.Link eventKey="settings">Settings</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey="showFiles">My Files</Nav.Link>
+              <Nav.Link eventKey="files">Files</Nav.Link>
             </Nav.Item>
           </Nav>
         </div>
