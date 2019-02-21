@@ -1,15 +1,8 @@
-.date-time-container,
 .reminder-group {
 	display: flex;
 	justify-content: space-between;
 }
 
-.date-time-container,
-.reminder-container {
-	margin: 10px 0;
-}
-
-.date-time-group,
 .reminder-group input,
 .reminder-group select {
 	width: 48%;
@@ -17,4 +10,8 @@
 
 .reminder-group select {
 	height: 34px;
+}
+
+.container-fluid .row + .row {
+	margin-top: 15px;
 }

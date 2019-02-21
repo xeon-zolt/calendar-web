@@ -13,11 +13,11 @@
 	color: white;
 }
 
-.App-title {
-	font-size: 1em;
+.App-menu {
+	margin: 8px 10px 0 0;
 }
 
-.bodyContainer {
+.body-container {
 	margin: 70px;
 }
 
@@ -146,7 +146,7 @@ h1,
 }
 
 @media screen and (min-width: 1080px) {
-	.bodyContainer {
+	.body-container {
 		width: 1050px;
 		margin-left: auto;
 		margin-right: auto;
@@ -154,7 +154,7 @@ h1,
 }
 
 @media screen and (max-width: 500px) {
-	.bodyContainer {
+	.body-container {
 		margin: 2%;
 	}
 }

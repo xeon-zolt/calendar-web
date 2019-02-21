@@ -15,7 +15,7 @@ class SettingsPage extends Component {
     } = this.props
     return (
       <div
-        className="bodyContainer"
+        className="body-container"
         style={{ textAlign: 'left', marginTop: '10px' }}
       >
         <h4>Settings</h4>
