@@ -540,8 +540,8 @@ export function fetchIcsUrl(calendarName) {
 }
 
 export function savePreferences(prefAttributes) {
-  fetchPreferences().then(preferences => {
+  return fetchPreferences().then(preferences => {
     preferences = Object.assign(preferences, prefAttributes)
-    putOnBlockstack('Preferences', preferences)
+    return putOnBlockstack('Preferences', preferences)
   })
 }
