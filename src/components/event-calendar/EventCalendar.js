@@ -214,14 +214,13 @@ class EventCalendar extends Component {
                   <div style={{ padding: '20px' }}>
                     <Row style={{ textAlign: 'left' }}>
                       <Col md={6}>
-                        <strong>To add an event: </strong> Click or long-press
-                        on the day you want to add an event or drag up to the
-                        day you want to add the event for multiple day event!{' '}
-                        <br />
+                        <strong>Add an event: </strong> Click or long-press on
+                        the day you want to add an event or drag up to the day
+                        you want to add the event for multiple day event! <br />
                       </Col>
                       <Col md={6}>
-                        <strong>To update and delete an event:</strong> Click on
-                        the event you wish to update or delete!
+                        <strong>Update or delete an event:</strong> Click on the
+                        event you wish to update or delete!
                       </Col>
                     </Row>
                     <Row style={{ padding: '20px' }}>
@@ -256,28 +255,30 @@ class EventCalendar extends Component {
           )}
         {!signedIn && (
           <Card>
-            <Card.Header>Private, Encrypted Calendar in the Cloud</Card.Header>
+            <Card.Header>Private, Encrypted Calendar in Your Cloud</Card.Header>
             <Card.Body>
-              <div className="col-md-5">
-                <strong>I have already a Blockstack ID:</strong> Just sign in
-                using the blockstack button above!
-              </div>
-              <div className="col-md-2" style={{ padding: '10px' }}>
-                <img
-                  src="blockstack.png"
-                  alt=""
-                  height="30"
-                  style={{ verticalAlign: 'middle' }}
-                />
-              </div>
-              <div className="col-md-5">
-                <strong>To learn about Blockstack: </strong> A good starting
-                point is{' '}
-                <a href="https://docs.blockstack.org">
-                  Blockstack's documentation
-                </a>
-                .<br />
-              </div>
+              <Row>
+                <Col xs={12} md={5}>
+                  <strong>Already Blockstack User?</strong> Just login in using
+                  the Blockstack button above!
+                </Col>
+                <Col xs={12} md={2} style={{ padding: '10px' }}>
+                  <img
+                    src="blockstack.png"
+                    alt=""
+                    height="30"
+                    style={{ verticalAlign: 'middle' }}
+                  />
+                </Col>
+                <Col xs={12} md={5}>
+                  <strong>Learn about Blockstack! </strong> A good starting
+                  point is{' '}
+                  <a href="https://docs.blockstack.org">
+                    Blockstack's documentation
+                  </a>
+                  .<br />
+                </Col>
+              </Row>
             </Card.Body>
           </Card>
         )}
