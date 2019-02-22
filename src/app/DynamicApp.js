@@ -28,9 +28,22 @@ import {
   faPlus,
   faTrashAlt,
   faUserCircle,
+  faSync,
+  faHandHoldingHeart,
+  faFileCode,
+  faQuestion,
 } from '@fortawesome/free-solid-svg-icons'
 
-library.add([faMinus, faPlus, faTrashAlt, faUserCircle])
+library.add([
+  faMinus,
+  faPlus,
+  faTrashAlt,
+  faUserCircle,
+  faSync,
+  faHandHoldingHeart,
+  faFileCode,
+  faQuestion,
+])
 
 const store = createInitialStore()
 
