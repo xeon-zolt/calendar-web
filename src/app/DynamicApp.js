@@ -33,6 +33,7 @@ import {
   faFileCode,
   faQuestion,
 } from '@fortawesome/free-solid-svg-icons'
+import connectFiles from '../flow/connect/connectFiles'
 
 library.add([
   faMinus,
@@ -58,7 +59,8 @@ export class DynamicApp extends Component {
     const ConnectedCalendar = connectToStore(Calendar, connectCalendar, store)
     const ConnectedSettings = connectToStore(Settings, connectSettings, store)
     const ConnectedAppMenu = connectToStore(AppMenu, connectAppMenu, store)
-    const { views, showPage, files } = this.props
+    const ConnectedFiles = connectToStore(Files, connectFiles, store)
+    const { views, showPage } = this.props
     const { UserProfile } = views
 
     return (
@@ -73,7 +75,7 @@ export class DynamicApp extends Component {
           <ConnectedCalendar />
         )}
         {showPage === 'settings' && <ConnectedSettings />}
-        {showPage === 'files' && <Files files={files} />}
+        {showPage === 'files' && <ConnectedFiles />}
         <footer>
           <AppFooter />
         </footer>

@@ -24,28 +24,39 @@ function newFile(files, f) {
     files.others.push({ name: filename, url: files.appBucketUrl + f })
   }
 }
-function lastFile(files, count) {
+
+function setFiles(files, count) {
   return { type: SET_FILES, payload: { files, count } }
+}
+
+export function loadingFiles() {
+  return (dispatch, getState) => {
+    const files = initFiles(getState().auth.user)
+    dispatch(setFiles(files, 0))
+  }
+}
+
+function initFiles(user) {
+  const files = {
+    calendars: {
+      public: [{ name: 'public' }],
+    },
+    others: [],
+    sharedEvents: [],
+  }
+  files.appBucketUrl = user.profile.apps[window.origin]
+  return files
 }
 
 export function showFiles() {
   return (dispatch, getState) => {
     dispatch(showFilesScreen(true))
-    const files = {
-      calendars: {
-        public: [{ name: 'public' }],
-      },
-      others: [],
-      sharedEvents: [],
-    }
-    const { user } = getState().auth
-
-    files.appBucketUrl = user.profile.apps[window.origin]
+    const files = initFiles(getState().auth.user)
     listFiles(f => {
       newFile(files, f)
       return true
     }).then(count => {
-      dispatch(lastFile(files, count))
+      dispatch(setFiles(files, count))
     })
   }
 }

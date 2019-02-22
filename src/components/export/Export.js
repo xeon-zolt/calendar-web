@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 import { Button, Card } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -20,7 +21,7 @@ const File = props => {
 
 export default class Files extends Component {
   render() {
-    const { files } = this.props
+    const { files, refreshFiles } = this.props
     console.log('files', files)
     if (!files.calendars) {
       return (
@@ -33,14 +34,17 @@ export default class Files extends Component {
       <Card style={{ margin: '10px' }}>
         <Card.Header>
           <label variant="title">
-            Your remote files on {files.appBucketUrl}
+            Remote files on <a href={files.appBucketUrl}>your storage</a>
           </label>
-          <Button variant="contained" size="small">
-            <FontAwesomeIcon icon="plus" />
-            Refresh
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => refreshFiles()}
+          >
+            <FontAwesomeIcon icon="sync" />
           </Button>
         </Card.Header>
-        <Card.Body>
+        <Card.Body style={{ textAlign: 'left' }}>
           <label variant="display1">Calendar Files</label>
 
           {files.calendarListFile && (
@@ -81,4 +85,9 @@ export default class Files extends Component {
       </Card>
     )
   }
+}
+
+Files.propTypes = {
+  files: PropTypes.any,
+  refreshFiles: PropTypes.func,
 }
