@@ -26,7 +26,7 @@ let UserProfile = props => {
 
 let whenAppLoaded = forceUpdate => {
   console.log('whenAppLoaded')
-  import('../../components/event-calendar/EventCalendar').then(
+  import('../../components/EventCalendar').then(
     ({ default: EventCalendarBase }) => {
       EventCalendar = props => {
         return (
@@ -42,7 +42,7 @@ let whenAppLoaded = forceUpdate => {
     }
   )
 
-  import('../../components/auth-user-profile/UserProfile').then(
+  import('../../components/AuthUserProfile/UserProfile').then(
     ({ default: UserProfileBase }) => {
       UserProfile = props => {
         return (

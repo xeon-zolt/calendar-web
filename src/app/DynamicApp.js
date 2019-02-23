@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 
 // views
-import { AppHeader, AppFooter } from '../components/branding/AppHeaderAndFooter'
-import AppMenu from '../components/app-menu/AppMenu'
-import Calendar from '../components/event-calendar/EventCalendar'
-import Settings from '../components/settings/Settings'
+import Footer from '../components/Footer'
+import Header from '../components/Header'
+import AppMenu from '../components/AppMenu'
+import Calendar from '../components/EventCalendar'
+import Settings from '../components/Settings'
 
 import { connectToStore } from './_FN'
 
@@ -12,14 +13,14 @@ import { connectToStore } from './_FN'
 import './App.css'
 
 // flow
-import connectCalendar from '../flow/connect/connectEventCalendar'
-import connectAppMenu from '../flow/connect/connectAppMenu'
-import connectSettings from '../flow/connect/connectSettings'
-import connectApp from '../flow/connect/connectApp'
+import connectCalendar from '../containers/EventCalendar'
+import connectAppMenu from '../containers/AppMenu'
+import connectSettings from '../containers/Settings'
+import connectApp from '../containers/App'
 
 // Store
-import { createInitialStore } from '../flow/store/storeManager'
-import Files from '../components/export/Export'
+import { createInitialStore } from '../store/storeManager'
+import Files from '../components/Export'
 
 // Font Awesome
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -33,7 +34,7 @@ import {
   faFileCode,
   faQuestion,
 } from '@fortawesome/free-solid-svg-icons'
-import connectFiles from '../flow/connect/connectFiles'
+import connectFiles from '../containers/Files'
 
 library.add([
   faMinus,
@@ -65,20 +66,15 @@ export class DynamicApp extends Component {
 
     return (
       <div className="App">
-        <header className="App-header">
-          <AppHeader
-            UserProfile={UserProfile}
-            ConnectedAppMenu={ConnectedAppMenu}
-          />
-        </header>
+        <Header UserProfile={UserProfile} ConnectedAppMenu={ConnectedAppMenu} />
+
         {(!showPage || showPage === 'all' || showPage === 'public') && (
           <ConnectedCalendar />
         )}
         {showPage === 'settings' && <ConnectedSettings />}
         {showPage === 'files' && <ConnectedFiles />}
-        <footer>
-          <AppFooter />
-        </footer>
+
+        <Footer />
       </div>
     )
   }

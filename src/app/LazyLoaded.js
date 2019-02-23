@@ -1,19 +1,19 @@
 // views
-import EventDetails from '../components/event-details/EventDetails'
-import GuestList from '../components/event-guest-list/GuestList'
-import UserProfile from '../components/auth-user-profile/UserProfile'
+import EventDetails from '../components/EventDetails'
+import GuestList from '../components/EventGuestList'
+import UserProfile from '../components/AuthUserProfile/UserProfile'
 import { connectToStore } from './_FN'
-import { SET_LAZY_VIEW } from '../flow/store/ActionTypes'
+import { SET_LAZY_VIEW } from '../store/ActionTypes'
 
 // flow
-import connectEventDetails from '../flow/connect/connectEventDetails'
-import connectGuestList from '../flow/connect/connectGuestList'
-import connectUserProfile from '../flow/connect/connectUserProfile'
+import connectEventDetails from '../containers/EventDetails'
+import connectGuestList from '../containers/GuestList'
+import connectUserProfile from '../containers/UserProfile'
 
 import {
   initializeLazyActions,
   initializeChat,
-} from '../flow/store/event/eventActionLazy'
+} from '../store/event/eventActionLazy'
 
 export function initializeLazy(store) {
   store.dispatch({
