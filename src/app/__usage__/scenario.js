@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import App from '../DynamicApp'
 // import ReudxApp from "../redux-app";
-// import ConnectedEventCalendar from "../redux-event-calendar";
+// import ConnectedCalendar from "../redux-calendar";
 // import ConnectedEventDetails from "../redux-event-details";
 // import ConnectedUserProfile from "../redux-user-profile";
 // import ConnectedGuestList from "../redux-guest-list";
@@ -17,8 +17,8 @@ import App from '../DynamicApp'
 
 const doNothing = () => {}
 
-let EventCalendar = props => {
-  return <div>EventCalendar</div>
+let Calendar = props => {
+  return <div>Calendar</div>
 }
 let UserProfile = props => {
   return <div>UserProfile</div>
@@ -26,21 +26,19 @@ let UserProfile = props => {
 
 let whenAppLoaded = forceUpdate => {
   console.log('whenAppLoaded')
-  import('../../components/EventCalendar').then(
-    ({ default: EventCalendarBase }) => {
-      EventCalendar = props => {
-        return (
-          <EventCalendarBase
-            getInitialEvents={doNothing}
-            views={{ EventDetails: doNothing }}
-            events={{ allEvents: {} }}
-          />
-        )
-      }
-      console.log('EventCalendarLoaded')
-      forceUpdate()
+  import('../../components/Calendar').then(({ default: CalendarBase }) => {
+    Calendar = props => {
+      return (
+        <CalendarBase
+          getInitialEvents={doNothing}
+          views={{ EventDetails: doNothing }}
+          events={{ allEvents: {} }}
+        />
+      )
     }
-  )
+    console.log('CalendarLoaded')
+    forceUpdate()
+  })
 
   import('../../components/AuthUserProfile/UserProfile').then(
     ({ default: UserProfileBase }) => {
@@ -54,7 +52,7 @@ let whenAppLoaded = forceUpdate => {
           />
         )
       }
-      console.log('EventCalendarLoaded')
+      console.log('CalendarLoaded')
       // forceUpdate();
     }
   )
@@ -64,7 +62,7 @@ let dynamicApp
 
 class DynamicApp extends Component {
   render() {
-    return <App views={{ EventCalendar, UserProfile }} />
+    return <App views={{ Calendar, UserProfile }} />
   }
   doSomething() {}
   componentDidMount() {

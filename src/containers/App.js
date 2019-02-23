@@ -1,12 +1,12 @@
 import { connect } from 'react-redux'
 
 export default connect((state, redux) => {
-  const { EventCalendar, UserProfile } = state.lazy || {}
+  const { Calendar, UserProfile } = state.lazy || {}
   return {
     showPage: state.events.showPage,
     views: {
       UserProfile,
-      EventCalendar,
+      Calendar,
     },
   }
 })

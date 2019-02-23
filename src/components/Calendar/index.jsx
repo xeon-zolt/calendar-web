@@ -17,7 +17,7 @@ import { uuid } from '../../core/eventFN'
 let localizer = BigCalendar.momentLocalizer(moment)
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
 
-class EventCalendar extends Component {
+class Calendar extends Component {
   constructor(props) {
     super(props)
     this.bound = [
@@ -98,7 +98,7 @@ class EventCalendar extends Component {
   }
 
   render() {
-    console.log('[EventCalendar.render]', this.props)
+    console.log('[Calendar.render]', this.props)
     const {
       signedIn,
       views,
@@ -326,4 +326,4 @@ class EventCalendar extends Component {
   }
 }
 
-export default EventCalendar
+export default Calendar

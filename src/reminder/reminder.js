@@ -1,5 +1,24 @@
 import moment from 'moment'
 
+const nameOf = guest => {
+  if (guest.name) {
+    return guest.name
+  } else {
+    return guest.username
+  }
+}
+
+const simpleMatrixMessage = (msg, uid) => {
+  return {
+    msgtype: 'm.text',
+    body: `${msg}`,
+    format: 'org.matrix.custom.html',
+    formatted_body: `<a href="${
+      window.location.origin
+    }/?intent=view&uid=${uid}">${msg}</a>`,
+  }
+}
+
 /**
  * The Reminder object contains the timerId and metadata of the event
  */
@@ -127,21 +146,3 @@ class Reminder {
 }
 
 export default Reminder
-
-function nameOf(guest) {
-  if (guest.name) {
-    return guest.name
-  } else {
-    return guest.username
-  }
-}
-function simpleMatrixMessage(msg, uid) {
-  return {
-    msgtype: 'm.text',
-    body: `${msg}`,
-    format: 'org.matrix.custom.html',
-    formatted_body: `<a href="${
-      window.location.origin
-    }/?intent=view&uid=${uid}">${msg}</a>`,
-  }
-}

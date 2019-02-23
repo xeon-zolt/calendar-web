@@ -9,7 +9,7 @@ import {
   decryptContent,
 } from 'blockstack'
 import { iCalParseEvents, icsFromEvents } from './ical'
-import { parseQueryString, encodeQueryString } from './queryString'
+import { parseQueryString, encodeQueryString } from '../utils'
 
 import { getUserAppFileUrl } from 'blockstack/lib/storage'
 import { defaultCalendars } from './eventDefaults'

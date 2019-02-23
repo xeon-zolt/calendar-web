@@ -6,6 +6,9 @@ import App from './app/DynamicApp'
 // Styles
 import './index.css'
 
+// FontAwesome
+import './fontawesome'
+
 // Service Worker
 import registerServiceWorker from './registerServiceWorker'
 

@@ -4,7 +4,7 @@ import React, { Component } from 'react'
 import Footer from '../components/Footer'
 import Header from '../components/Header'
 import AppMenu from '../components/AppMenu'
-import Calendar from '../components/EventCalendar'
+import Calendar from '../components/Calendar'
 import Settings from '../components/Settings'
 
 import { connectToStore } from './_FN'
@@ -13,7 +13,7 @@ import { connectToStore } from './_FN'
 import './App.css'
 
 // flow
-import connectCalendar from '../containers/EventCalendar'
+import connectCalendar from '../containers/Calendar'
 import connectAppMenu from '../containers/AppMenu'
 import connectSettings from '../containers/Settings'
 import connectApp from '../containers/App'
@@ -22,30 +22,7 @@ import connectApp from '../containers/App'
 import { createInitialStore } from '../store/storeManager'
 import Files from '../components/Export'
 
-// Font Awesome
-import { library } from '@fortawesome/fontawesome-svg-core'
-import {
-  faMinus,
-  faPlus,
-  faTrashAlt,
-  faUserCircle,
-  faSync,
-  faHandHoldingHeart,
-  faFileCode,
-  faQuestion,
-} from '@fortawesome/free-solid-svg-icons'
 import connectFiles from '../containers/Files'
-
-library.add([
-  faMinus,
-  faPlus,
-  faTrashAlt,
-  faUserCircle,
-  faSync,
-  faHandHoldingHeart,
-  faFileCode,
-  faQuestion,
-])
 
 const store = createInitialStore()
 
