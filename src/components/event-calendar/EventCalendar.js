@@ -214,12 +214,12 @@ class EventCalendar extends Component {
                   <div style={{ padding: '20px' }}>
                     <Row style={{ textAlign: 'left' }}>
                       <Col md={6}>
-                        <strong>Add an event: </strong> Click or long-press on
-                        the day you want to add an event or drag up to the day
-                        you want to add the event for multiple day event! <br />
+                        <strong>Add event: </strong> Click or long-press on the
+                        day you want to add an event or drag up to the day you
+                        want to add the event for multiple day event! <br />
                       </Col>
                       <Col md={6}>
-                        <strong>Update or delete an event:</strong> Click on the
+                        <strong>Update or delete event:</strong> Click on the
                         event you wish to update or delete!
                       </Col>
                     </Row>
@@ -235,7 +235,11 @@ class EventCalendar extends Component {
                       <Col xs={12} sm={10} style={{ textAlign: 'left' }}>
                         <strong>Move from Google Calendar</strong>: Done in a
                         minute! Follow the{' '}
-                        <a href="https://github.com/friedger/oi-calendar">
+                        <a
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href="https://github.com/friedger/oi-calendar"
+                        >
                           2-step tutorial
                         </a>
                         .
@@ -255,12 +259,29 @@ class EventCalendar extends Component {
           )}
         {!signedIn && (
           <Card>
-            <Card.Header>Private, Encrypted Calendar in Your Cloud</Card.Header>
+            <Card.Header>
+              Private, Encrypted Agenda in Your Cloud <br />
+            </Card.Header>
             <Card.Body>
               <Row>
+                <Col>
+                  You can use OI Calendar to keep track of all your events
+                  across all devices.
+                </Col>
+              </Row>
+              <hr />
+              <Row>
                 <Col xs={12} md={5}>
-                  <strong>Already Blockstack User?</strong> Just login in using
-                  the Blockstack button above!
+                  <strong>Learn about Blockstack! </strong> A good starting
+                  point is{' '}
+                  <a
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://docs.blockstack.org"
+                  >
+                    Blockstack's documentation
+                  </a>
+                  .<br />
                 </Col>
                 <Col xs={12} md={2} style={{ padding: '10px' }}>
                   <img
@@ -271,12 +292,8 @@ class EventCalendar extends Component {
                   />
                 </Col>
                 <Col xs={12} md={5}>
-                  <strong>Learn about Blockstack! </strong> A good starting
-                  point is{' '}
-                  <a href="https://docs.blockstack.org">
-                    Blockstack's documentation
-                  </a>
-                  .<br />
+                  <strong>Start now:</strong> Just login using the Blockstack
+                  button above!
                 </Col>
               </Row>
             </Card.Body>
