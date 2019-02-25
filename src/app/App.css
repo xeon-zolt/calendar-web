@@ -145,6 +145,10 @@ h1,
 	background-color: #e0e0e0;
 }
 
+.nav-justified {
+	white-space: nowrap;
+}
+
 @media screen and (min-width: 1080px) {
 	.body-container {
 		width: 1050px;
