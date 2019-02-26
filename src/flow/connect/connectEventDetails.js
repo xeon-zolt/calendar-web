@@ -64,14 +64,15 @@ export default connect(
       updateCurrentEvent: eventDetails => {
         dispatch(setCurrentEvent(eventDetails))
       },
-      sendInvites: (eventInfo, guests, actionType) =>
-        dispatch(sendInvites(eventInfo, guests)).then(() => {
+      sendInvites: (eventDetails, guests, actionType) => {
+        dispatch(sendInvites(eventDetails, guests)).then(() => {
           let { allEvents } = redux.store.getState().events
           if (actionType === 'add' || actionType === 'edit') {
-            allEvents[eventInfo.uid] = eventInfo
+            allEvents[eventDetails.uid] = eventDetails
           }
           dispatch(saveAllEvents(allEvents))
-        }),
+        })
+      },
       unsetInviteError: () => {
         dispatch(unsetCurrentInvites())
       },
