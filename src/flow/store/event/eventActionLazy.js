@@ -399,15 +399,24 @@ export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState()
     let { allEvents, calendars, userSessionChat } = state.events
-    console.log('calendars', calendars)
-    const privateCalendar = calendars.find(
-      c => c.type === 'private' && c.name === 'default'
-    )
-    if (privateCalendar) {
-      event.hexColor = privateCalendar.hexColor
+    console.log('calendars', calendars, event)
+
+    if (!event.hexColor) {
+      const privateCalendar = calendars.find(
+        c => c.type === 'private' && c.name === 'default'
+      )
+      if (privateCalendar) {
+        event.hexColor = privateCalendar.hexColor
+      }
     }
-    event.calendarName = 'default'
-    event.uid = uuid()
+
+    if (!event.calendarName) {
+      event.calendarName = 'default'
+    }
+
+    if (!event.uid) {
+      event.uid = uuid()
+    }
 
     allEvents[event.uid] = event
 

@@ -32,7 +32,7 @@ export default connect(
   (state, redux) => {
     console.log('[ConnectedEventDetails]', state)
     const { GuestList } = state.lazy
-    const { currentEvent, currentEventType } = state.events
+    const { currentEvent, currentEventType, calendars } = state.events
     const inviteError = state.events.inviteError
     const inviteSuccess = state.events.inviteSuccess
     const addingConferencing = state.events.addingConferencing
@@ -50,6 +50,7 @@ export default connect(
       removingConferencing,
       richNotifEnabled,
       richNofifExclude,
+      calendars,
     }
   },
   (dispatch, redux) => {

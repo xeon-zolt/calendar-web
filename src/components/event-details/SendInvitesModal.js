@@ -57,10 +57,10 @@ class SendInvitesModal extends React.Component {
 }
 
 SendInvitesModal.propTypes = {
-  guests: PropTypes.object,
+  guests: PropTypes.string,
   handleInvitesHide: PropTypes.func,
-  inviteError: PropTypes.object,
-  inviteErrorMsg: PropTypes.string,
+  inviteError: PropTypes.instanceOf(Error),
+  inviteErrorMsg: PropTypes.node,
   loadGuestList: PropTypes.func,
   sending: PropTypes.bool,
   sendInvites: PropTypes.func,

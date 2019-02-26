@@ -63,6 +63,7 @@ class EventDetails extends Component {
         currentEvent && currentEvent.duration ? 'duration' : 'endDate',
       addingConferencing: false,
       removingConferencing: false,
+      calendarName: 'default',
     }
 
     this.bound = [
@@ -166,8 +167,8 @@ class EventDetails extends Component {
   }
 
   addEvent() {
-    const { addEvent } = this.props
-    const { eventDetails } = this.state
+    const { addEvent, calendars } = this.props
+    const { eventDetails, calendarName } = this.state
     const {
       popInvitesModal,
       handleClose,
@@ -176,6 +177,14 @@ class EventDetails extends Component {
     const { guests, noInvites } = eventDetails
 
     updateEndDateFromDuration()
+
+    const privateCalendar = calendars.find(
+      c => c.type === 'private' && c.name === 'default'
+    )
+    if (privateCalendar) {
+      eventDetails.hexColor = privateCalendar.hexColor
+    }
+    eventDetails.calendarName = calendarName
 
     console.log('add event', eventDetails, checkHasGuests(guests))
     if (noInvites || !checkHasGuests(guests)) {
@@ -220,10 +229,12 @@ class EventDetails extends Component {
   }
 
   handleInvitesHide() {
-    const { eventDetails, inviteError, unsetInviteError } = this.props
+    const { inviteError, unsetInviteError } = this.props
+    const { eventDetails } = this.state
     this.setState({ showInvitesModal: false })
     unsetInviteError()
     eventDetails.noInvites = !inviteError
+    this.setState({ eventDetails })
   }
 
   handleRemindersHide() {
@@ -231,9 +242,10 @@ class EventDetails extends Component {
   }
 
   sendInvites() {
-    const { sendInvites, editMode, eventDetails } = this.props
-    const { guests } = this.state
+    const { sendInvites, editMode } = this.props
+    const { eventDetails, guests } = this.state
     this.setState({ sending: true })
+    console.log(eventDetails)
     sendInvites(eventDetails, guests, editMode)
   }
 
@@ -588,11 +600,12 @@ class EventDetails extends Component {
 }
 
 EventDetails.propTypes = {
-  currentEvent: PropTypes.object,
-  inviteError: PropTypes.object,
+  currentEvent: PropTypes.object.isRequired,
+  inviteError: PropTypes.instanceOf(Error),
   inviteSuccess: PropTypes.bool,
   showModal: PropTypes.bool,
   richNotifEnabled: PropTypes.bool,
+  calendars: PropTypes.array,
 }
 
 export default EventDetails
