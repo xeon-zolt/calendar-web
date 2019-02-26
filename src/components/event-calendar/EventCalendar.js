@@ -199,7 +199,7 @@ class EventCalendar extends Component {
           !publicCalendar && (
             <Card>
               <Card.Header>
-                Instructions
+                How to use OI Calendar
                 <button
                   type="button"
                   className="close"
@@ -214,13 +214,11 @@ class EventCalendar extends Component {
                   <div style={{ padding: '20px' }}>
                     <Row style={{ textAlign: 'left' }}>
                       <Col md={6}>
-                        <strong>Add event: </strong> Click or long-press on the
-                        day you want to add an event or drag up to the day you
-                        want to add the event for multiple day event! <br />
+                        <strong>Add an event: </strong> Click on a
+                        day to add event details. To add a multi-day event, click and hold while dragging across the days you want to include. <br />
                       </Col>
                       <Col md={6}>
-                        <strong>Update or delete event:</strong> Click on the
-                        event you wish to update or delete!
+                        <strong>Update or delete an event:</strong> Click on event to open it. Edit the details and press <strong>Update</strong>. Or <strong>Delete</strong> the event entirely.
                       </Col>
                     </Row>
                     <Row style={{ padding: '20px' }}>
@@ -233,8 +231,7 @@ class EventCalendar extends Component {
                         />
                       </Col>
                       <Col xs={12} sm={10} style={{ textAlign: 'left' }}>
-                        <strong>Move from Google Calendar</strong>: Done in a
-                        minute! Follow the{' '}
+                        <strong>Import events from Google Calendar</strong>: Need help, follow the{' '}
                         <a
                           target="_blank"
                           rel="noopener noreferrer"
@@ -247,7 +244,7 @@ class EventCalendar extends Component {
                         <input
                           style={{ width: '100%' }}
                           type="text"
-                          placeholder="Paste url like https://calendar.google..../basic.ics"
+                          placeholder="Paste an event URL, for example: https://calendar.google..../basic.ics"
                           onKeyPress={handleAddCalendarByUrl}
                         />
                       </Col>
