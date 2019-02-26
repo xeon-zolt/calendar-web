@@ -19,9 +19,13 @@ function newFile(files, f) {
     files.calendars.private = [{ name: 'private', url: files.appBucketUrl + f }]
   } else if (f.endsWith('event.json') && f.startsWith('shared/')) {
     files.sharedEvents.push({ name: f, url: files.appBucketUrl + f })
+  } else if (f.startsWith('msg/')) {
+    if (!files.msgs) {
+      files.msgs = []
+    }
+    files.msgs.push({ name: f, url: files.appBucketUrl + f })
   } else {
-    const filename = f
-    files.others.push({ name: filename, url: files.appBucketUrl + f })
+    files.others.push({ name: f, url: files.appBucketUrl + f })
   }
 }
 
