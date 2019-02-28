@@ -1,5 +1,6 @@
 // Views
 export const SET_LAZY_VIEW = 'view.SET_LAZY_VIEW'
+
 // Auth
 export const AUTH_SIGN_IN = 'auth.SIGN_IN'
 export const AUTH_SIGN_OUT = 'auth.SIGN_OUT'
@@ -47,10 +48,10 @@ export const SET_RICH_NOTIF_ERROR = 'settings.SET_RICH_NOTIF_ERROR'
 export const SET_RICH_NOTIF_EXCLUDE_GUESTS =
   'settings.SET_RICH_NOTIF_EXCLUDE_GUESTS'
 
-// FILES
+// Files
 export const SET_FILES = 'files.SET_FILES'
 
-// CHAT
+// Chat
 export const SET_CHAT_STATUS = 'chat.SET_CHAT_STATUS'
 export const CREATE_CONFERENCING_ROOM = 'rooms.CREATE_CONFERENCING_ROOM'
 export const REMOVE_CONFERENCING_ROOM = 'rooms.REMOVE_CONFERENCING_ROOM'

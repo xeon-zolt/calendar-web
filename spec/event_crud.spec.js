@@ -1,5 +1,5 @@
 var assert = require('assert')
-var storeManager = require('../src/store/storeManager')
+var storeManager = require('../src/store')
 var eventActionLazy = require('../src/store/event/eventActionLazy')
 
 const store = storeManager.createInitialStore({})

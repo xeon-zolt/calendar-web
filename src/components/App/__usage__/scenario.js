@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import App from '../DynamicApp'
+import App from '..'
 // import ReudxApp from "../redux-app";
 // import ConnectedCalendar from "../redux-calendar";
 // import ConnectedEventDetails from "../redux-event-details";
@@ -26,7 +26,7 @@ let UserProfile = props => {
 
 let whenAppLoaded = forceUpdate => {
   console.log('whenAppLoaded')
-  import('../../components/Calendar').then(({ default: CalendarBase }) => {
+  import('../../Calendar').then(({ default: CalendarBase }) => {
     Calendar = props => {
       return (
         <CalendarBase
@@ -40,22 +40,20 @@ let whenAppLoaded = forceUpdate => {
     forceUpdate()
   })
 
-  import('../../components/AuthUserProfile/UserProfile').then(
-    ({ default: UserProfileBase }) => {
-      UserProfile = props => {
-        return (
-          <UserProfileBase
-            isSignedIn
-            isConnecting
-            userSignOut={doNothing}
-            userSignIn={doNothing}
-          />
-        )
-      }
-      console.log('CalendarLoaded')
-      // forceUpdate();
+  import('../../UserProfile').then(({ default: UserProfileBase }) => {
+    UserProfile = props => {
+      return (
+        <UserProfileBase
+          isSignedIn
+          isConnecting
+          userSignOut={doNothing}
+          userSignIn={doNothing}
+        />
+      )
     }
-  )
+    console.log('CalendarLoaded')
+    // forceUpdate();
+  })
 }
 
 let dynamicApp

@@ -24,11 +24,7 @@ const Files = props => {
 				<label variant="title">
 					Remote files on <a href={files.appBucketUrl}>your storage</a>
 				</label>
-				<Button
-					variant="contained"
-					size="small"
-					onClick={() => refreshFiles()}
-				>
+				<Button variant="contained" size="small" onClick={() => refreshFiles()}>
 					<FontAwesomeIcon icon="sync" />
 				</Button>
 			</Card.Header>
@@ -78,8 +74,8 @@ const Files = props => {
 }
 
 Files.propTypes = {
-  files: PropTypes.any,
-  refreshFiles: PropTypes.func,
+	files: PropTypes.any,
+	refreshFiles: PropTypes.func,
 }
 
 export default memo(Files)

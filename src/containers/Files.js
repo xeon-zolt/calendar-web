@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { showFiles, loadingFiles } from '../store/gaia/filesAction'
+import { showFiles, loadingFiles } from '../store/gaia/actions'
 
 export default connect(
   (state, redux) => {

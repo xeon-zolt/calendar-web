@@ -1,5 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+
+// Components
 import BlockstackSignInButton from './SignInButton'
 
 const UserProfile = props => {
@@ -9,6 +11,7 @@ const UserProfile = props => {
     const image = (
       <img src={avatarUrl} alt={name} className="authUserProfile-Avatar" />
     )
+
     return (
       <div className="authUserProfile-Root">
         <BlockstackSignInButton
@@ -21,9 +24,11 @@ const UserProfile = props => {
       </div>
     )
   }
+
   if (isConnecting) {
     return <div>{message}</div>
   }
+
   return (
     <div className="authUserProfile-Root">
       <BlockstackSignInButton

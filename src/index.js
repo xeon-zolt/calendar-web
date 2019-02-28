@@ -1,7 +1,12 @@
+import React from 'react'
 import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
 
 // App
-import App from './app/DynamicApp'
+import App from './components/App'
+
+// Redux Store
+import store, { history } from './store'
 
 // Styles
 import './index.css'
@@ -14,4 +19,9 @@ import registerServiceWorker from './registerServiceWorker'
 
 registerServiceWorker()
 
-ReactDOM.render(App, document.getElementById('root'))
+ReactDOM.render(
+  <Provider store={store}>
+    <App history={history} />
+  </Provider>,
+  document.getElementById('root')
+)
