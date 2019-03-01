@@ -5,7 +5,6 @@ import {
   showAllCalendars,
 } from '../store/event/eventActionLazy'
 import { showFiles } from '../store/gaia/filesAction'
-import { setCurrentEvent } from '../store/event/eventAction'
 
 export default connect(
   (state, redux) => {
@@ -32,7 +31,6 @@ export default connect(
         dispatch(showSettings())
       },
       showMyPublicCalendar: name => {
-        dispatch(setCurrentEvent)
         dispatch(showMyPublicCalendar(name))
       },
       showAllEvents: () => {
