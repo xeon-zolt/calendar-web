@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5" />
+    <meta name="msapplication-TileColor" content="#b91d47" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Private, encrypted calendar in the cloud using Blockstack, free and open source."
+    />
+    <!--
+      manifest.json provides metadata used when your web app is added to the
+      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+
+    <!-- Latest compiled and minified CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <title>OI Calendar - How to import from Google Calendar</title>
+  </head>
+
+  <body style="margin:30px;">
+    <header class="App-header">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <span class="navbar-brand"
+          ><a href="/"
+            ><img
+              class="App-logo"
+              height="40px"
+              width="40ox"
+              src="/android-chrome-192x192.png"
+              alt="OI Calendar Logo"/></a
+          >OI Calendar</span
+        >
+      </nav>
+    </header>
+    <h2>Move from Google Calendar</h2>
+    <p>
+      Google provides a private link that contains all your events.
+      Unfortunately, Google does not let you easily use these events, you need a
+      <a
+        href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing"
+        rel="nofollow"
+        >CORS</a
+      >
+      browser plugin.
+    </p>
+    <ol>
+      <li>
+        Copy your private Google calendar url
+        <ul>
+          <li>
+            Login to Google Calendar and goto settings:
+            <a
+              href="https://calendar.google.com/calendar/r/settings"
+              rel="nofollow"
+              >https://calendar.google.com/calendar/r/settings</a
+            >
+          </li>
+          <li>
+            Select your calendar on the left side<br />
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/friedger/oi-calendar/blob/master/resources/Screenshot%20from%202019-02-02%2002-10-33.png"
+              ><img
+                src="https://github.com/friedger/oi-calendar/raw/master/resources/Screenshot%20from%202019-02-02%2002-10-33.png"
+                alt="Select"
+                height="100px"
+                style="max-width:100%;"
+            /></a>
+
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/friedger/oi-calendar/blob/master/resources/Screenshot%20from%202019-02-02%2002-11-05.png"
+              ><img
+                src="https://github.com/friedger/oi-calendar/raw/master/resources/Screenshot%20from%202019-02-02%2002-11-05.png"
+                alt="Select3"
+                height="100px"
+                style="max-width:100%;"
+            /></a>
+          </li>
+          <li>On the your calendar's settings, scroll to the bottom</li>
+          <li>
+            Copy the private address of your calendar containing your email
+            address and ends with <code>basic.ics</code><br />
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/friedger/oi-calendar/blob/master/resources/Screenshot%20from%202019-02-02%2002-11-27.png"
+              ><img
+                src="https://github.com/friedger/oi-calendar/raw/master/resources/Screenshot%20from%202019-02-02%2002-11-27.png"
+                alt="Select3"
+                height="100px"
+                style="max-width:100%;"
+            /></a>
+          </li>
+        </ul>
+      </li>
+      <li>
+        Add to OI Calendar
+        <ul>
+          <li>
+            Open OI Calendar
+            <a href="https://cal.openintents.org/" rel="nofollow"
+              >https://cal.openintents.org/</a
+            >
+          </li>
+          <li>Enable your CORS browser plugin</li>
+          <li>
+            Paste the private address into the <code>Paste url ...</code> field
+            and press enter
+          </li>
+        </ul>
+      </li>
+      <li>Enjoy YOUR calendar!</li>
+    </ol>
+  </body>
+</html>

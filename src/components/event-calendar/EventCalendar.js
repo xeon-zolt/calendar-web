@@ -243,7 +243,7 @@ class EventCalendar extends Component {
                         <a
                           target="_blank"
                           rel="noopener noreferrer"
-                          href="https://github.com/friedger/oi-calendar"
+                          href="https://cal.openintents.org/gtutorial.html"
                         >
                           2-step tutorial
                         </a>
