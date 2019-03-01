@@ -110,7 +110,7 @@ class EventDetails extends Component {
     var val = ''
     if (ref !== 'allDay' && ref !== 'public' && ref !== 'reminderEnabled') {
       if (ref === 'start' || ref === 'end') {
-        val = new Date(moment(e.target.value))
+        val = new Date(moment(e))
       } else {
         val = e.target.value
       }
