@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 
-import { setCurrentEvent } from '../store/event/eventAction'
+import { setNewCurrentEvent } from '../store/event/eventAction'
 import {
   showAllCalendars,
   hideInstructions,
@@ -12,7 +12,7 @@ import { showSettingsAddCalendar } from '../store/event/calendarActionLazy'
 export default connect(
   (state, redux) => {
     const { events, auth } = state
-    const { EventDetails } = state.lazy
+    const { EventDetails, SendInvitesModal, RemindersModal } = state.lazy
     const signedIn = !!auth.user
     console.log('[CALENDAR_REDUX]', events)
     const {
@@ -26,10 +26,12 @@ export default connect(
       currentCalendarIndex,
       currentCalendarLength,
       currentError,
+      showRemindersInfo,
+      inviteStatus,
     } = events || {}
 
     let eventModal
-    if (currentEvent) {
+    if (currentEvent && !inviteStatus) {
       const eventType = currentEventType || 'view' // "add", "edit"
       const eventInfo = currentEvent
       eventModal = { eventType, eventInfo }
@@ -39,13 +41,17 @@ export default connect(
       ? showInstructions.general
       : false // preferences not yet loaded
 
-    let showError = currentError && currentError.msg
-    let error = currentError ? currentError.msg : null
+    const showError = currentError && currentError.msg
+    const error = currentError ? currentError.msg : null
+    const showRemindersModal = showRemindersInfo
+    const showSendInvitesModal = !!inviteStatus
     return {
       events,
       signedIn,
       views: {
         EventDetails,
+        SendInvitesModal,
+        RemindersModal,
       },
       eventModal,
       currentEvent,
@@ -59,6 +65,8 @@ export default connect(
       currentCalendarLength,
       showError,
       error,
+      showSendInvitesModal,
+      showRemindersModal,
     }
   },
   dispatch => {
@@ -79,7 +87,7 @@ export default connect(
           eventType: currentEventType,
           eventInfo: currentEvent,
         } = eventModal
-        dispatch(setCurrentEvent(currentEvent, currentEventType))
+        dispatch(setNewCurrentEvent(currentEvent, currentEventType))
       },
       markErrorAsRead: () => {
         dispatch(setError())

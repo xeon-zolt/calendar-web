@@ -115,8 +115,10 @@ class EventCalendar extends Component {
       error,
       showSettingsAddCalendar,
       markErrorAsRead,
+      showRemindersModal,
+      showSendInvitesModal,
     } = this.props
-    const { EventDetails } = views
+    const { EventDetails, SendInvitesModal, RemindersModal } = views
     const {
       handleHideInstructions,
       handleEditEvent,
@@ -136,7 +138,6 @@ class EventCalendar extends Component {
       shareUrl =
         window.location.origin + '/?intent=addics&url=' + publicCalendar
     }
-
     const calendarView = (
       <div>
         <div style={{ height: 8 }}>
@@ -303,6 +304,8 @@ class EventCalendar extends Component {
           </Card>
         )}
         {eventModal && !inviteSuccess && <EventDetails />}
+        {showSendInvitesModal && <SendInvitesModal />}
+        {showRemindersModal && <RemindersModal />}
         {(myPublicCalendar || publicCalendar) && (
           <Card>
             <Card.Header>

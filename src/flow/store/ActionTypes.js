@@ -23,6 +23,7 @@ export const SET_CONTACTS = 'contacts.ALL'
 export const LOAD_GUEST_LIST = 'contacts.LOAD_GUEST_LIST'
 export const SET_CURRENT_GUESTS = 'contacts.SET_CURRENT_GUESTS'
 export const SEND_INVITES_REQUEST = 'contacts.SEND_INVITES_REQUEST'
+export const SET_INVITE_SEND_STATUS = 'contacts.SET_INVITE_SEND_STATUS'
 export const INVITES_SENT_OK = 'contacts.INVITES_SENT'
 export const INVITES_SENT_FAIL = 'contacts.INVITES_SENT_FAIL'
 export const UNSET_CURRENT_INVITES = 'contacts.UNSET_CURRENT_INVITES'
@@ -46,6 +47,7 @@ export const SET_RICH_NOTIF_ENABLED = 'settings.SET_RICH_NOTIF_ENABLED'
 export const SET_RICH_NOTIF_ERROR = 'settings.SET_RICH_NOTIF_ERROR'
 export const SET_RICH_NOTIF_EXCLUDE_GUESTS =
   'settings.SET_RICH_NOTIF_EXCLUDE_GUESTS'
+export const SET_REMINDERS_INFO_REQUEST = 'settings.SET_REMINDERS_INFO_REQUEST'
 
 // FILES
 export const SET_FILES = 'files.SET_FILES'

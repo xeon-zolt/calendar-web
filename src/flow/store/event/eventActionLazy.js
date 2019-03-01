@@ -25,6 +25,8 @@ import {
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
   SET_RICH_NOTIF_ERROR,
   SET_CHAT_STATUS,
+  SET_REMINDERS_INFO_REQUEST,
+  SET_CURRENT_GUESTS,
 } from '../ActionTypes'
 
 import { defaultEvents } from '../../io/eventDefaults'
@@ -49,7 +51,11 @@ import {
   showSettingsAddCalendar,
 } from './calendarActionLazy'
 import { guestsStringToArray } from '../../../components/event-details/EventDetails'
-import { setCurrentEvent, setCurrentEventUid } from './eventAction'
+import {
+  setCurrentEvent,
+  setNewCurrentEvent,
+  setCurrentEventUid,
+} from './eventAction'
 
 // Reminders
 import { addReminder, initReminders } from '../../../reminder'
@@ -118,9 +124,9 @@ function initializeQueryString(query, username) {
       query,
       eventFromIntent(username),
       eventInfo => {
-        dispatch(setCurrentEvent(eventInfo, username ? 'add' : 'view'))
+        dispatch(setNewCurrentEvent(eventInfo, username ? 'add' : 'view'))
       },
-      eventInfo => dispatch(setCurrentEvent(eventInfo, 'add')),
+      eventInfo => dispatch(setNewCurrentEvent(eventInfo, 'add')),
       url => dispatch(showSettingsAddCalendar(url)),
       name => dispatch(viewPublicCalendar(name)),
       uid => dispatch(setCurrentEventUid(uid, 'edit'))
@@ -141,7 +147,7 @@ export function initializeEvents() {
         const currentEventUid = getState().events.currentEventUid
         if (currentEventUid) {
           const currentEvent = allEvents[currentEventUid]
-          dispatch(setCurrentEvent(currentEvent, 'edit'))
+          dispatch(setNewCurrentEvent(currentEvent, 'edit'))
         }
         dispatch(setLoadingCalendars(0, 0))
         dispatch(setEventsAction(allEvents))
@@ -256,6 +262,14 @@ export function hideInstructions() {
     savePreferences({ showInstructions: { general: false } })
     dispatch(showInstructionsAction(false))
   }
+}
+
+export function setRemindersInfoRequest() {
+  return { type: SET_REMINDERS_INFO_REQUEST, payload: { show: true } }
+}
+
+export function unsetRemindersInfoRequest() {
+  return { type: SET_REMINDERS_INFO_REQUEST, payload: { show: undefined } }
 }
 
 export function enableRichNotif() {
@@ -487,6 +501,9 @@ export function updateEvent(event) {
   }
 }
 
+export function setCurrentGuests(profiles) {
+  return { type: SET_CURRENT_GUESTS, payload: { profiles } }
+}
 // ################
 // Calendars
 // ################
@@ -527,8 +544,8 @@ export function createConferencingRoomAction(status, url) {
 
 export function createConferencingRoom(eventDetails, guests) {
   return async (dispatch, getState) => {
+    dispatch(setCurrentEvent(eventDetails))
     dispatch(createConferencingRoomAction('adding', null))
-    setCurrentEvent(eventDetails)
     const { userSessionChat, user } = getState().events
     userSessionChat
       .createNewRoom(

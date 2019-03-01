@@ -7,21 +7,21 @@ import {
   addEvent,
   deleteEvent,
   updateEvent,
-  saveAllEvents,
   createConferencingRoom,
   removeConferencingRoom,
+  setRemindersInfoRequest,
 } from '../../flow/store/event/eventActionLazy'
 
 import {
-  sendInvites,
+  setInviteStatus,
   unsetCurrentInvites,
-  loadGuestList,
 } from '../../flow/store/event/contactActionLazy'
 
 const eventDefaults = {
   start: moment(),
   end: moment(),
   allDay: false,
+  public: false,
   hexColor: '#265985',
   reminderTime: 10,
   reminderTimeUnit: 'minutes',
@@ -35,12 +35,14 @@ export default connect(
     const { currentEvent, currentEventType, calendars } = state.events
     const inviteError = state.events.inviteError
     const inviteSuccess = state.events.inviteSuccess
+    const inviteStatus = state.events.inviteStatus
     const addingConferencing = state.events.addingConferencing
     const removingConferencing = state.events.removingConferencing
     const richNotifEnabled = state.events.richNotifEnabled
     const richNofifExclude = state.events.richNofifExclude
 
     return {
+      inviteStatus,
       inviteError,
       inviteSuccess,
       views: { GuestList },
@@ -58,21 +60,16 @@ export default connect(
       unsetCurrentEvent: () => {
         dispatch(unsetCurrentEvent())
       },
-      loadGuestList: (guests, asyncReturn) => {
-        const contacts = redux.store.getState().events.contacts
-        loadGuestList(guests, contacts, asyncReturn)
+      popSendInvitesModal: eventDetails => {
+        dispatch(setCurrentEvent(eventDetails))
+        dispatch(setInviteStatus('prepare'))
+      },
+      showRemindersModal: eventDetails => {
+        dispatch(setCurrentEvent(eventDetails))
+        dispatch(setRemindersInfoRequest())
       },
       updateCurrentEvent: eventDetails => {
         dispatch(setCurrentEvent(eventDetails))
-      },
-      sendInvites: (eventDetails, guests, actionType) => {
-        dispatch(sendInvites(eventDetails, guests)).then(() => {
-          let { allEvents } = redux.store.getState().events
-          if (actionType === 'add' || actionType === 'edit') {
-            allEvents[eventDetails.uid] = eventDetails
-          }
-          dispatch(saveAllEvents(allEvents))
-        })
       },
       unsetInviteError: () => {
         dispatch(unsetCurrentInvites())

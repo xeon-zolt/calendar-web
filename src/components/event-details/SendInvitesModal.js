@@ -1,25 +1,40 @@
 import { Button, Modal, ProgressBar } from 'react-bootstrap'
 import React from 'react'
 import PropTypes from 'prop-types'
+import { renderMatrixError } from './EventDetails'
 
 class SendInvitesModal extends React.Component {
   constructor(props) {
     super(props)
     console.log('SendInvitesModal')
-    this.state = { sending: true, profiles: undefined }
+    this.state = { profiles: undefined }
+  }
 
-    var { guests } = props
-    if (typeof guests !== 'string') {
-      guests = ''
+  componentDidMount() {
+    var { guests, profiles } = this.props
+    console.log('didMount', { guests, profiles })
+    if (!profiles) {
+      if (typeof guests !== 'string') {
+        guests = ''
+      }
+      const guestList = guests.toLowerCase().split(/[,\s]+/g)
+      console.log('dispatch load guest list', guestList)
+      this.props.loadGuestList(guestList)
     }
+  }
 
-    const guestList = guests.toLowerCase().split(/[,\s]+/g)
-    console.log('dispatch load guest list', guestList)
+  componentWillReceiveProps(nextProps) {
+    var { guests, profiles, loadGuestList } = nextProps
+    console.log('componentWillReceiveProps', { guests, profiles })
 
-    props.loadGuestList(guestList, ({ profiles, contacts }) => {
-      console.log('profiles', profiles)
-      this.setState({ profiles })
-    })
+    if (!profiles) {
+      if (typeof guests !== 'string') {
+        guests = ''
+      }
+      const guestList = guests.toLowerCase().split(/[,\s]+/g)
+      console.log('dispatch load guest list', guestList)
+      loadGuestList(guestList)
+    }
   }
 
   render() {
@@ -28,14 +43,26 @@ class SendInvitesModal extends React.Component {
       handleInvitesHide,
       sending,
       inviteError,
-      inviteErrorMsg,
       sendInvites,
       GuestList,
+      profiles,
+      currentEvent,
+      currentEventType,
     } = this.props
-
-    const { profiles } = this.state
+    console.log('profiles', profiles)
+    let inviteErrorMsg = []
+    if (inviteError) {
+      inviteErrorMsg = renderMatrixError(
+        'Sending invites not possible.',
+        inviteError
+      )
+    }
     return (
-      <Modal show onHide={handleInvitesHide}>
+      <Modal
+        show
+        onHide={() => handleInvitesHide(undefined, currentEvent, currentEvent)}
+        animation={false}
+      >
         <Modal.Header closeButton>
           <Modal.Title id="contained-modal-title">{title}</Modal.Title>
         </Modal.Header>
@@ -45,10 +72,21 @@ class SendInvitesModal extends React.Component {
           {sending && !inviteError && <ProgressBar animated now={50} />}
           {inviteError && inviteErrorMsg}
           <Modal.Footer>
-            <Button variant="success" onClick={() => sendInvites(profiles)}>
+            <Button
+              variant="success"
+              onClick={() =>
+                sendInvites(currentEvent, profiles, currentEventType)
+              }
+            >
               Send
             </Button>
-            <Button onClick={handleInvitesHide}>Close</Button>
+            <Button
+              onClick={() =>
+                handleInvitesHide(inviteError, currentEvent, currentEventType)
+              }
+            >
+              Close
+            </Button>
           </Modal.Footer>
         </Modal.Body>
       </Modal>
@@ -58,9 +96,9 @@ class SendInvitesModal extends React.Component {
 
 SendInvitesModal.propTypes = {
   guests: PropTypes.string,
+  profiles: PropTypes.object,
   handleInvitesHide: PropTypes.func,
   inviteError: PropTypes.instanceOf(Error),
-  inviteErrorMsg: PropTypes.node,
   loadGuestList: PropTypes.func,
   sending: PropTypes.bool,
   sendInvites: PropTypes.func,

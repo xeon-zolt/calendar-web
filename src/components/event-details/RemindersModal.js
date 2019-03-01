@@ -23,7 +23,13 @@ class RemindersModal extends React.Component {
         <Modal.Body>
           {!notifPermissionGranted && (
             <>
-              Please grant permission to reveice notifcations from the browser
+              Please grant permission to reveice notifcations from the browser.
+            </>
+          )}
+          {notifPermissionGranted && (
+            <>
+              You already granted permissions to receive notifications from the
+              browser!
             </>
           )}
         </Modal.Body>
