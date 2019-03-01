@@ -233,7 +233,7 @@ export class UserSessionChat {
     } else {
       const userData = loadUserData()
       return this.createNewRoom(
-        'OI Chat Reminders',
+        'OI Calendar Reminders',
         'Receive information about events',
         null,
         userData.identityAddress
