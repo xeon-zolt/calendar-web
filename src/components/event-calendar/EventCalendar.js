@@ -13,6 +13,7 @@ import BigCalendar from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 import { uuid } from '../../flow/io/eventFN'
+import FAQs from '../branding/FAQ'
 
 let localizer = BigCalendar.momentLocalizer(moment)
 let allViews = Object.keys(BigCalendar.Views).map(k => BigCalendar.Views[k])
@@ -264,7 +265,7 @@ class EventCalendar extends Component {
         {!signedIn && (
           <Card>
             <Card.Header>
-              Private, Encrypted Agenda in Your Cloud <br />
+              <h2>Private, Encrypted Agenda in Your Cloud</h2>
             </Card.Header>
             <Card.Body>
               <Row>
@@ -345,6 +346,7 @@ class EventCalendar extends Component {
           </Card>
         )}
         {!myPublicCalendar && !publicCalendar && calendarView}
+        {!signedIn && <FAQs />}
       </div>
     )
   }
