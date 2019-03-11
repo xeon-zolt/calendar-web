@@ -7,6 +7,7 @@ import {
 } from '../ActionTypes'
 
 import { sendInvitesToGuests, loadGuestProfiles } from '../../core/event'
+import { setCurrentGuests } from './eventActionLazy'
 
 function resetContacts(contacts) {
   return (dispatch, getState) => {
@@ -97,7 +98,7 @@ export function sendInvites(eventInfo, guests) {
     ).then(
       () => {
         dispatch(invitesSentSuccess())
-        return Promise.resolve()
+        return Promise.resolve(state.events.allEvents)
       },
       error => {
         dispatch(invitesSentFailure(error))
@@ -111,14 +112,17 @@ export function sendInvites(eventInfo, guests) {
 // GUESTS
 // #########################
 
-export function loadGuestList(guests, contacts, asyncReturn) {
-  console.log('loadGuestList', guests, contacts)
-  loadGuestProfiles(guests, contacts).then(
-    ({ profiles, contacts }) => {
-      asyncReturn({ profiles, contacts })
-    },
-    error => {
-      console.log('load guest list failed', error)
-    }
-  )
+export function loadGuestList(guests) {
+  return async (dispatch, getState) => {
+    const contacts = getState().events.contacts
+    console.log('loadGuestList', guests, contacts)
+    loadGuestProfiles(guests, contacts).then(
+      ({ profiles, contacts }) => {
+        dispatch(setCurrentGuests(profiles))
+      },
+      error => {
+        console.log('load guest list failed', error)
+      }
+    )
+  }
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Route, Router } from 'react-router'
+import { Route } from 'react-router-dom'
 
 // Views
 import Footer from '../Footer'
@@ -11,6 +11,7 @@ import { routes } from '../../routes'
 
 // Styles
 import './App.css'
+import { ConnectedRouter } from 'connected-react-router'
 
 export class App extends Component {
 	// componentDidMount() {
@@ -21,7 +22,7 @@ export class App extends Component {
 
 	render() {
 		return (
-			<Router history={this.props.history}>
+			<ConnectedRouter history={this.props.history}>
 				<div className="App">
 					<Header />
 
@@ -31,7 +32,7 @@ export class App extends Component {
 
 					<Footer />
 				</div>
-			</Router>
+			</ConnectedRouter>
 		)
 	}
 }

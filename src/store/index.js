@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, compose } from 'redux'
-import { routerMiddleware } from 'react-router-redux'
+import { routerMiddleware } from 'connected-react-router'
 import thunk from 'redux-thunk'
 import { logger } from 'redux-logger'
 
@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const store = createStore(
-  reducers,
+  reducers(history),
   composeEnhancers(applyMiddleware(...middlewares))
 )
 

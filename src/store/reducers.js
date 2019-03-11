@@ -1,14 +1,15 @@
 import { combineReducers } from 'redux'
+import { connectRouter } from 'connected-react-router'
 
 // Reducers
 import auth from './auth/reducer'
 import events from './event/reducer'
 import gaia from './gaia/reducer'
-// import lazy from './lazy/reducer'
 
-export default combineReducers({
-  // lazy,
-  auth,
-  events,
-  gaia,
-})
+export default history =>
+  combineReducers({
+    router: connectRouter(history),
+    auth,
+    events,
+    gaia,
+  })

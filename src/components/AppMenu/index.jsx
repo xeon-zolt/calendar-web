@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import { Nav } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import { PropTypes } from 'prop-types'
 
 export default class AppMenu extends Component {
 	constructor(props) {
@@ -21,19 +23,15 @@ export default class AppMenu extends Component {
 	onSelect(eventKey) {
 		switch (eventKey) {
 			case 'settings':
-				this.props.showSettings()
 				this.setState({ activeKey: 'settings' })
 				break
 			case 'public':
-				this.props.showMyPublicCalendar('public@' + this.props.username)
 				this.setState({ activeKey: 'public' })
 				break
 			case 'all':
-				this.props.showAllEvents()
 				this.setState({ activeKey: 'all' })
 				break
 			case 'files':
-				this.props.showFiles()
 				this.setState({ activeKey: 'files' })
 				break
 			default:
@@ -53,22 +51,33 @@ export default class AppMenu extends Component {
 				<div className="App-menu">
 					<Nav variant="pills" onSelect={onSelect} activeKey={activeKey}>
 						<Nav.Item>
-							<Nav.Link eventKey="all">Events</Nav.Link>
+							<Link to="/">Events</Link>
 						</Nav.Item>
 						<Nav.Item>
-							<Nav.Link eventKey="public" disabled={!hasPublicCalendar}>
+							<Link
+								disabled={!hasPublicCalendar}
+								to={{
+									pathname: '/public',
+									search: `?c=public@${username}`,
+								}}
+							>
 								Public
-							</Nav.Link>
+							</Link>
 						</Nav.Item>
 						<Nav.Item>
-							<Nav.Link eventKey="settings">Settings</Nav.Link>
+							<Link to="settings">Settings</Link>
 						</Nav.Item>
 						<Nav.Item>
-							<Nav.Link eventKey="files">Files</Nav.Link>
+							<Link to="files">Files</Link>
 						</Nav.Item>
 					</Nav>
 				</div>
 			)
 		)
 	}
+}
+
+AppMenu.propTypes = {
+	username: PropTypes.string,
+	signedIn: PropTypes.bool.isRequired,
 }

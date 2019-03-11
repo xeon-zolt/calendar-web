@@ -1,7 +1,7 @@
 import { Button, Modal, ProgressBar } from 'react-bootstrap'
 import React from 'react'
 import PropTypes from 'prop-types'
-import { renderMatrixError } from '../event-details/EventDetails'
+import { renderMatrixError } from '../EventDetails'
 
 class SendInvitesModal extends React.Component {
   constructor(props) {

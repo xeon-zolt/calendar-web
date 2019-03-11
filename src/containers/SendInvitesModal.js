@@ -2,8 +2,8 @@ import { connect } from 'react-redux'
 
 import { setCurrentEvent } from '../store/event/eventAction'
 
-import { saveAllEvents, setCurrentGuests } from '../store/event/eventActionLazy'
-
+import { saveAllEvents } from '../store/event/eventActionLazy'
+import SendInvitesModal from '../components/Calendar/SendInvitesModal'
 import {
   setInviteStatus,
   sendInvites,
@@ -12,7 +12,7 @@ import {
 } from '../store/event/contactActionLazy'
 
 export default connect(
-  (state, redux) => {
+  state => {
     console.log('[ConnectedSendInvitesModal]', state)
     const { currentEvent, currentEventType, currentGuests } = state.events
     const inviteError = state.events.inviteError
@@ -32,7 +32,7 @@ export default connect(
       profiles: currentGuests,
     }
   },
-  (dispatch, redux) => {
+  dispatch => {
     return {
       handleInvitesHide: (inviteError, eventDetails) => {
         dispatch(setInviteStatus(undefined))
@@ -41,15 +41,11 @@ export default connect(
         dispatch(setCurrentEvent(eventDetails))
       },
       loadGuestList: guests => {
-        const contacts = redux.store.getState().events.contacts
-        loadGuestList(guests, contacts, ({ profiles, contacts }) => {
-          dispatch(setCurrentGuests(profiles))
-        })
+        dispatch(loadGuestList(guests))
       },
       sendInvites: (eventDetails, guests, editMode) => {
         dispatch(setInviteStatus('started'))
-        dispatch(sendInvites(eventDetails, guests)).then(() => {
-          let { allEvents } = redux.store.getState().events
+        dispatch(sendInvites(eventDetails, guests)).then(allEvents => {
           if (editMode === 'add' || editMode === 'edit') {
             allEvents[eventDetails.uid] = eventDetails
           }
@@ -58,4 +54,4 @@ export default connect(
       },
     }
   }
-)
+)(SendInvitesModal)
