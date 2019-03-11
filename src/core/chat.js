@@ -137,7 +137,7 @@ export class UserSessionChat {
                       .sendEvent(roomId, 'm.room.message', content, '')
                       .then(res => {
                         console.log('msg sent', res)
-                        return Promise.resolve(res)
+                        return this.storeChatMessage(res, content)
                       })
                   })
               } else {
@@ -145,7 +145,7 @@ export class UserSessionChat {
                   .sendEvent(roomId, 'm.room.message', content, '')
                   .then(res => {
                     console.log('msg sent', res)
-                    return Promise.resolve(res)
+                    return this.storeChatMessage(res, content)
                   })
               }
             })
@@ -175,7 +175,7 @@ export class UserSessionChat {
                 .then(
                   res => {
                     console.log('msg sent', res)
-                    return Promise.resolve(res)
+                    return this.storeChatMessage(res, content)
                   },
                   error => {
                     console.log('failed to send', error)
@@ -233,7 +233,7 @@ export class UserSessionChat {
     } else {
       const userData = loadUserData()
       return this.createNewRoom(
-        'OI Chat Reminders',
+        'OI Calendar Reminders',
         'Receive information about events',
         null,
         userData.identityAddress
@@ -247,6 +247,13 @@ export class UserSessionChat {
   addressToAccount(address) {
     // TODO lookup home server for user
     return '@' + address.toLowerCase() + ':openintents.modular.im'
+  }
+
+  storeChatMessage(chatEvent, content) {
+    return putFile(
+      'msg/' + encodeURIComponent(chatEvent.event_id),
+      JSON.stringify({ chatEvent, content })
+    )
   }
 }
 

@@ -3,9 +3,6 @@ import PropTypes from 'prop-types'
 import { Modal, Button, FormCheck, Row, Col, Container } from 'react-bootstrap'
 import moment from 'moment'
 
-import SendInvitesModal from './SendInvitesModal'
-import RemindersModal from './RemindersModal'
-
 // Styles
 import '../../css/datetime.css'
 import '../../css/EventDetails.css'
@@ -51,28 +48,32 @@ class EventDetails extends Component {
 	constructor(props) {
 		super(props)
 
-		const { currentEvent, inviteError, inviteSuccess, showModal } = props
+		const {
+			currentEvent,
+			inviteStatus,
+			inviteError,
+			inviteSuccess,
+			showModal,
+		} = props
 
 		this.state = {
 			showModal: showModal,
-			showInvitesModal: (!!inviteSuccess && !inviteSuccess) || !!inviteError,
-			showRemindersModal: false,
+			showInvitesModal:
+				(!!inviteSuccess && !inviteSuccess) || !!inviteError || !!inviteStatus,
 			sending: false,
 			eventDetails: currentEvent,
 			endDateOrDuration:
 				currentEvent && currentEvent.duration ? 'duration' : 'endDate',
 			addingConferencing: false,
 			removingConferencing: false,
+			calendarName: 'default',
 		}
 
 		this.bound = [
 			'handleDataChange',
 			'handleEndDateOrDurationChange',
-			'handleInvitesHide',
-			'handleRemindersHide',
 			'handleClose',
 			'popInvitesModal',
-			'sendInvites',
 			'addEvent',
 			'updateEvent',
 			'deleteEvent',
@@ -148,9 +149,10 @@ class EventDetails extends Component {
 	}
 
 	handleRemindersEnabled(val) {
+		const { showRemindersModal } = this.props
 		console.log('notif permission', Notification.permission)
 		if (val && Notification.permission !== 'granted') {
-			this.setState({ showRemindersModal: true })
+			showRemindersModal(true)
 		}
 	}
 
@@ -166,8 +168,8 @@ class EventDetails extends Component {
 	}
 
 	addEvent() {
-		const { addEvent } = this.props
-		const { eventDetails } = this.state
+		const { addEvent, calendars } = this.props
+		const { eventDetails, calendarName } = this.state
 		const {
 			popInvitesModal,
 			handleClose,
@@ -175,7 +177,16 @@ class EventDetails extends Component {
 		} = this.bound
 		const { guests, noInvites } = eventDetails
 
+		this.handleRemindersEnabled(eventDetails.reminderEnabled)
 		updateEndDateFromDuration()
+
+		const privateCalendar = calendars.find(
+			c => c.type === 'private' && c.name === 'default'
+		)
+		if (privateCalendar) {
+			eventDetails.hexColor = privateCalendar.hexColor
+		}
+		eventDetails.calendarName = calendarName
 
 		console.log('add event', eventDetails, checkHasGuests(guests))
 		if (noInvites || !checkHasGuests(guests)) {
@@ -202,6 +213,7 @@ class EventDetails extends Component {
 		console.log('[updateEvent]', eventDetails)
 		const { handleClose, updateEndDateFromDuration } = this.bound
 		const { updateEvent } = this.props
+		this.handleRemindersEnabled(eventDetails.reminderEnabled)
 
 		updateEndDateFromDuration()
 
@@ -210,31 +222,8 @@ class EventDetails extends Component {
 	}
 
 	popInvitesModal(eventDetails) {
-		const { loadGuestList } = this.props
-		this.setState({ showInvitesModal: true })
-		const guestsString = eventDetails.guests
-		const guests = guestsStringToArray(guestsString)
-		loadGuestList(guests, ({ profiles, contacts }) => {
-			this.setState({ guests: profiles })
-		})
-	}
-
-	handleInvitesHide() {
-		const { eventDetails, inviteError, unsetInviteError } = this.props
-		this.setState({ showInvitesModal: false })
-		unsetInviteError()
-		eventDetails.noInvites = !inviteError
-	}
-
-	handleRemindersHide() {
-		this.setState({ showRemindersModal: false })
-	}
-
-	sendInvites() {
-		const { sendInvites, editMode, eventDetails } = this.props
-		const { guests } = this.state
-		this.setState({ sending: true })
-		sendInvites(eventDetails, guests, editMode)
+		const { popSendInvitesModal } = this.props
+		popSendInvitesModal(eventDetails)
 	}
 
 	addConferencing() {
@@ -254,32 +243,19 @@ class EventDetails extends Component {
 
 	render() {
 		console.log('[EVENDETAILS.render]', this.props)
-		const {
-			showInvitesModal,
-			showRemindersModal,
-			sending,
-			endDateOrDuration,
-			eventDetails,
-		} = this.state
+		const { endDateOrDuration, eventDetails } = this.state
 		const { handleClose } = this.bound
 		const {
-			views,
-			inviteError,
 			editMode,
-			loadGuestList,
 			addingConferencing,
 			removingConferencing,
 			richNotifEnabled,
 			richNofifExclude,
 		} = this.props
-		const { GuestList } = views
 		const {
 			handleDataChange,
 			handleEndDateOrDurationChange,
-			handleInvitesHide,
-			handleRemindersHide,
 			popInvitesModal,
-			sendInvites,
 			addEvent,
 			updateEvent,
 			deleteEvent,
@@ -287,13 +263,6 @@ class EventDetails extends Component {
 			removeConferencing,
 		} = this.bound
 		const hasGuests = checkHasGuests(eventDetails.guests)
-		var inviteErrorMsg = []
-		if (inviteError) {
-			inviteErrorMsg = renderMatrixError(
-				'Sending invites not possible.',
-				inviteError
-			)
-		}
 
 		function renderEndComponent() {
 			return eventDetails.allDay ? (
@@ -336,7 +305,7 @@ class EventDetails extends Component {
 						}
 					})
 				} else {
-					isEnriched = true
+					isEnriched = array.length > 0
 				}
 			}
 
@@ -564,35 +533,19 @@ class EventDetails extends Component {
 					)}
 					<Button onClick={handleClose}>Close</Button>
 				</Modal.Footer>
-
-				{showInvitesModal && (
-					<SendInvitesModal
-						guests={eventDetails.guests}
-						title={eventDetails.title}
-						showInvitesModal={showInvitesModal}
-						handleInvitesHide={handleInvitesHide}
-						sending={sending}
-						inviteError={inviteError}
-						inviteErrorMsg={inviteErrorMsg}
-						GuestList={GuestList}
-						sendInvites={sendInvites}
-						loadGuestList={loadGuestList}
-					/>
-				)}
-				{showRemindersModal && (
-					<RemindersModal handleRemindersHide={handleRemindersHide} />
-				)}
 			</Modal>
 		)
 	}
 }
 
 EventDetails.propTypes = {
-	currentEvent: PropTypes.object,
-	inviteError: PropTypes.object,
+	currentEvent: PropTypes.object.isRequired,
+	inviteError: PropTypes.instanceOf(Error),
 	inviteSuccess: PropTypes.bool,
 	showModal: PropTypes.bool,
 	richNotifEnabled: PropTypes.bool,
+	calendars: PropTypes.array,
+	showRemindersModal: PropTypes.func,
 }
 
 export default EventDetails

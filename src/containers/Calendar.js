@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 // Components
 import Calendar from '../components/Calendar'
 
-import { setCurrentEvent } from '../store/event/eventAction'
+import { setNewCurrentEvent } from '../store/event/eventAction'
 import {
   showAllCalendars,
   hideInstructions,
@@ -27,21 +27,24 @@ const mapStateToProps = state => {
     currentCalendarIndex,
     currentCalendarLength,
     currentError,
+    showRemindersInfo,
+    inviteStatus,
   } = events || {}
 
   let eventModal
-  if (currentEvent) {
+  if (currentEvent && !inviteStatus) {
     const eventType = currentEventType || 'view' // "add", "edit"
     eventModal = { eventType, eventInfo: currentEvent }
   }
 
   const showGeneralInstructions = showInstructions
     ? showInstructions.general
-    : true
+    : false // preferences not yet loaded
 
-  let showError = currentError && currentError.msg
-  let error = currentError ? currentError.msg : null
-
+  const showError = currentError && currentError.msg
+  const error = currentError ? currentError.msg : null
+  const showRemindersModal = showRemindersInfo
+  const showSendInvitesModal = !!inviteStatus
   return {
     events,
     signedIn,
@@ -57,6 +60,8 @@ const mapStateToProps = state => {
     currentCalendarLength,
     showError,
     error,
+    showSendInvitesModal,
+    showRemindersModal,
   }
 }
 
@@ -78,7 +83,7 @@ const mapDispatchToProps = dispatch => {
         eventType: currentEventType,
         eventInfo: currentEvent,
       } = eventModal
-      dispatch(setCurrentEvent(currentEvent, currentEventType))
+      dispatch(setNewCurrentEvent(currentEvent, currentEventType))
     },
     markErrorAsRead: () => {
       dispatch(setError())

@@ -10,7 +10,6 @@ import {
   showAllCalendars,
 } from '../store/event/eventActionLazy'
 import { showFiles } from '../store/gaia/actions'
-import { setCurrentEvent } from '../store/event/eventAction'
 
 const mapStateToProps = state => {
   const { events, auth } = state
@@ -37,7 +36,6 @@ const mapDispatchToProps = dispatch => {
       dispatch(showSettings())
     },
     showMyPublicCalendar: name => {
-      dispatch(setCurrentEvent)
       dispatch(showMyPublicCalendar(name))
     },
     showAllEvents: () => {

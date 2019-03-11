@@ -95,9 +95,25 @@ export default class Calendars extends AddDeleteSetting {
     this.state.hexColor = ''
     this.state.isVerified = false
     this.state.menuItems = [
-      // 'https://5c609074a2c02d0007d39068--upbeat-wing-158214.netlify.com/?intent=view&name=public%40friedger.id',
-      'https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics',
+      {
+        name: 'US Holidays',
+        url:
+          'https://www.calendarlabs.com/ical-calendar/ics/76/US_Holidays.ics',
+      },
+      {
+        name: 'India Holidays',
+        url:
+          'https://www.calendarlabs.com/ical-calendar/ics/33/India_Holidays.ics',
+      },
     ]
+    const { verifiedNewCalendarData } = this.props
+    if (
+      verifiedNewCalendarData.status === 'ok' &&
+      verifiedNewCalendarData.calendar
+    ) {
+      this.state.calendarName = verifiedNewCalendarData.calendar.name
+      this.state.hexColor = verifiedNewCalendarData.calendar.hexColor
+    }
     this.state.addValueToItem = (valueOfAdd, asyncReturn) => {
       let newItem
 
@@ -171,20 +187,27 @@ export default class Calendars extends AddDeleteSetting {
     const { verifyNewCalendar } = this.props
     const { addValueToItem } = this.state
 
-    this.setState({
-      hexColor: guaranteeHexColor(null),
-    })
-
-    addValueToItem(this.state.menuItems[eventKey], ({ item, error }) => {
-      if (error) {
-        this.setState({
-          valueOfAdd: this.state.menuItems[eventKey],
-          errorOfAdd: (error || '').toString(),
-        })
-      } else {
-        verifyNewCalendar(item)
+    this.setState(
+      {
+        hexColor: guaranteeHexColor(null),
+        calendarName: this.state.menuItems[eventKey].name,
+      },
+      () => {
+        addValueToItem(
+          this.state.menuItems[eventKey].url,
+          ({ item, error }) => {
+            if (error) {
+              this.setState({
+                valueOfAdd: this.state.menuItems[eventKey].url,
+                errorOfAdd: (error || '').toString(),
+              })
+            } else {
+              verifyNewCalendar(item)
+            }
+          }
+        )
       }
-    })
+    )
   }
 
   renderOrSeparator = () => (
@@ -199,20 +222,24 @@ export default class Calendars extends AddDeleteSetting {
     const { verifyNewCalendar } = this.props
     const { valueOfAdd, addValueToItem } = this.state
 
-    this.setState({
-      hexColor: guaranteeHexColor(null),
-    })
-
-    addValueToItem(valueOfAdd, ({ item, error }) => {
-      if (error) {
-        this.setState({
-          valueOfAdd,
-          errorOfAdd: (error || '').toString(),
+    this.setState(
+      {
+        hexColor: guaranteeHexColor(null),
+        calendarName: valueOfAdd.split('/').pop(),
+      },
+      () => {
+        addValueToItem(valueOfAdd, ({ item, error }) => {
+          if (error) {
+            this.setState({
+              valueOfAdd,
+              errorOfAdd: (error || '').toString(),
+            })
+          } else {
+            verifyNewCalendar(item)
+          }
         })
-      } else {
-        verifyNewCalendar(item)
       }
-    })
+    )
   }
 
   handleCalendarNameChange = event => {
@@ -336,7 +363,7 @@ export default class Calendars extends AddDeleteSetting {
                     >
                       {this.state.menuItems.map((opt, i) => (
                         <DropdownItem key={i} eventKey={i}>
-                          {opt}
+                          {opt.name}
                         </DropdownItem>
                       ))}
                     </DropdownButton>
@@ -349,6 +376,7 @@ export default class Calendars extends AddDeleteSetting {
                     type="text"
                     className="form-control"
                     placeholder="Calendar name"
+                    value={this.state.calendarName}
                     onChange={this.handleCalendarNameChange}
                     disabled={verifiedNewCalendarData.status !== 'ok'}
                   />

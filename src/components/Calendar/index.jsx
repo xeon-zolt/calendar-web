@@ -14,6 +14,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 // Containers
 import EventDetailsContainer from '../../containers/EventDetails'
+import RemindersModalContainer from '../../containers/RemindersModal'
+import SendInvitesModalContainer from '../../containers/SendInvitesModal'
+import FAQs from '../branding/FAQ'
 
 import { uuid } from '../../core/eventFN'
 
@@ -117,6 +120,8 @@ class Calendar extends Component {
 			error,
 			showSettingsAddCalendar,
 			markErrorAsRead,
+			showRemindersModal,
+			showSendInvitesModal,
 		} = this.props
 		const {
 			handleHideInstructions,
@@ -200,7 +205,7 @@ class Calendar extends Component {
 					!publicCalendar && (
 						<Card>
 							<Card.Header>
-								Instructions
+								How to use OI Calendar
 								<button
 									type="button"
 									className="close"
@@ -215,14 +220,16 @@ class Calendar extends Component {
 									<div style={{ padding: '20px' }}>
 										<Row style={{ textAlign: 'left' }}>
 											<Col md={6}>
-												<strong>To add an event: </strong> Click or long-press
-												on the day you want to add an event or drag up to the
-												day you want to add the event for multiple day event!{' '}
+												<strong>Add an event: </strong> Click on a day to add
+												event details. To add a multi-day event, click and hold
+												while dragging across the days you want to include.{' '}
 												<br />
 											</Col>
 											<Col md={6}>
-												<strong>To update and delete an event:</strong> Click on
-												the event you wish to update or delete!
+												<strong>Update or delete an event:</strong> Click on
+												event to open it. Edit the details and press{' '}
+												<strong>Update</strong>. Or <strong>Delete</strong> the
+												event entirely.
 											</Col>
 										</Row>
 										<Row style={{ padding: '20px' }}>
@@ -235,9 +242,13 @@ class Calendar extends Component {
 												/>
 											</Col>
 											<Col xs={12} sm={10} style={{ textAlign: 'left' }}>
-												<strong>Move from Google Calendar</strong>: Done in a
-												minute! Follow the{' '}
-												<a href="https://github.com/friedger/oi-calendar">
+												<strong>Import events from Google Calendar</strong>:
+												Need help, follow the{' '}
+												<a
+													target="_blank"
+													rel="noopener noreferrer"
+													href="https://cal.openintents.org/gtutorial.html"
+												>
 													2-step tutorial
 												</a>
 												.
@@ -245,7 +256,7 @@ class Calendar extends Component {
 												<input
 													style={{ width: '100%' }}
 													type="text"
-													placeholder="Paste url like https://calendar.google..../basic.ics"
+													placeholder="Paste a calendar URL, for example: https://calendar.google..../basic.ics"
 													onKeyPress={handleAddCalendarByUrl}
 												/>
 											</Col>
@@ -258,34 +269,50 @@ class Calendar extends Component {
 
 				{!signedIn && (
 					<Card>
-						<Card.Header>Private, Encrypted Calendar in the Cloud</Card.Header>
+						<Card.Header>
+							<h2>Private, Encrypted Agenda in Your Cloud</h2>
+						</Card.Header>
 						<Card.Body>
-							<div className="col-md-5">
-								<strong>I have already a Blockstack ID:</strong> Just sign in
-								using the blockstack button above!
-							</div>
-							<div className="col-md-2" style={{ padding: '10px' }}>
-								<img
-									src="blockstack.png"
-									alt=""
-									height="30"
-									style={{ verticalAlign: 'middle' }}
-								/>
-							</div>
-							<div className="col-md-5">
-								<strong>To learn about Blockstack: </strong> A good starting
-								point is{' '}
-								<a href="https://docs.blockstack.org">
-									Blockstack's documentation
-								</a>
-								.<br />
-							</div>
+							<Row>
+								<Col>
+									You can use OI Calendar to keep track of all your events
+									across all devices.
+								</Col>
+							</Row>
+							<hr />
+							<Row>
+								<Col xs={12} md={5}>
+									<strong>Learn about Blockstack! </strong> A good starting
+									point is{' '}
+									<a
+										target="_blank"
+										rel="noopener noreferrer"
+										href="https://docs.blockstack.org"
+									>
+										Blockstack's documentation
+									</a>
+									.<br />
+								</Col>
+								<Col xs={12} md={2} style={{ padding: '10px' }}>
+									<img
+										src="blockstack.png"
+										alt=""
+										height="30"
+										style={{ verticalAlign: 'middle' }}
+									/>
+								</Col>
+								<Col xs={12} md={5}>
+									<strong>Start now:</strong> Just login using the Blockstack
+									button above!
+								</Col>
+							</Row>
 						</Card.Body>
 					</Card>
 				)}
 
 				{eventModal && !inviteSuccess && <EventDetailsContainer />}
-
+				{showSendInvitesModal && <SendInvitesModalContainer />}
+				{showRemindersModal && <RemindersModalContainer />}
 				{(myPublicCalendar || publicCalendar) && (
 					<Card>
 						<Card.Header>
@@ -326,6 +353,7 @@ class Calendar extends Component {
 				)}
 
 				{!myPublicCalendar && !publicCalendar && calendarView}
+				{!signedIn && <FAQs />}
 			</div>
 		)
 	}

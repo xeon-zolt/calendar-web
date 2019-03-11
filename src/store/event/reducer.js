@@ -2,6 +2,7 @@ import {
   SET_EVENTS,
   USER,
   SET_CONTACTS,
+  SET_INVITE_SEND_STATUS,
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
   SET_CURRENT_GUESTS,
@@ -28,6 +29,7 @@ import {
   SET_RICH_NOTIF_ERROR,
   SET_RICH_NOTIF_EXCLUDE_GUESTS,
   SET_CHAT_STATUS,
+  SET_REMINDERS_INFO_REQUEST,
 } from '../ActionTypes'
 
 let initialState = {
@@ -66,8 +68,12 @@ export default function reduce(state = initialState, action = {}) {
       newState = {
         ...state,
         currentEvent: payload.currentEvent,
-        currentEventType: payload.currentEventType,
-        currentEventUid: payload.currentEventUid,
+      }
+      if (payload.hasOwnProperty('currentEventType')) {
+        newState.currentEventType = payload.currentEventType
+      }
+      if (payload.hasOwnProperty('currentEventUid')) {
+        newState.currentEventUid = payload.currentEventUid
       }
       break
 
@@ -77,17 +83,27 @@ export default function reduce(state = initialState, action = {}) {
         currentEvent: undefined,
         currentEventType: undefined,
         currentEventUid: undefined,
+        currentGuests: undefined,
+        inviteStatus: undefined,
         inviteSuccess: undefined,
         inviteError: undefined,
       }
       break
-
+    case SET_INVITE_SEND_STATUS:
+      console.log('SET_INVITE_SEND_STATUS')
+      newState = {
+        ...state,
+        inviteStatus: payload.status,
+      }
+      break
     case INVITES_SENT_OK:
       console.log('INVITES_SENT_OK')
       newState = {
         ...state,
         currentEvent: undefined,
         currentEventType: undefined,
+        currentGuests: undefined,
+        inviteStatus: undefined,
         inviteSuccess: true,
         inviteError: undefined,
       }
@@ -99,6 +115,7 @@ export default function reduce(state = initialState, action = {}) {
         ...state,
         currentEvent: payload.eventInfo,
         currentEventType: payload.eventType,
+        inviteStatus: undefined,
         inviteSuccess: false,
         inviteError: payload.error,
       }
@@ -145,6 +162,9 @@ export default function reduce(state = initialState, action = {}) {
 
     case HIDE_SETTINGS:
       newState = { ...state, showPage: 'all' }
+      break
+    case SET_REMINDERS_INFO_REQUEST:
+      newState = { ...state, showRemindersInfo: payload.show }
       break
     case SET_CALENDARS:
       newState = { ...state, calendars: payload }

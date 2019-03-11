@@ -21,6 +21,11 @@ const Footer = () => {
 					</Col>
 					<Col>
 						<FontAwesomeIcon icon="question" /> Support <br />
+						Join the conversation on{' '}
+						<a href="https://www.producthunt.com/posts/oi-calendar">
+							ProductHunt
+						</a>
+						<br />
 						<a href="http://www.openintents.org/contact/">Send Feedback</a>
 						<br />
 						<a href="https://github.com/friedger/oi-calendar/issues?q=is%3Aissue+is%3Aopen+label%3Abug">

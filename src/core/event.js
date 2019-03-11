@@ -69,16 +69,16 @@ export function sendInvitesToGuests(
   chatSession
 ) {
   const username = user.username
-  const eventInfo = asInviteEvent(eventInfoRaw, username)
-  if (!eventInfo) {
-    console.log('[ERROR]', eventInfoRaw, eventInfo)
+  if (!eventInfoRaw) {
+    console.log('[ERROR] no eventInfoRaw')
     return
   }
+  const eventInfo = asInviteEvent(eventInfoRaw, username)
   return putOnBlockstack(sharedUrl(eventInfo.uid), eventInfo, {
     encrypt: eventInfo.pubKey,
   }).then(readUrl => {
     eventInfo.readUrl = readUrl
-    const addGuestResultHandler = guestProfile => {
+    const addGuestResultHandler = (guestUsername, guestProfile) => {
       return ({ contacts, eventInfo }) => {
         console.log('found guest ', guestProfile.name)
         return addGuest(
@@ -97,7 +97,7 @@ export function sendInvitesToGuests(
       const guestProfile = guestProfiles[guestUsername]
       if (guestProfile) {
         addGuestPromises = addGuestPromises.then(
-          addGuestResultHandler(guestProfile)
+          addGuestResultHandler(guestUsername, guestProfile)
         )
       } else {
         console.log('invalid guest ', guestProfile)
@@ -126,7 +126,7 @@ function addGuest(
 ) {
   var roomPromise
   if (contacts[guestUsername] && contacts[guestUsername].roomId) {
-    console.log('reusing room')
+    console.log('reusing room', { roomId: contacts[guestUsername].roomId })
     roomPromise = Promise.resolve({
       room_id: contacts[guestUsername].roomId,
     })

@@ -3,6 +3,7 @@ import {
   INVITES_SENT_OK,
   INVITES_SENT_FAIL,
   UNSET_CURRENT_INVITES,
+  SET_INVITE_SEND_STATUS,
 } from '../ActionTypes'
 
 import {
@@ -80,7 +81,9 @@ function invitesSentFailure(error, eventType, eventInfo) {
 export function unsetCurrentInvites() {
   return { type: UNSET_CURRENT_INVITES }
 }
-
+export function setInviteStatus(status) {
+  return { type: SET_INVITE_SEND_STATUS, payload: { status } }
+}
 export function sendInvites(eventInfo, guests) {
   return async (dispatch, getState) => {
     const state = getState()

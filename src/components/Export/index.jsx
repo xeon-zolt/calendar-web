@@ -22,13 +22,21 @@ const Files = props => {
 		<Card style={{ margin: '10px' }}>
 			<Card.Header>
 				<label variant="title">
-					Remote files on <a href={files.appBucketUrl}>your storage</a>
+					Remote files on{' '}
+					<a href="https://docs.blockstack.org/browser/storage-provider.html">
+						your storage
+					</a>
 				</label>
 				<Button variant="contained" size="small" onClick={() => refreshFiles()}>
 					<FontAwesomeIcon icon="sync" />
 				</Button>
 			</Card.Header>
 			<Card.Body style={{ textAlign: 'left' }}>
+				<div>
+					<label variant="display1">
+						Storage Location: {files.appBucketUrl}
+					</label>
+				</div>
 				<label variant="display1">Calendar Files</label>
 
 				{files.calendarListFile && (
@@ -55,6 +63,15 @@ const Files = props => {
 					<div>
 						<label variant="display1">Shared Events</label>
 						{files.sharedEvents.map((v, k) => {
+							return <File key={k} name={v.name} url={v.url} />
+						})}
+					</div>
+				)}
+
+				{files.msgs && files.msgs.length > 0 && (
+					<div>
+						<label variant="display1">Chat Messages</label>
+						{files.msgs.map((v, k) => {
 							return <File key={k} name={v.name} url={v.url} />
 						})}
 					</div>
