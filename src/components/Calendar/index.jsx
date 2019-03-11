@@ -16,7 +16,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import EventDetailsContainer from '../../containers/EventDetails'
 import RemindersModalContainer from '../../containers/RemindersModal'
 import SendInvitesModalContainer from '../../containers/SendInvitesModal'
-import FAQs from '../branding/FAQ'
+import FAQs from '../FAQ'
 
 import { uuid } from '../../core/eventFN'
 
