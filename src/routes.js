@@ -1,3 +1,4 @@
+import React from 'react'
 import * as Containers from './containers'
 
 export const routes = [
@@ -7,7 +8,7 @@ export const routes = [
     path: '/',
   },
   {
-    component: Containers.CalendarContainer,
+    component: props => <Containers.CalendarContainer {...props} public />,
     exact: true,
     path: '/public',
   },
