@@ -20,6 +20,10 @@ export class App extends Component {
 	//   })
 	// }
 
+	componentWillMount() {
+		this.props.initializeLazyActions()(this.props.dispatch)
+	}
+
 	render() {
 		return (
 			<ConnectedRouter history={this.props.history}>

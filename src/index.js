@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 
 // App
 import App from './components/App'
@@ -16,12 +16,17 @@ import './fontawesome'
 
 // Service Worker
 import registerServiceWorker from './registerServiceWorker'
+import { initializeLazyActions } from './store/event/eventActionLazy'
 
 registerServiceWorker()
+const ConnectedApp = connect()(App)
 
 ReactDOM.render(
   <Provider store={store}>
-    <App history={history} />
+    <ConnectedApp
+      history={history}
+      initializeLazyActions={initializeLazyActions}
+    />
   </Provider>,
   document.getElementById('root')
 )
