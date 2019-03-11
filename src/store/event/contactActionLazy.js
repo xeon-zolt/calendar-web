@@ -6,16 +6,12 @@ import {
   SET_INVITE_SEND_STATUS,
 } from '../ActionTypes'
 
-import {
-  fetchContactData,
-  publishContacts,
-  sendInvitesToGuests,
-  loadGuestProfiles,
-} from '../../core/event'
+import { sendInvitesToGuests, loadGuestProfiles } from '../../core/event'
 
 function resetContacts(contacts) {
   return (dispatch, getState) => {
-    publishContacts(contacts)
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.publishContacts(contacts)
     dispatch({ type: SET_CONTACTS, payload: contacts })
   }
 }
@@ -26,7 +22,8 @@ function resetContacts(contacts) {
 
 export function initializeContactData() {
   return async (dispatch, getState) => {
-    fetchContactData().then(contacts => {
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.fetchContactData().then(contacts => {
       dispatch(resetContacts(contacts))
     })
   }
@@ -44,7 +41,9 @@ export function lookupContacts() {
 
 export function addContact(username, contact) {
   return (dispatch, getState) => {
-    fetchContactData().then(contacts => {
+    const { userOwnedStorage } = getState().auth
+
+    userOwnedStorage.fetchContactData().then(contacts => {
       contacts[username] = { ...contacts[username], ...contact }
       dispatch(resetContacts(contacts))
     })
@@ -53,7 +52,8 @@ export function addContact(username, contact) {
 
 export function deleteContacts(deleteList) {
   return (dispatch, getState) => {
-    fetchContactData().then(contacts => {
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.fetchContactData().then(contacts => {
       for (var i in deleteList) {
         delete contacts[deleteList[i].username]
       }
@@ -92,7 +92,8 @@ export function sendInvites(eventInfo, guests) {
       state.auth.user,
       eventInfo,
       guests,
-      state.events.userSessionChat
+      state.events.userSessionChat,
+      state.auth.userOwnedStorage
     ).then(
       () => {
         dispatch(invitesSentSuccess())

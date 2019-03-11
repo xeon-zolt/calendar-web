@@ -1,5 +1,6 @@
 import { AUTH_SIGN_IN, AUTH_SIGN_OUT } from '../ActionTypes'
-import { redirectToSignIn, signUserOut as signUserOutService } from 'blockstack'
+import { UserSession } from 'blockstack'
+import { AppConfig } from 'blockstack/lib/auth'
 
 export function redirectedToSignIn() {
   return { type: AUTH_SIGN_IN }
@@ -7,12 +8,16 @@ export function redirectedToSignIn() {
 
 export function signUserIn(store) {
   return async (dispatch, getState) => {
-    try {
-      redirectToSignIn(
+    const userSession = new UserSession(
+      new AppConfig(
+        ['store_write', 'publish_data'],
+        `${window.location.origin}`,
         `${window.location}`,
-        `${window.location.origin}/manifest.json`,
-        ['store_write', 'publish_data']
+        `${window.location.origin}/manifest.json`
       )
+    )
+    try {
+      userSession.redirectToSignIn()
       dispatch(redirectedToSignIn())
     } catch (e) {
       console.error(e)
@@ -21,8 +26,16 @@ export function signUserIn(store) {
 }
 
 export function signUserOut() {
+  const userSession = new UserSession(
+    new AppConfig(
+      ['store_write', 'publish_data'],
+      `${window.location.origin}`,
+      `${window.location}`,
+      `${window.location.origin}/manifest.json`
+    )
+  )
   try {
-    signUserOutService()
+    userSession.signUserOut()
     return { type: AUTH_SIGN_OUT }
   } catch (e) {
     console.error(e)

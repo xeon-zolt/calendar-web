@@ -1,4 +1,3 @@
-import { listFiles } from 'blockstack'
 import { SHOW_FILES, SET_FILES } from '../ActionTypes'
 
 function showFilesScreen(show) {
@@ -54,13 +53,16 @@ function initFiles(user) {
 
 export function showFiles() {
   return (dispatch, getState) => {
+    const { userSession } = getState().auth
     dispatch(showFilesScreen(true))
     const files = initFiles(getState().auth.user)
-    listFiles(f => {
-      newFile(files, f)
-      return true
-    }).then(count => {
-      dispatch(setFiles(files, count))
-    })
+    userSession
+      .listFiles(f => {
+        newFile(files, f)
+        return true
+      })
+      .then(count => {
+        dispatch(setFiles(files, count))
+      })
   }
 }

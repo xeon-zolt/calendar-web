@@ -1,10 +1,5 @@
 import queryString from 'query-string'
-import {
-  isUserSignedIn,
-  isSignInPending,
-  handlePendingSignIn,
-  loadUserData,
-} from 'blockstack'
+import { UserSession } from 'blockstack'
 
 import {
   AUTH_CONNECTED,
@@ -34,16 +29,10 @@ import { createSessionChat, lookupProfile } from '../../core/chat'
 import { uuid } from '../../core/eventFN'
 
 import {
-  saveEvents,
-  publishEvents,
   handleIntentsInQueryString,
   updatePublicEvent,
   removePublicEvent,
-  loadPublicCalendar,
-  savePreferences,
-  fetchPreferences,
   fetchIcsUrl,
-  importCalendarEvents,
 } from '../../core/event'
 import { initializeContactData } from './contactActionLazy'
 import {
@@ -59,6 +48,7 @@ import {
 
 // Reminders
 import { addReminder, initReminders } from '../../reminder'
+import { AppConfig } from 'blockstack/lib/auth'
 
 // #########################
 // Chat
@@ -70,7 +60,9 @@ function initializeChatAction(chat) {
 
 export function initializeChat() {
   return async (dispatch, getState) => {
-    fetchPreferences()
+    const { userOwnedStorage, userSession } = getState().auth
+    userOwnedStorage
+      .fetchPreferences()
       .then(
         prefs => {
           return prefs.selfRoomId
@@ -81,7 +73,7 @@ export function initializeChat() {
         }
       )
       .then(selfRoomId => {
-        let chat = createSessionChat(selfRoomId)
+        let chat = createSessionChat(selfRoomId, userSession, userOwnedStorage)
         initReminders(chat)
         dispatch(initializeChatAction(chat))
       })
@@ -92,8 +84,8 @@ export function initializeChat() {
 // LOAD USER DATA
 // ################
 
-function authenticatedAction(userData) {
-  return { type: AUTH_CONNECTED, user: userData }
+function authenticatedAction(userData, userSession) {
+  return { type: AUTH_CONNECTED, payload: { user: userData, userSession } }
 }
 
 function disconnectedAction() {
@@ -140,7 +132,12 @@ export function initializeEvents() {
       .then(calendars => {
         dispatch(setLoadingCalendars(0, calendars.length))
         const user = getState().auth.user
-        const allEventsPromise = loadCalendarEvents(calendars, user, dispatch)
+        const allEventsPromise = loadCalendarEvents(
+          calendars,
+          user,
+          dispatch,
+          getState
+        )
         return allEventsPromise
       })
       .then(allEvents => {
@@ -158,20 +155,30 @@ export function initializeEvents() {
 export function initializeLazyActions() {
   const query = window.location.search
   return async (dispatch, getState) => {
-    if (isUserSignedIn()) {
+    console.log('init')
+    const userSession = new UserSession(
+      new AppConfig(
+        ['store_write', 'publish_data'],
+        `${window.location.origin}`,
+        `${window.location}`,
+        `${window.location.origin}/manifest.json`
+      )
+    )
+    console.log('check login state')
+    if (userSession.isUserSignedIn()) {
       console.log('is signed in')
-      const userData = loadUserData()
-      dispatch(authenticatedAction(userData))
+      const userData = userSession.loadUserData()
+      dispatch(authenticatedAction(userData, userSession))
       dispatch(userAction(userData))
       dispatch(initializeQueryString(query, userData.username))
       dispatch(initializePreferences())
       dispatch(initializeEvents())
       dispatch(initializeContactData())
-    } else if (isSignInPending()) {
+    } else if (userSession.isSignInPending()) {
       console.log('handling pending sign in')
-      handlePendingSignIn().then(userData => {
+      userSession.handlePendingSignIn().then(userData => {
         window.location.search = removeAuthResponse(window.location.search)
-        dispatch(authenticatedAction(userData))
+        dispatch(authenticatedAction(userData, userSession))
       })
     } else {
       dispatch(disconnectedAction())
@@ -200,13 +207,14 @@ export function setError(type, msg, error) {
 
 function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
+    const { userOwnedStorage } = getState().auth
     console.log('viewpubliccalendar', name)
     if (name) {
       const parts = name.split('@')
       if (parts.length === 2) {
         const calendarName = parts[0]
         const username = parts[1]
-        loadPublicCalendar(calendarName, username).then(
+        userOwnedStorage.loadPublicCalendar(calendarName, username).then(
           ({ allEvents, calendar }) => {
             dispatch(setPublicCalendarEventsAction(allEvents, calendar))
           },
@@ -243,7 +251,8 @@ function unsetRichNotifError() {
 
 export function initializePreferences() {
   return async (dispatch, getState) => {
-    fetchPreferences().then(preferences => {
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.fetchPreferences().then(preferences => {
       dispatch(
         showInstructionsAction(
           preferences && preferences.showInstructions
@@ -259,7 +268,10 @@ export function initializePreferences() {
 
 export function hideInstructions() {
   return async (dispatch, getState) => {
-    savePreferences({ showInstructions: { general: false } })
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.savePreferences({
+      showInstructions: { general: false },
+    })
     dispatch(showInstructionsAction(false))
   }
 }
@@ -276,6 +288,7 @@ export function enableRichNotif() {
   console.log('enableRichNotif')
   return async (dispatch, getState) => {
     const { userSessionChat } = getState().events
+    const { userOwnedStorage } = getState().auth
     dispatch(unsetRichNotifError())
     dispatch(setChatStatus('checking'))
     userSessionChat
@@ -283,13 +296,13 @@ export function enableRichNotif() {
       .then(
         res => {
           console.log('rich notif enabeld', res)
-          savePreferences({ richNotifEnabled: true })
+          userOwnedStorage.savePreferences({ richNotifEnabled: true })
           dispatch(setRichNotifEnabled(true))
           dispatch(setChatStatus(null))
         },
         error => {
           console.log('failed to enabled rich notif', error)
-          savePreferences({ richNotifEnabled: false })
+          userOwnedStorage.savePreferences({ richNotifEnabled: false })
           dispatch(setRichNotifEnabled(false, error))
           dispatch(setChatStatus(null))
         }
@@ -301,8 +314,9 @@ export function disableRichNotif() {
   console.log('disableRichNotif')
   return async (dispatch, getState) => {
     const { userSessionChat } = getState().events
+    const { userOwnedStorage } = getState().auth
     dispatch(unsetRichNotifError())
-    savePreferences({ richNotifEnabled: false })
+    userOwnedStorage.savePreferences({ richNotifEnabled: false })
     userSessionChat.sendMessageToSelf(
       msg('Rich notifications have been disabled!')
     )
@@ -320,7 +334,8 @@ function msg(text) {
 export function saveRichNotifExcludeGuests(guests) {
   console.log('saveRichNotifExcludeGuests', guests)
   return async (dispatch, getState) => {
-    savePreferences({ richNofifExclude: guests })
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.savePreferences({ richNofifExclude: guests })
     dispatch(setRichNotifExcludeGuests(guests))
   }
 }
@@ -331,7 +346,8 @@ export function saveRichNotifExcludeGuests(guests) {
 
 export function saveAllEvents(allEvents) {
   return (dispatch, getState) => {
-    saveEvents('default', allEvents)
+    const { userOwnedStorage } = getState().auth
+    userOwnedStorage.saveEvents('default', allEvents)
     dispatch(setEventsAction(allEvents))
   }
 }
@@ -340,7 +356,7 @@ function setLoadingCalendars(index, length) {
   return { type: SET_LOADING_CALENDARS, payload: { index, length } }
 }
 
-function loadCalendarEvents(calendars, user, dispatch) {
+function loadCalendarEvents(calendars, user, dispatch, getState) {
   const calendarCount = calendars.length
   const allCalendars = []
   var promises = calendars.map(function(calendar, index) {
@@ -348,37 +364,40 @@ function loadCalendarEvents(calendars, user, dispatch) {
       dispatch(setLoadingCalendars(index, calendarCount))
       return {}
     } else {
-      return importCalendarEvents(calendar, user, defaultEvents).then(
-        events => {
-          const calendarEvents = { name: calendar.name, events }
-          allCalendars.push(calendarEvents)
-          const allEventsSoFar = allCalendars.reduce((acc, cur) => {
-            const events = cur.events
-            return { ...acc, ...events }
-          }, {})
-          console.log('all events so far', index, allEventsSoFar)
-          dispatch(setEventsAction(allEventsSoFar))
-          dispatch(setLoadingCalendars(index, calendarCount))
-          return calendarEvents
-        },
-        error => {
-          dispatch(setLoadingCalendars(index, calendarCount))
-          let msg
-          if (
-            calendar.data &&
-            calendar.data.src &&
-            calendar.data.src.startsWith('https://calendar.google.com/')
-          ) {
-            msg =
-              'Failed to load a Google calendar. Have you enabled CORS calls?'
-          } else {
-            msg = 'Failed to load calendar ' + calendar.name
+      const { userOwnedStorage } = getState().auth
+      return userOwnedStorage
+        .importCalendarEvents(calendar, user, defaultEvents)
+        .then(
+          events => {
+            const calendarEvents = { name: calendar.name, events }
+            allCalendars.push(calendarEvents)
+            const allEventsSoFar = allCalendars.reduce((acc, cur) => {
+              const events = cur.events
+              return { ...acc, ...events }
+            }, {})
+            console.log('all events so far', index, allEventsSoFar)
+            dispatch(setEventsAction(allEventsSoFar))
+            dispatch(setLoadingCalendars(index, calendarCount))
+            return calendarEvents
+          },
+          error => {
+            dispatch(setLoadingCalendars(index, calendarCount))
+            let msg
+            if (
+              calendar.data &&
+              calendar.data.src &&
+              calendar.data.src.startsWith('https://calendar.google.com/')
+            ) {
+              msg =
+                'Failed to load a Google calendar. Have you enabled CORS calls?'
+            } else {
+              msg = 'Failed to load calendar ' + calendar.name
+            }
+            dispatch(setError('loadCalendar', msg, error))
+            console.log('[ERROR.loadCalendarEvents]', error, calendar)
+            return { name: calendar.name, events: {} }
           }
-          dispatch(setError('loadCalendar', msg, error))
-          console.log('[ERROR.loadCalendarEvents]', error, calendar)
-          return { name: calendar.name, events: {} }
-        }
-      )
+        )
     }
   })
 
@@ -401,10 +420,11 @@ function loadCalendarEvents(calendars, user, dispatch) {
 
 export function deleteEvent(event) {
   return async (dispatch, getState) => {
-    let { allEvents } = getState().events
+    const { allEvents } = getState().events
+    const { userOwnedStorage } = getState().auth
     delete allEvents[event.uid]
-    publishEvents(event.uid, removePublicEvent)
-    saveEvents('default', allEvents)
+    userOwnedStorage.publishEvents(event.uid, removePublicEvent)
+    userOwnedStorage.saveEvents('default', allEvents)
     dispatch(setEventsAction(allEvents))
   }
 }
@@ -413,6 +433,7 @@ export function addEvent(event) {
   return async (dispatch, getState) => {
     let state = getState()
     let { allEvents, calendars, userSessionChat } = state.events
+    const { userOwnedStorage } = getState().auth
     console.log('calendars', calendars, event)
 
     if (!event.hexColor) {
@@ -435,9 +456,9 @@ export function addEvent(event) {
     allEvents[event.uid] = event
 
     // Save and Publish Events to Blockstack
-    saveEvents('default', allEvents)
+    userOwnedStorage.saveEvents('default', allEvents)
     if (event.public) {
-      publishEvents(event, updatePublicEvent)
+      userOwnedStorage.publishEvents(event, updatePublicEvent)
     }
 
     if (event.reminderEnabled) {
@@ -478,16 +499,17 @@ function guestsOf(event, contacts) {
 
 export function updateEvent(event) {
   return async (dispatch, getState) => {
-    let { allEvents, userSessionChat } = getState().events
+    const { allEvents, userSessionChat } = getState().events
+    const { userOwnedStorage } = getState().auth
     let eventInfo = event
     eventInfo.uid = eventInfo.uid || uuid()
     allEvents[eventInfo.uid] = eventInfo
     if (eventInfo.public) {
-      publishEvents(eventInfo, updatePublicEvent)
+      userOwnedStorage.publishEvents(eventInfo, updatePublicEvent)
     } else {
-      publishEvents(eventInfo.uid, removePublicEvent)
+      userOwnedStorage.publishEvents(eventInfo.uid, removePublicEvent)
     }
-    saveEvents('default', allEvents)
+    userOwnedStorage.saveEvents('default', allEvents)
 
     if (event.reminderEnabled) {
       // Add reminder to notify user
@@ -596,6 +618,7 @@ export function verifyNewCalendar(calendar) {
       setCalendarVerificationStatus({ status: '' })
       return
     }
+    const { userOwnedStorage } = getState().auth
 
     dispatch(
       setCalendarVerificationStatus({
@@ -604,23 +627,25 @@ export function verifyNewCalendar(calendar) {
       })
     )
 
-    importCalendarEvents(calendar, getState().auth.user, defaultEvents).then(
-      events => {
-        console.log('import ok')
-        dispatch(
-          setCalendarVerificationStatus({
-            status: 'ok',
-            calendar,
-            eventsCount: Object.keys(events).length,
-          })
-        )
-      },
-      error => {
-        const msg = 'failed to verify calendar'
-        console.log(msg, error)
-        dispatch(setCalendarVerificationStatus({ status: 'error', error }))
-      }
-    )
+    userOwnedStorage
+      .importCalendarEvents(calendar, getState().auth.user, defaultEvents)
+      .then(
+        events => {
+          console.log('import ok')
+          dispatch(
+            setCalendarVerificationStatus({
+              status: 'ok',
+              calendar,
+              eventsCount: Object.keys(events).length,
+            })
+          )
+        },
+        error => {
+          const msg = 'failed to verify calendar'
+          console.log(msg, error)
+          dispatch(setCalendarVerificationStatus({ status: 'error', error }))
+        }
+      )
   }
 }
 

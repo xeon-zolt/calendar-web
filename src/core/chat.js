@@ -3,15 +3,14 @@ import {
   publicKeyToAddress,
   getPublicKeyFromPrivate,
   resolveZoneFileToProfile,
-  putFile,
-  loadUserData,
 } from 'blockstack'
 import { createClient } from 'matrix-js-sdk'
-import { savePreferences } from './event'
 
 export class UserSessionChat {
-  constructor(selfRoomId) {
+  constructor(selfRoomId, userSession, userOwnedStorage) {
     this.selfRoomId = selfRoomId
+    this.userSession = userSession
+    this.userOwnedStorage = userOwnedStorage
     this.matrixClient = createClient('https://openintents.modular.im')
   }
 
@@ -31,16 +30,18 @@ export class UserSessionChat {
       .then(c => {
         const challenge = c.challenge
         console.log('challenge', challenge)
-        return putFile('mxid.json', challenge, { encrypt: false }).then(
-          () => {
-            return {
-              username: appUserAddress.toLowerCase(),
-              password:
-                txid + '|' + window.location.origin + '|' + userData.username,
-            }
-          },
-          error => console.log('err2', error)
-        )
+        return this.userSession
+          .putFile('mxid.json', challenge, { encrypt: false })
+          .then(
+            () => {
+              return {
+                username: appUserAddress.toLowerCase(),
+                password:
+                  txid + '|' + window.location.origin + '|' + userData.username,
+              }
+            },
+            error => console.log('err2', error)
+          )
       })
   }
 
@@ -163,9 +164,11 @@ export class UserSessionChat {
           console.log('self room id', selfRoomId)
           if (newlyCreated) {
             console.log('saving selfRoomId', selfRoomId)
-            savePreferences({ selfRoomId }).finally(() => {
-              console.log('tried to save')
-            })
+            this.userOwnedStorage
+              .savePreferences({ selfRoomId })
+              .finally(() => {
+                console.log('tried to save')
+              })
           }
           return matrixClient.joinRoom(selfRoomId, {}).then(
             data => {
@@ -205,7 +208,7 @@ export class UserSessionChat {
     if (this.matrixClient.getUserId()) {
       return Promise.resolve()
     } else {
-      const userData = loadUserData()
+      const userData = this.userSession.loadUserData()
       return this.getOTP(userData).then(result => {
         var deviceDisplayName = userData.username + ' via OI Calendar'
         console.log(
@@ -231,7 +234,7 @@ export class UserSessionChat {
     if (this.selfRoomId) {
       return Promise.resolve({ selfRoomId: this.selfRoomId })
     } else {
-      const userData = loadUserData()
+      const userData = this.userSession.loadUserData()
       return this.createNewRoom(
         'OI Calendar Reminders',
         'Receive information about events',
@@ -250,7 +253,7 @@ export class UserSessionChat {
   }
 
   storeChatMessage(chatEvent, content) {
-    return putFile(
+    return this.userSession.putFile(
       'msg/' + encodeURIComponent(chatEvent.event_id),
       JSON.stringify({ chatEvent, content })
     )
@@ -301,6 +304,6 @@ export function lookupProfile(username) {
   )
 }
 
-export function createSessionChat(selfRoomId) {
-  return new UserSessionChat(selfRoomId)
+export function createSessionChat(selfRoomId, userSession) {
+  return new UserSessionChat(selfRoomId, userSession)
 }
