@@ -20,6 +20,7 @@ import {
   lookupContacts,
 } from '../store/event/contactActionLazy'
 import { uuid } from '../core/eventFN'
+import Settings from '../components/Settings'
 
 export default connect(
   (state, redux) => {
@@ -110,4 +111,4 @@ export default connect(
       },
     }
   }
-)
+)(Settings)

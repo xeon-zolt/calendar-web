@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Nav } from 'react-bootstrap'
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { PropTypes } from 'prop-types'
 
 export default class AppMenu extends Component {
@@ -40,21 +40,38 @@ export default class AppMenu extends Component {
 		}
 	}
 
+	isRoot(match, location) {
+		if (!match) {
+			return false
+		}
+		console.log('isRoot', match, match.isExact)
+		return match.isExact
+	}
+
 	render() {
 		const { onSelect } = this.bound
 		const { username, signedIn } = this.props
-		const { activeKey } = this.state
 		const hasPublicCalendar = !!username
 
 		return (
 			signedIn && (
 				<div className="App-menu">
-					<Nav variant="pills" onSelect={onSelect} activeKey={activeKey}>
+					<Nav variant="pills" onSelect={onSelect}>
 						<Nav.Item>
-							<Link to="/">Events</Link>
+							<Nav.Link
+								eventKey="all"
+								as={NavLink}
+								isActive={this.isRoot}
+								to={{ pathname: '/' }}
+								exact
+							>
+								Events
+							</Nav.Link>
 						</Nav.Item>
 						<Nav.Item>
-							<Link
+							<Nav.Link
+								eventKey="public"
+								as={NavLink}
 								disabled={!hasPublicCalendar}
 								to={{
 									pathname: '/public',
@@ -62,13 +79,17 @@ export default class AppMenu extends Component {
 								}}
 							>
 								Public
-							</Link>
+							</Nav.Link>
 						</Nav.Item>
 						<Nav.Item>
-							<Link to="settings">Settings</Link>
+							<Nav.Link eventKey="settings" as={NavLink} to="settings">
+								Settings
+							</Nav.Link>
 						</Nav.Item>
 						<Nav.Item>
-							<Link to="files">Files</Link>
+							<Nav.Link eventKey="files" as={NavLink} to="files">
+								Files
+							</Nav.Link>
 						</Nav.Item>
 					</Nav>
 				</div>

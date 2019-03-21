@@ -3,12 +3,12 @@ import { routerMiddleware } from 'connected-react-router'
 import thunk from 'redux-thunk'
 import { logger } from 'redux-logger'
 
-import createHistory from 'history/createBrowserHistory'
+import { createBrowserHistory } from 'history'
 
 // Reducers
 import reducers from './reducers'
 
-export const history = createHistory()
+export const history = createBrowserHistory()
 
 // Build the middleware for intercepting and dispatching navigation actions
 const historyMiddleware = routerMiddleware(history)
