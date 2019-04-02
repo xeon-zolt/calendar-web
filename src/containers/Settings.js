@@ -13,6 +13,7 @@ import {
   addCalendar,
   deleteCalendars,
   setCalendarData,
+  showSettings,
 } from '../store/event/calendarActionLazy'
 import {
   addContact,
@@ -52,9 +53,13 @@ export default connect(
   },
   (dispatch, redux) => {
     return {
-      handleHide: () => {
+      showSettings: () => {
+        dispatch(showSettings())
+      },
+      handleHide: history => {
+        console.log('handle hide', history)
         dispatch(initializeEvents())
-        dispatch(showAllCalendars())
+        dispatch(showAllCalendars(history))
       },
       lookupContacts: contactQuery => {
         return dispatch(lookupContacts(contactQuery))

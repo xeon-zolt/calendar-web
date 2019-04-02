@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { PropTypes } from 'prop-types'
 import moment from 'moment'
 import {
 	Card,
@@ -11,7 +12,7 @@ import {
 } from 'react-bootstrap'
 import BigCalendar from 'react-big-calendar'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-
+import queryString from 'query-string'
 // Containers
 import EventDetailsContainer from '../../containers/EventDetails'
 import RemindersModalContainer from '../../containers/RemindersModal'
@@ -39,7 +40,24 @@ class Calendar extends Component {
 	}
 
 	componentWillMount() {
-		this.props.initializeLazyActions()
+		if (this.props.public) {
+			const query = queryString.parse(this.props.location.search)
+			const calendarName = query.c
+			if (
+				calendarName &&
+				this.props.events.user &&
+				this.props.events.user.username &&
+				this.props.events.user.username.length > 0
+			) {
+				if (calendarName.endsWith(this.props.events.user.username)) {
+					this.props.showMyPublicCalendar(calendarName)
+				} else {
+					this.props.viewPublicCalendar(calendarName)
+				}
+			} else {
+				this.props.history.replace('/')
+			}
+		}
 	}
 
 	handleHideInstructions() {
@@ -47,7 +65,7 @@ class Calendar extends Component {
 	}
 
 	handleViewAllCalendars() {
-		this.props.showAllCalendars()
+		this.props.showAllCalendars(this.props.history)
 	}
 
 	handleEditEvent(event) {
@@ -357,6 +375,12 @@ class Calendar extends Component {
 			</div>
 		)
 	}
+}
+
+Calendar.propTypes = {
+	location: PropTypes.object,
+	public: PropTypes.bool,
+	showMyPublicCalendar: PropTypes.func,
 }
 
 export default Calendar

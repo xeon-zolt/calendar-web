@@ -49,12 +49,11 @@ const FAQs = () => (
 					</FAQ>
 				</Row>
 				<Row>
-					<FAQ q={'Who is OpenIntents?'}>
-						OpenIntents was founded in 2009 in Berlin, Germany. It started as a
-						community effort with strong focus on open source and
-						interoperability between apps. You can see more of our work in
-						Android at
-						<a href="https://openintents.org">openintents.org</a>.{' '}
+					<FAQ q={'Who is OpenIntents? OI?'}>
+						OpenIntents (for short OI) was founded in 2009 in Berlin, Germany.
+						It started as a community effort with strong focus on open source
+						and interoperability between apps. You can see more of our work in
+						Android at <a href="https://openintents.org">openintents.org</a>.{' '}
 						<a href="https://github.com/friedger">Friedger Müffke</a> is the
 						maintainer of OpenIntents' code repositories.
 					</FAQ>
@@ -62,7 +61,9 @@ const FAQs = () => (
 						You can make monetary contributions to our{' '}
 						<a href="https://opencollective.org/openintents">OpenCollective</a>{' '}
 						or encourage developers by funding an issue on{' '}
-						<a href="https://gitcon.co">gitcoin.co</a>.
+						<a href="https://gitcon.co">gitcoin.co</a>.<br />
+						Remember that your calendar data and identity will always be yours
+						and does not depend on OpenIntents' funding.
 					</FAQ>
 				</Row>
 			</Container>

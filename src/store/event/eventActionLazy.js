@@ -205,7 +205,7 @@ export function setError(type, msg, error) {
   return { type: SET_ERROR, payload: { type, msg, error } }
 }
 
-function viewPublicCalendar(name) {
+export function viewPublicCalendar(name) {
   return async (dispatch, getState) => {
     const { userOwnedStorage } = getState().auth
     console.log('viewpubliccalendar', name)
@@ -549,9 +549,9 @@ export function showAllCalendarsAction() {
   return { type: SHOW_ALL_CALENDARS }
 }
 
-export function showAllCalendars() {
+export function showAllCalendars(history) {
   return async (dispatch, getState) => {
-    window.history.pushState({}, 'OI Calendar', '/')
+    history.push('/')
     dispatch(showAllCalendarsAction())
   }
 }

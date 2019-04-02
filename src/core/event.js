@@ -389,8 +389,8 @@ export class UserOwnedStorage {
     })
   }
 
-  publishContacts(userSession, contacts) {
-    return putOnBlockstack(userSession, 'Contacts', contacts)
+  publishContacts(contacts) {
+    return putOnBlockstack(this.userSession, 'Contacts', contacts)
   }
 
   // ###########################################################################

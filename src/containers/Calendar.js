@@ -8,7 +8,8 @@ import {
   showAllCalendars,
   hideInstructions,
   setError,
-  initializeLazyActions,
+  showMyPublicCalendar,
+  viewPublicCalendar,
 } from '../store/event/eventActionLazy'
 
 import { showSettingsAddCalendar } from '../store/event/calendarActionLazy'
@@ -68,14 +69,17 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    initializeLazyActions: () => {
-      dispatch(initializeLazyActions())
-    },
     showAllCalendars: () => {
       dispatch(showAllCalendars())
     },
     hideInstructions: () => {
       dispatch(hideInstructions())
+    },
+    showMyPublicCalendar: name => {
+      dispatch(showMyPublicCalendar(name))
+    },
+    viewPublicCalendar: name => {
+      dispatch(viewPublicCalendar(name))
     },
     showSettingsAddCalendar: url => {
       dispatch(showSettingsAddCalendar(url))

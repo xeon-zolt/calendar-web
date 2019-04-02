@@ -44,7 +44,6 @@ export default class AppMenu extends Component {
 		if (!match) {
 			return false
 		}
-		console.log('isRoot', match, match.isExact)
 		return match.isExact
 	}
 
@@ -56,7 +55,11 @@ export default class AppMenu extends Component {
 		return (
 			signedIn && (
 				<div className="App-menu">
-					<Nav variant="pills" onSelect={onSelect}>
+					<Nav
+						variant="pills"
+						activeKey={this.state.activeKey}
+						onSelect={onSelect}
+					>
 						<Nav.Item>
 							<Nav.Link
 								eventKey="all"

@@ -30,6 +30,9 @@ class SettingsPage extends Component {
 }
 
 export default class Settings extends Component {
+	componentWillMount() {
+		this.props.showSettings()
+	}
 	render() {
 		const {
 			// show,
@@ -105,7 +108,7 @@ export default class Settings extends Component {
 				CalendarsContent={CalendarsContent}
 				ContactsContent={ContactsContent}
 				NotificationsContent={NotificationsContent}
-				handleHide={handleHide}
+				handleHide={() => handleHide(this.props.history)}
 			/>
 		)
 	}
