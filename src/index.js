@@ -1,14 +1,34 @@
+import React from 'react'
 import ReactDOM from 'react-dom'
+import { Provider, connect } from 'react-redux'
 
 // App
-import App from './app/DynamicApp'
+import App from './components/App'
+
+// Redux Store
+import store, { history } from './store'
 
 // Styles
 import './index.css'
 
+// FontAwesome
+import './fontawesome'
+
 // Service Worker
 import registerServiceWorker from './registerServiceWorker'
+import { initializeLazyActions } from './store/event/eventActionLazy'
 
 registerServiceWorker()
+const ConnectedApp = connect(state => {
+  return { auth: state.auth }
+})(App)
 
-ReactDOM.render(App, document.getElementById('root'))
+ReactDOM.render(
+  <Provider store={store}>
+    <ConnectedApp
+      history={history}
+      initializeLazyActions={initializeLazyActions}
+    />
+  </Provider>,
+  document.getElementById('root')
+)

@@ -1,6 +1,6 @@
 var assert = require('assert')
-var storeManager = require('../src/flow/store/storeManager')
-var eventActionLazy = require('../src/flow/store/event/eventActionLazy')
+var storeManager = require('../src/store')
+var eventActionLazy = require('../src/store/event/eventActionLazy')
 
 const store = storeManager.createInitialStore({})
 const EVENT_URL =

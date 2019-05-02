@@ -1,5 +1,5 @@
 var assert = require('assert')
-var iCal = require('../src/flow/io/ical')
+var iCal = require('../src/core/ical')
 var fs = require('fs')
 
 // eslint-disable-next-line node/no-deprecated-api
