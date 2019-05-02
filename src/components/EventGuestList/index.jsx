@@ -42,6 +42,7 @@ export const Guest = ({ guest, username }) => {
 				}
 			>
 				<span>
+					{' '}
 					(via
 					<img src={commMethodUrl} height="16px" width="16px" alt="avatar" />)
 				</span>

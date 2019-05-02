@@ -2,6 +2,7 @@ import { Button, Modal, ProgressBar } from 'react-bootstrap'
 import React from 'react'
 import PropTypes from 'prop-types'
 import { renderMatrixError } from '../EventDetails'
+import GuestList from '../EventGuestList'
 
 class SendInvitesModal extends React.Component {
   constructor(props) {
@@ -44,7 +45,6 @@ class SendInvitesModal extends React.Component {
       sending,
       inviteError,
       sendInvites,
-      GuestList,
       profiles,
       currentEvent,
       currentEventType,
@@ -68,7 +68,7 @@ class SendInvitesModal extends React.Component {
         </Modal.Header>
         <Modal.Body>
           Send invites according to their Blockstack settings:
-          {GuestList && <GuestList guests={profiles} />}
+          {profiles && <GuestList guests={profiles} />}
           {sending && !inviteError && <ProgressBar animated now={50} />}
           {inviteError && inviteErrorMsg}
           <Modal.Footer>

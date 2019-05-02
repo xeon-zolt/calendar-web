@@ -489,15 +489,6 @@ class EventDetails extends Component {
 									style={{ marginRight: '5px', marginLeft: '5px' }}
 								/>
 								<label> All Day </label>
-								<input
-									type="checkBox"
-									name="public"
-									value={eventDetails.public}
-									checked={eventDetails.public}
-									onChange={e => handleDataChange(e, 'public')}
-									style={{ marginRight: '5px', marginLeft: '5px' }}
-								/>
-								<label> Public </label>
 							</Col>
 						</Row>
 					</Container>
