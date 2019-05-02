@@ -11,8 +11,10 @@ const Footer = () => {
 					<Col>
 						<FontAwesomeIcon icon="file-code" size="sm" /> Developed By{' '}
 						<a href="https://openintents.org">OpenIntents</a>, free and{' '}
-						<a href="https://github.com/friedger/oi-calendar">open source</a>,
-						based on work by{' '}
+						<a href="https://github.com/openintents/calendar-web">
+							open source
+						</a>
+						, based on work by{' '}
 						<a href="https://github.com/yasnaraj/react-calendar-events-example">
 							Yasna R.
 						</a>{' '}
@@ -28,7 +30,7 @@ const Footer = () => {
 						<br />
 						<a href="http://www.openintents.org/contact/">Send Feedback</a>
 						<br />
-						<a href="https://github.com/friedger/oi-calendar/issues?q=is%3Aissue+is%3Aopen+label%3Abug">
+						<a href="https://github.com/openintents/calendar-web/issues?q=is%3Aissue+is%3Aopen+label%3Abug">
 							{' '}
 							Known Issues
 						</a>
