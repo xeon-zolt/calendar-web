@@ -31,7 +31,6 @@ class Calendar extends Component {
 			'handleHideInstructions',
 			'handleAddEvent',
 			'handleEditEvent',
-			'handleViewAllCalendars',
 			'handleAddCalendarByUrl',
 		].reduce((acc, d) => {
 			acc[d] = this[d].bind(this)
@@ -62,10 +61,6 @@ class Calendar extends Component {
 
 	handleHideInstructions() {
 		this.props.hideInstructions()
-	}
-
-	handleViewAllCalendars() {
-		this.props.showAllCalendars(this.props.history)
 	}
 
 	handleEditEvent(event) {
@@ -125,10 +120,6 @@ class Calendar extends Component {
 		console.log('[Calendar.render]', this.props)
 		const {
 			signedIn,
-			myPublicCalendar,
-			myPublicCalendarIcsUrl,
-			publicCalendar,
-			publicCalendarEvents,
 			showGeneralInstructions,
 			eventModal,
 			inviteSuccess,
@@ -145,21 +136,10 @@ class Calendar extends Component {
 			handleHideInstructions,
 			handleEditEvent,
 			handleAddEvent,
-			handleViewAllCalendars,
 			handleAddCalendarByUrl,
 		} = this.bound
 
 		let events = Object.values(this.props.events.allEvents)
-		let shareUrl = null
-		if (myPublicCalendar) {
-			events = events.filter(e => e.public && e.calendarName === 'default')
-			shareUrl =
-				window.location.origin + '/?intent=view&name=' + myPublicCalendar
-		} else if (publicCalendarEvents) {
-			events = publicCalendarEvents
-			shareUrl =
-				window.location.origin + '/?intent=addics&url=' + publicCalendar
-		}
 
 		const calendarView = (
 			<div>
@@ -176,9 +156,7 @@ class Calendar extends Component {
 				</div>
 				<BigCalendar
 					localizer={localizer}
-					selectable={
-						this.props.signedIn && !myPublicCalendar && !publicCalendar
-					}
+					selectable={this.props.signedIn}
 					events={events}
 					views={allViews}
 					step={60}
@@ -215,75 +193,83 @@ class Calendar extends Component {
 			</div>
 		)
 
+		const oicalendarsync = (
+			<>
+				For Android, use your favorite calendar app with{' '}
+				<a href="https://play.google.com/store/apps/details?id=org.openintents.calendar.sync">
+					OI Calendar-Sync
+				</a>
+			</>
+		)
 		return (
 			<div className="body-container">
-				{signedIn &&
-					showGeneralInstructions &&
-					!myPublicCalendar &&
-					!publicCalendar && (
-						<Card>
-							<Card.Header>
-								How to use OI Calendar
-								<button
-									type="button"
-									className="close"
-									onClick={handleHideInstructions}
-								>
-									<span aria-hidden="true">×</span>
-									<span className="sr-only">Close</span>
-								</button>
-							</Card.Header>
-							<Card.Body>
-								<Container style={{ width: '100%' }}>
-									<div style={{ padding: '20px' }}>
-										<Row style={{ textAlign: 'left' }}>
-											<Col md={6}>
-												<strong>Add an event: </strong> Click on a day to add
-												event details. To add a multi-day event, click and hold
-												while dragging across the days you want to include.{' '}
-												<br />
-											</Col>
-											<Col md={6}>
-												<strong>Update or delete an event:</strong> Click on
-												event to open it. Edit the details and press{' '}
-												<strong>Update</strong>. Or <strong>Delete</strong> the
-												event entirely.
-											</Col>
-										</Row>
-										<Row style={{ padding: '20px' }}>
-											<Col xs={12} sm={2} style={{ textAlign: 'center' }}>
-												<img
-													src="/images/gcalendar.png"
-													width="48px"
-													height="48px"
-													alt="Google Calendar"
-												/>
-											</Col>
-											<Col xs={12} sm={10} style={{ textAlign: 'left' }}>
-												<strong>Import events from Google Calendar</strong>:
-												Need help, follow the{' '}
-												<a
-													target="_blank"
-													rel="noopener noreferrer"
-													href="https://cal.openintents.org/gtutorial.html"
-												>
-													2-step tutorial
-												</a>
-												.
-												<br />
-												<input
-													style={{ width: '100%' }}
-													type="text"
-													placeholder="Paste a calendar URL, for example: https://calendar.google..../basic.ics"
-													onKeyPress={handleAddCalendarByUrl}
-												/>
-											</Col>
-										</Row>
-									</div>
-								</Container>
-							</Card.Body>
-						</Card>
-					)}
+				{signedIn && showGeneralInstructions && (
+					<Card>
+						<Card.Header>
+							How to use OI Calendar
+							<button
+								type="button"
+								className="close"
+								onClick={handleHideInstructions}
+							>
+								<span aria-hidden="true">×</span>
+								<span className="sr-only">Close</span>
+							</button>
+						</Card.Header>
+						<Card.Body>
+							<Container style={{ width: '100%' }}>
+								<div style={{ padding: '20px' }}>
+									<Row style={{ textAlign: 'left' }}>
+										<Col md={6}>
+											<strong>Add an event: </strong> Click on a day to add
+											event details. To add a multi-day event, click and hold
+											while dragging across the days you want to include. <br />
+										</Col>
+										<Col md={6}>
+											<strong>Update or delete an event:</strong> Click on event
+											to open it. Edit the details and press{' '}
+											<strong>Update</strong>. Or <strong>Delete</strong> the
+											event entirely.
+										</Col>
+									</Row>
+									<Row style={{ padding: '20px' }}>
+										<Col xs={12} sm={2} style={{ textAlign: 'center' }}>
+											<img
+												src="/images/gcalendar.png"
+												width="48px"
+												height="48px"
+												alt="Google Calendar"
+											/>
+										</Col>
+										<Col xs={12} sm={10} style={{ textAlign: 'left' }}>
+											<strong>Import events from Google Calendar</strong>: Need
+											help, follow the{' '}
+											<a
+												target="_blank"
+												rel="noopener noreferrer"
+												href="https://cal.openintents.org/gtutorial.html"
+											>
+												2-step tutorial
+											</a>
+											.
+											<br />
+											<input
+												style={{ width: '100%' }}
+												type="text"
+												placeholder="Paste a calendar URL, for example: https://calendar.google..../basic.ics"
+												onKeyPress={handleAddCalendarByUrl}
+											/>
+										</Col>
+									</Row>
+									<hr />
+									<Row>
+										<Col xs={12}>{oicalendarsync}</Col>
+									</Row>
+								</div>
+							</Container>
+						</Card.Body>
+					</Card>
+				)}
 
 				{!signedIn && (
 					<Card>
@@ -293,8 +279,10 @@ class Calendar extends Component {
 						<Card.Body>
 							<Row>
 								<Col>
-									You can use OI Calendar to keep track of all your events
-									across all devices.
+									Use OI Calendar to keep track of all your events across all
+									devices.
+									<br />
+									{oicalendarsync}
 								</Col>
 							</Row>
 							<hr />
@@ -331,46 +319,8 @@ class Calendar extends Component {
 				{eventModal && !inviteSuccess && <EventDetailsContainer />}
 				{showSendInvitesModal && <SendInvitesModalContainer />}
 				{showRemindersModal && <RemindersModalContainer />}
-				{(myPublicCalendar || publicCalendar) && (
-					<Card>
-						<Card.Header>
-							Public Calendar {myPublicCalendar}
-							{publicCalendar}
-							<button
-								type="button"
-								className="close"
-								onClick={handleViewAllCalendars}
-							>
-								<span aria-hidden="true">×</span>
-								<span className="sr-only">Close</span>
-							</button>
-						</Card.Header>
-						{myPublicCalendar && events.length > 0 && (
-							<Card.Body>
-								Share this url: <a href={shareUrl}>{shareUrl}</a>
-								{myPublicCalendarIcsUrl && (
-									<span>
-										{' '}
-										or <a href={myPublicCalendarIcsUrl}> as .ics file</a>
-									</span>
-								)}
-							</Card.Body>
-						)}
-						{myPublicCalendar && events.length === 0 && (
-							<Card.Body>
-								No public events yet. Start publishing your events!
-							</Card.Body>
-						)}
-						{publicCalendar && events.length > 0 && signedIn && (
-							<Card.Body>
-								<a href={shareUrl}>Add to my calandars</a>
-							</Card.Body>
-						)}
-						<Card.Body>{calendarView}</Card.Body>
-					</Card>
-				)}
 
-				{!myPublicCalendar && !publicCalendar && calendarView}
+				{calendarView}
 				{!signedIn && <FAQs />}
 			</div>
 		)

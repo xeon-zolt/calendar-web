@@ -33,6 +33,7 @@ import {
   updatePublicEvent,
   removePublicEvent,
   fetchIcsUrl,
+  UserOwnedStorage,
 } from '../../core/event'
 import { initializeContactData } from './contactActionLazy'
 import {
@@ -49,18 +50,20 @@ import {
 // Reminders
 import { addReminder, initReminders } from '../../reminder'
 import { AppConfig } from 'blockstack/lib/auth'
+import { push } from 'connected-react-router'
 
 // #########################
 // Chat
 // #########################
 
 function initializeChatAction(chat) {
+  console.log({ chat })
   return { type: INITIALIZE_CHAT, payload: chat }
 }
 
-export function initializeChat() {
-  return async (dispatch, getState) => {
-    const { userOwnedStorage, userSession } = getState().auth
+export function initializeChat(userSession, userOwnedStorage) {
+  return async dispatch => {
+    console.log('init chat')
     userOwnedStorage
       .fetchPreferences()
       .then(
@@ -84,8 +87,11 @@ export function initializeChat() {
 // LOAD USER DATA
 // ################
 
-function authenticatedAction(userData, userSession) {
-  return { type: AUTH_CONNECTED, payload: { user: userData, userSession } }
+function authenticatedAction(userData, userSession, userOwnedStorage) {
+  return {
+    type: AUTH_CONNECTED,
+    payload: { user: userData, userSession, userOwnedStorage },
+  }
 }
 
 function disconnectedAction() {
@@ -168,17 +174,25 @@ export function initializeLazyActions() {
     if (userSession.isUserSignedIn()) {
       console.log('is signed in')
       const userData = userSession.loadUserData()
-      dispatch(authenticatedAction(userData, userSession))
+      const userOwnedStorage = new UserOwnedStorage(userSession)
+      dispatch(authenticatedAction(userData, userSession, userOwnedStorage))
       dispatch(userAction(userData))
       dispatch(initializeQueryString(query, userData.username))
       dispatch(initializePreferences())
       dispatch(initializeEvents())
       dispatch(initializeContactData())
+      dispatch(initializeChat(userSession, userOwnedStorage))
     } else if (userSession.isSignInPending()) {
       console.log('handling pending sign in')
       userSession.handlePendingSignIn().then(userData => {
         window.location.search = removeAuthResponse(window.location.search)
-        dispatch(authenticatedAction(userData, userSession))
+        dispatch(
+          authenticatedAction(
+            userData,
+            userSession,
+            new UserOwnedStorage(userSession)
+          )
+        )
       })
     } else {
       dispatch(disconnectedAction())
@@ -468,7 +482,7 @@ export function addEvent(event) {
       })
     }
 
-    window.history.pushState({}, 'OI Calendar', '/')
+    dispatch(push('/'))
     delete state.currentEvent
     delete state.currentEventType
     dispatch(setEventsAction(allEvents))
@@ -549,9 +563,9 @@ export function showAllCalendarsAction() {
   return { type: SHOW_ALL_CALENDARS }
 }
 
-export function showAllCalendars(history) {
+export function showAllCalendars() {
   return async (dispatch, getState) => {
-    history.push('/')
+    dispatch(push('/'))
     dispatch(showAllCalendarsAction())
   }
 }

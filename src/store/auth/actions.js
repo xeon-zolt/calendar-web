@@ -10,7 +10,7 @@ export function signUserIn(store) {
   return async (dispatch, getState) => {
     const userSession = new UserSession(
       new AppConfig(
-        ['store_write', 'publish_data'],
+        ['store_write'],
         `${window.location.origin}`,
         `${window.location}`,
         `${window.location.origin}/manifest.json`

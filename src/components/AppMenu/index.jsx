@@ -71,7 +71,7 @@ export default class AppMenu extends Component {
 								Events
 							</Nav.Link>
 						</Nav.Item>
-						<Nav.Item>
+						<Nav.Item hidden>
 							<Nav.Link
 								eventKey="public"
 								as={NavLink}

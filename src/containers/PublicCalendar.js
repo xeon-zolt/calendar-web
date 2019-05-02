@@ -1,19 +1,17 @@
 import { connect } from 'react-redux'
 
 // Components
-import Calendar from '../components/Calendar'
+import PublicCalendar from '../components/PublicCalendar'
 
 import { setNewCurrentEvent } from '../store/event/eventAction'
 import {
   showAllCalendars,
-  hideInstructions,
   setError,
   showMyPublicCalendar,
   viewPublicCalendar,
 } from '../store/event/eventActionLazy'
 
 import { showSettingsAddCalendar } from '../store/event/calendarActionLazy'
-import { push } from 'connected-react-router'
 
 const mapStateToProps = state => {
   const { events, auth } = state
@@ -73,9 +71,6 @@ const mapDispatchToProps = dispatch => {
     showAllCalendars: () => {
       dispatch(showAllCalendars())
     },
-    hideInstructions: () => {
-      dispatch(hideInstructions())
-    },
     showMyPublicCalendar: name => {
       dispatch(showMyPublicCalendar(name))
     },
@@ -83,7 +78,6 @@ const mapDispatchToProps = dispatch => {
       dispatch(viewPublicCalendar(name))
     },
     showSettingsAddCalendar: url => {
-      dispatch(push('settings'))
       dispatch(showSettingsAddCalendar(url))
     },
     pickEventModal: eventModal => {
@@ -100,9 +94,9 @@ const mapDispatchToProps = dispatch => {
   }
 }
 
-const CalendarContainer = connect(
+const PublicCalendarContainer = connect(
   mapStateToProps,
   mapDispatchToProps
-)(Calendar)
+)(PublicCalendar)
 
-export default CalendarContainer
+export default PublicCalendarContainer
