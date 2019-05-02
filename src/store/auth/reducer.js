@@ -5,7 +5,6 @@ import {
   AUTH_SIGN_IN,
   AUTH_SIGN_OUT,
 } from '../ActionTypes'
-import { UserOwnedStorage } from '../../core/event'
 
 let initialState = {
   user: undefined,
@@ -18,7 +17,7 @@ export default function reduce(state = initialState, action = {}) {
   switch (type) {
     case AUTH_CONNECTED:
       const userSession = action.payload.userSession
-      const userOwnedStorage = new UserOwnedStorage(userSession)
+      const userOwnedStorage = action.payload.userOwnedStorage
       newState = {
         ...state,
         user: action.payload.user,

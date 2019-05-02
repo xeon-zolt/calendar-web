@@ -304,6 +304,6 @@ export function lookupProfile(username) {
   )
 }
 
-export function createSessionChat(selfRoomId, userSession) {
-  return new UserSessionChat(selfRoomId, userSession)
+export function createSessionChat(selfRoomId, userSession, userOwnedStorage) {
+  return new UserSessionChat(selfRoomId, userSession, userOwnedStorage)
 }

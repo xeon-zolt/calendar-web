@@ -19,7 +19,9 @@ import registerServiceWorker from './registerServiceWorker'
 import { initializeLazyActions } from './store/event/eventActionLazy'
 
 registerServiceWorker()
-const ConnectedApp = connect()(App)
+const ConnectedApp = connect(state => {
+  return { auth: state.auth }
+})(App)
 
 ReactDOM.render(
   <Provider store={store}>
