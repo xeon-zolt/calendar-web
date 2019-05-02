@@ -1,4 +1,5 @@
 import { SHOW_FILES, SET_FILES } from '../ActionTypes'
+import { getAppBucketUrl } from 'blockstack'
 
 function showFilesScreen(show) {
   return { type: SHOW_FILES, payload: { show } }
@@ -34,35 +35,37 @@ function setFiles(files, count) {
 
 export function loadingFiles() {
   return (dispatch, getState) => {
-    const files = initFiles(getState().auth.user)
-    dispatch(setFiles(files, 0))
+    initFiles(getState().auth.user).then(files => dispatch(setFiles(files, 0)))
   }
 }
 
 function initFiles(user) {
-  const files = {
-    calendars: {
-      public: [{ name: 'public' }],
-    },
-    others: [],
-    sharedEvents: [],
-  }
-  files.appBucketUrl = user.profile.apps[window.origin]
-  return files
+  return getAppBucketUrl(user.hubUrl, user.appPrivateKey).then(url => {
+    const files = {
+      appBucketUrl: url,
+      calendars: {
+        public: [{ name: 'public' }],
+      },
+      others: [],
+      sharedEvents: [],
+    }
+    return files
+  })
 }
 
 export function showFiles() {
   return (dispatch, getState) => {
     const { userSession } = getState().auth
     dispatch(showFilesScreen(true))
-    const files = initFiles(getState().auth.user)
-    userSession
-      .listFiles(f => {
-        newFile(files, f)
-        return true
-      })
-      .then(count => {
-        dispatch(setFiles(files, count))
-      })
+    initFiles(getState().auth.user).then(files =>
+      userSession
+        .listFiles(f => {
+          newFile(files, f)
+          return true
+        })
+        .then(count => {
+          dispatch(setFiles(files, count))
+        })
+    )
   }
 }
