@@ -22,6 +22,8 @@ const FAQs = () => (
 						store or share any user data or analytics. All data generated is
 						stored in each users' own storage buckets, called Gaia Hubs. You as
 						a user have control over your own hub with your Blockstack id.
+						<br />
+						<img width="200px" src="images/differences.gif" alt="Differences" />
 					</FAQ>
 					<FAQ q={'Why not login with Facebook or Google? Or my email?'}>
 						Most social media companies are providing you with a free account so
@@ -69,6 +71,21 @@ const FAQs = () => (
 						<a href="https://gitcon.co">gitcoin.co</a>.<br />
 						Remember that your calendar data and identity will always be yours
 						and does not depend on OpenIntents' funding.
+					</FAQ>
+				</Row>
+				<Row>
+					<FAQ q={'How does it work on Android?'}>
+						On Android, you choose one calendar app from the ones already out
+						there, like Business Calendar, Etar, ..., then install{' '}
+						<a href="https://play.google.com/store/apps/details?id=org.openintents.calendar.sync">
+							OI Calendar-Sync
+						</a>
+						. OI Calendar-Sync will sync your agenda from your Blockstack
+						storage to the Android device (on there, in fact, to the Android
+						calendar provider) and vice versa. You will find a OI Calendar-Sync
+						account with your Blockstack ID in your Android settings{' '}
+						<em>Accounts</em> that also shows you when the last sync took place,
+						usually, every hour.
 					</FAQ>
 				</Row>
 			</Container>
