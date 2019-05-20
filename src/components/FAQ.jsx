@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, Container, Row, Col } from 'react-bootstrap'
 
-const FAQ = props => {
+export const FAQ = props => {
 	return (
 		<Col xs={12} md={6}>
 			<div style={{ fontWeight: 'bold' }}>{props.q}</div>
