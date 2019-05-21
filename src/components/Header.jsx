@@ -17,7 +17,7 @@ const Header = () => {
 							alt="OI Calendar Logo"
 						/>
 					</a>
-					OI Calendar
+					MB Calendar
 				</Navbar.Brand>
 				<Navbar.Toggle aria-controls="responsive-navbar-nav" />
 				<Navbar.Collapse id="responsive-navbar-nav">
