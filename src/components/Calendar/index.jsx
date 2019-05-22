@@ -206,7 +206,7 @@ class Calendar extends Component {
 				{signedIn && showGeneralInstructions && (
 					<Card>
 						<Card.Header>
-							How to use MB Calendar
+							How to use OI Calendar
 							<button
 								type="button"
 								className="close"
@@ -279,7 +279,7 @@ class Calendar extends Component {
 						<Card.Body>
 							<Row>
 								<Col>
-									Use MB Calendar to keep track of all your events across all
+									Use OI Calendar to keep track of all your events across all
 									devices.
 									<br />
 									{oicalendarsync}

@@ -18,7 +18,7 @@ const FAQs = () => (
 			<Container fluid style={{ textAlign: 'left' }}>
 				<Row>
 					<FAQ q={'How is this calendar different from other cloud calendars?'}>
-						MB Calendar keeps your data private to you! We, OpenIntents, do not
+						OI Calendar keeps your data private to you! We, OpenIntents, do not
 						store or share any user data or analytics. All data generated is
 						stored in each users' own storage buckets, called Gaia Hubs. You as
 						a user have control over your own hub with your Blockstack id.
@@ -29,7 +29,7 @@ const FAQs = () => (
 						Most social media companies are providing you with a free account so
 						that they can sell your information to the highest bidder.
 						Blockstack is different. With Blockstack, YOU control your identity.
-						Neither Blockstack nor the makers of MB Calendar can take the id
+						Neither Blockstack nor the makers of OI Calendar can take the id
 						from you or have access to it.
 					</FAQ>
 				</Row>

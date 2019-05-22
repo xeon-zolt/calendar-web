@@ -46,13 +46,13 @@ const QuestionsWeb = () => (
 				</Row>
 				<Row>
 					<FAQ q={'What is the Files section'}>
-						The <em>Files</em> section list all files that MB Calendar has
+						The <em>Files</em> section list all files that OI Calendar has
 						created on your storage. This is your data! OpenIntents or other
 						partys do not have access or a copy of this data (only if you have
 						shared an event with others).
 						<br />
 						All files but the public event files are encrypted with your private
-						key for MB Calendar. The only unencrypted files contains the list of
+						key for OI Calendar. The only unencrypted files contains the list of
 						public events in json and ical format.
 					</FAQ>
 				</Row>
