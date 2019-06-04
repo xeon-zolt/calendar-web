@@ -44,9 +44,11 @@ const FAQs = () => (
 					</FAQ>
 					<FAQ q={'Can I trust this site?'}>
 						Absolutely, but we always encourage the skeptics and the curious to
-						check it out yourselves. You may view the source code{' '}
-						<a href="https://github.com/openintents/calendar-web">here</a>. OI
-						Calendar comes with a friendly open source license.
+						check it out yourselves. You may view{' '}
+						<a href="https://github.com/openintents/calendar-web">
+							the source code here
+						</a>
+						. OI Calendar comes with a friendly open source license.
 						<br />
 						You can even host your own version of the app yourselves.
 						<br />
