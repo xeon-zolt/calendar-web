@@ -1,4 +1,5 @@
 import * as Containers from './containers'
+import Terms from './components/Terms'
 
 export const routes = [
   {
@@ -25,5 +26,10 @@ export const routes = [
     component: Containers.HelpContainer,
     exact: true,
     path: '/help',
+  },
+  {
+    component: Terms,
+    exact: true,
+    path: '/terms',
   },
 ]
