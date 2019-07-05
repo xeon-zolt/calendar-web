@@ -36,6 +36,9 @@ export default class AppMenu extends Component {
 				break
 			case 'rate':
 				break
+			case 'help':
+				this.setState({ activeKey: 'help' })
+				break
 			default:
 				console.warn('invalid menu item ', eventKey)
 				break
@@ -110,6 +113,11 @@ export default class AppMenu extends Component {
 						<Nav.Item>
 							<Nav.Link eventKey="files" as={NavLink} to="files">
 								Files
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Nav.Link eventKey="help" as={NavLink} to="help">
+								Help
 							</Nav.Link>
 						</Nav.Item>
 					</Nav>
