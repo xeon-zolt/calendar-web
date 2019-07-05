@@ -21,4 +21,9 @@ export const routes = [
     exact: true,
     path: '/files',
   },
+  {
+    component: Containers.HelpContainer,
+    exact: true,
+    path: '/help',
+  },
 ]
