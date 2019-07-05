@@ -34,6 +34,8 @@ export default class AppMenu extends Component {
 			case 'files':
 				this.setState({ activeKey: 'files' })
 				break
+			case 'rate':
+				break
 			default:
 				console.warn('invalid menu item ', eventKey)
 				break
@@ -87,6 +89,22 @@ export default class AppMenu extends Component {
 						<Nav.Item>
 							<Nav.Link eventKey="settings" as={NavLink} to="settings">
 								Settings
+							</Nav.Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Nav.Link
+								eventKey="rate"
+								as={NavLink}
+								to="rate"
+								isActive={false}
+								onClick={e => {
+									e.preventDefault()
+									window.open(
+										'https://app-center.openintents.org/appco/1062/comment'
+									)
+								}}
+							>
+								Rate App!
 							</Nav.Link>
 						</Nav.Item>
 						<Nav.Item>
