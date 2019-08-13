@@ -102,7 +102,9 @@ export default class AppMenu extends Component {
 								onClick={e => {
 									e.preventDefault()
 									window.open(
-										'https://app-center.openintents.org/appco/1062/comment'
+										'https://app-center.openintents.org/appco/1062/review',
+										'_blank',
+										'noopener'
 									)
 								}}
 							>
