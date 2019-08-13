@@ -27,6 +27,10 @@ const Footer = () => {
 							Source&nbsp;Code
 						</a>
 						<br />
+						<a href="/terms" target="_blank" rel="noopener noreferrer">
+							Terms
+						</a>
+						<br />
 						&copy; {new Date().getFullYear().toString()} | v
 						{process.env.REACT_APP_VERSION}
 					</Col>
