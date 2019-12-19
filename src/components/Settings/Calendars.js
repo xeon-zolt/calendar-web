@@ -97,13 +97,11 @@ export default class Calendars extends AddDeleteSetting {
     this.state.menuItems = [
       {
         name: 'US Holidays',
-        url:
-          'https://www.calendarlabs.com/ical-calendar/ics/76/US_Holidays.ics',
+        url: 'https://cal.openintents.org/data/US_Holidays.ics',
       },
       {
         name: 'India Holidays',
-        url:
-          'https://www.calendarlabs.com/ical-calendar/ics/33/India_Holidays.ics',
+        url: 'https://cal.openintents.org/data/India_Holidays.ics',
       },
     ]
     const { verifiedNewCalendarData } = this.props

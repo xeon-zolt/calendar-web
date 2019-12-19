@@ -37,7 +37,7 @@ export let defaultCalendars = [
     name: 'US Holidays',
     mode: 'read-only',
     data: {
-      src: 'https://www.calendarlabs.com/ical-calendar/ics/76/US_Holidays.ics',
+      src: 'https://cal.openintents.org/data/US_Holidays.ics',
     },
     hexColor: '#FF851B',
   },
