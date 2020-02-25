@@ -1,15 +1,25 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import {} from 'react-jdenticon'
 
 // Components
 import BlockstackSignInButton from './SignInButton'
 
 const UserProfile = props => {
-	const { isSignedIn, isConnecting, name, avatarUrl, message } = props
+	const {
+		isSignedIn,
+		isConnecting,
+		name,
+		avatarUrl,
+		message,
+		identityAddress,
+	} = props
 
 	if (isSignedIn) {
-		const image = (
+		const image = avatarUrl ? (
 			<img src={avatarUrl} alt={name} className="authUserProfile-Avatar" />
+		) : (
+			<svg width="20" height="20" data-jdenticon-value={identityAddress} />
 		)
 
 		return (
@@ -45,6 +55,7 @@ UserProfile.propTypes = {
 	isConnecting: PropTypes.bool,
 	name: PropTypes.string,
 	avatarUrl: PropTypes.string,
+	identityAddress: PropTypes.string,
 	message: PropTypes.string,
 	userSignIn: PropTypes.func,
 	userSignOut: PropTypes.func,

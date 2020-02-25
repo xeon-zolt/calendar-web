@@ -17,6 +17,7 @@ const mapStateToProps = state => {
       profile != null && 'image' in profile && profile.image.length > 0
         ? profile.image[0].contentUrl
         : null,
+    identityAddress: user != null && user.identityAddress,
     message: state.auth.userMessage,
   }
 }
